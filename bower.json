@@ -1,0 +1,11 @@
+{
+  "name": "corejs-2",
+  "private": true,
+  "dependencies": {
+    "backbone.marionette": "~2.4.1",
+    "backbone.radio": "~0.9.0"
+  },
+  "devDependencies": {
+    "handlebars": "~3.0.2"
+  }
+}
