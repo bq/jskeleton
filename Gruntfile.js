@@ -23,7 +23,8 @@ module.exports = function(grunt) {
         build: 'src/build',
         dist: 'dist',
         test: 'test',
-        examples: 'examples'
+        examples: 'examples',
+        docs : 'docs'
     };
 
     // Define the configuration for all the tasks
@@ -31,7 +32,8 @@ module.exports = function(grunt) {
 
         // Project settings
         config: config,
-
+        pkg: grunt.file.readJSON('package.json'),
+        
         // Watches files for changes and runs tasks based on the changed files
         watch: {
             bower: {
@@ -138,7 +140,8 @@ module.exports = function(grunt) {
                     src: [
                         '.tmp',
                         '<%= config.dist %>/*',
-                        '!<%= config.dist %>/.git*'
+                        '!<%= config.dist %>/.git*',
+                        '<%= config.docs %>/*'
                     ]
                 }]
             },
@@ -185,7 +188,18 @@ module.exports = function(grunt) {
             }
         },
         concat: {
-            dist: {}
+            options: {
+                stripBanners: true,
+                banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+                            '<%= grunt.template.today("yyyy-mm-dd") %> \n */'
+
+            },
+            dist: {
+                src: [
+                    '<%= config.dist %>/<%= pkg.name %>.js'
+                ],
+                dest: '<%= config.dist %>/<%= pkg.name %>.js'
+            }
         },
 
         // Copies remaining files to places other tasks can use
@@ -218,7 +232,11 @@ module.exports = function(grunt) {
         preprocess: {
             'default': {
                 src: '<%= config.build %>/main.js',
-                dest: '<%= config.dist %>/jskeleton.js'
+                dest: '<%= config.dist %>/<%= pkg.name %>.js'
+            },
+            'lite' : {
+                src : '<%= config.build %>/main-lite.js',
+                dest: '<%= config.dist %>/<%= pkg.name %>_lite.js'
             }
         },
         // Run some tasks in parallel to speed up build process
@@ -226,9 +244,28 @@ module.exports = function(grunt) {
             server: [],
             test: [],
             dist: []
+        },
+        docco: {
+            options : {
+                dst : './docs',
+                layout : 'parallel'
+            },
+            docs: {
+                files : [
+                    {
+                        expand: true,
+                        cwd: '<%= config.dist %>',
+                        src: [
+                            '<%= pkg.name %>_lite.js',
+                        ]
+                    }
+                ]
+            }
         }
     });
-
+    
+    // Load docco task
+    grunt.loadNpmTasks('grunt-docco2');
 
     grunt.registerTask('serve', 'start the server and preview your app, --allow-remote for remote access', function(target) {
         if (grunt.option('allow-remote')) {
@@ -273,7 +310,10 @@ module.exports = function(grunt) {
     grunt.registerTask('build', [
         'jshint:all',
         'clean:dist',
-        'preprocess'
+        'preprocess',
+        'preprocess:lite',
+        'concat',
+        'docco'
     ]);
 
     grunt.registerTask('default', [
