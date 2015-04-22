@@ -43,15 +43,9 @@ module.exports = function(grunt) {
             js: {
                 files: ['<%= config.src %>{,*/}*.js', '<%= config.examples %>{,*/}*.js'],
                 tasks: ['preprocess'],
-                options: {
-                    livereload: true
-                }
             },
             build: {
                 files: ['<%= config.src %>/build/{,*/}*.js'],
-                options: {
-                    livereload: true
-                }
             },
             jstest: {
                 files: ['test/spec/{,*/}*.js'],
@@ -60,78 +54,22 @@ module.exports = function(grunt) {
             gruntfile: {
                 files: ['Gruntfile.js']
             },
-            styles: {
-                files: ['<%= config.src %>/styles/{,*/}*.css'],
-                tasks: ['newer:copy:styles', 'autoprefixer']
-            },
-            livereload: {
-                options: {
-                    livereload: '<%= connect.options.livereload %>'
-                },
-                files: [
-                    '<%= config.src %>/{,*/}*.html',
-                    'example/{,*/}*.html',
-                    '.tmp/styles/{,*/}*.css',
-                    '<%= config.src %>/images/{,*/}*'
-                ]
-            }
         },
-
         // The actual grunt server settings
-        connect: {
-            options: {
-                port: 9000,
-                open: true,
-                livereload: 35729,
-                // Change this to '0.0.0.0' to access the server from outside
-                hostname: 'localhost'
-            },
-            livereload: {
+        browserSync: {
+            dev: {
+                bsFiles: {
+                    src : [
+                        '<%= config.examples %>/**/*.js',
+                        '<%= config.examples %>/**/*.html'
+                    ]
+                },
                 options: {
-                    middleware: function(connect) {
-                        return [
-                            connect.static('.tmp'),
-                            connect.static('example'),
-                            connect().use('/bower_components', connect.static('./bower_components')),
-                            connect.static(config.src)
-                        ];
-                    }
-                }
-            },
-            test: {
-                options: {
-                    open: false,
-                    port: 9001,
-                    middleware: function(connect) {
-                        return [
-                            connect.static('.tmp'),
-                            connect.static('test'),
-                            connect().use('/bower_components', connect.static('./bower_components')),
-                            connect.static(config.src)
-                        ];
-                    }
-                }
-            },
-            dist: {
-                options: {
-                    base: '<%= config.dist %>',
-                    livereload: false
-                }
-            },
-            example: {
-                options: {
-                    middleware: function(connect) {
-                        return [
-                            connect.static('.tmp'),
-                            connect().use('/build', connect.static('./app/build')),
-                            connect().use('/bower_components', connect.static('./bower_components')),
-                            connect.static('./example')
-                        ];
-                    }
+                    watchTask: true,
+                    server: '<%= config.examples %>'
                 }
             }
         },
-
         // Empties folders to start fresh
         clean: {
             dist: {
@@ -264,18 +202,16 @@ module.exports = function(grunt) {
         }
     });
     
-    // Load docco task
-    grunt.loadNpmTasks('grunt-docco2');
-
+     
     grunt.registerTask('serve', 'start the server and preview your app, --allow-remote for remote access', function(target) {
-        if (grunt.option('allow-remote')) {
+        /*if (grunt.option('allow-remote')) {
             grunt.config.set('connect.options.hostname', '0.0.0.0');
-        }
+        }*/
         if (target === 'dist') {
             return grunt.task.run(['build', 'connect:dist:keepalive']);
         }
-        if (target === 'example') {
-            return grunt.task.run(['build', 'connect:example:keepalive']);
+        if (target === 'examples') {
+            return grunt.task.run(['build', 'browserSync','watch']);
         }
 
         grunt.task.run([
@@ -283,7 +219,7 @@ module.exports = function(grunt) {
             'build',
             'wiredep',
             'concurrent:server',
-            'connect:livereload',
+            'browserSync',
             'watch'
         ]);
     });

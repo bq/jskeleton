@@ -1,13 +1,14 @@
 {
   "name": "Jskeleton",
-  "version" : "0.0.1",
-  "description" : "Awesome Framework!",
-  "license" : "Apache License 2.0",
+  "version": "0.0.1",
+  "description": "Awesome Framework!",
+  "license": "Apache License 2.0",
   "devDependencies": {
     "apache-server-configs": "^2.7.1",
     "browserify-bower": "^0.4.1",
     "grunt": "^0.4.5",
     "grunt-autoprefixer": "^1.0.0",
+    "grunt-browser-sync": "^2.1.1",
     "grunt-concurrent": "^0.5.0",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-concat": "^0.5.0",

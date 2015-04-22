@@ -1,4 +1,4 @@
-/*! Jskeleton - v0.0.1 - 2015-04-22 
+/*! Jskeleton - v0.0.1 - 2015-04-23 
  */(function(root, factory) {
     'use strict';
     /*globals require,define */
