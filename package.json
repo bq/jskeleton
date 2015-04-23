@@ -3,6 +3,9 @@
   "version": "0.0.1",
   "description": "Awesome Framework!",
   "license": "Apache License 2.0",
+  "scripts": {
+    "test": "./node_modules/.bin/_mocha test"
+  },
   "devDependencies": {
     "apache-server-configs": "^2.7.1",
     "browserify-bower": "^0.4.1",
@@ -25,6 +28,7 @@
     "grunt-wiredep": "^1.7.0",
     "jshint-stylish": "^0.4.0",
     "load-grunt-tasks": "^0.4.0",
+    "mocha": "^2.2.4",
     "time-grunt": "^1.1.1"
   },
   "browserify": {
