@@ -71,23 +71,18 @@ module.exports = function(grunt) {
                         '/dist': 'dist'
                     }
                 },
-                bsFiles: {
+             },
+            todo: {
+               bsFiles: {
                     src: [
                         '<%= config.examples %>/**/*.js',
                         '<%= config.examples %>/**/*.html',
-                        '<%= config.examples %>/**/*.css'
+                        '<%= config.examples %>/**/*.css',
+                        '<%= config.src %>/**/*.js'
                     ]
-                }
-            },
-            dev: {
-                server: {
-                    directory: false,
-                    baseDir: '<%= config.examples %>/dev',
-
-                }
-            },
-            todo: {
+                },
                 options: {
+                    watchTask: true,
                     server: {
                         directory: false,
                         baseDir: '<%= config.examples %>/todo',
@@ -100,10 +95,27 @@ module.exports = function(grunt) {
                 }
             },
             lab: {
-                server: {
-                    directory: false,
-                    baseDir: '<%= config.examples %>/lab'
+                bsFiles: {
+                    src: [
+                        '<%= config.examples %>/**/*.js',
+                        '<%= config.examples %>/**/*.html',
+                        '<%= config.examples %>/**/*.css',
+                        '<%= config.src %>/**/*.js'
+                    ]
+                },
+                options: {
+                    watchTask: true,
+                    server: {
+                        directory: false,
+                        baseDir: '<%= config.examples %>/lab',
+                        index: 'index.html',
+                        routes: {
+                            '/bower_components': 'bower_components',
+                            '/dist': 'dist'
+                        }
+                    }
                 }
+     
             }
         },
         // Empties folders to start fresh
