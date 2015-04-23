@@ -24,7 +24,8 @@ module.exports = function(grunt) {
         dist: 'dist',
         test: 'test',
         examples: 'examples',
-        docs : 'docs'
+        docs: 'docs',
+        bower: 'bower_components'
     };
 
     // Define the configuration for all the tasks
@@ -33,7 +34,7 @@ module.exports = function(grunt) {
         // Project settings
         config: config,
         pkg: grunt.file.readJSON('package.json'),
-        
+
         // Watches files for changes and runs tasks based on the changed files
         watch: {
             bower: {
@@ -59,14 +60,19 @@ module.exports = function(grunt) {
         browserSync: {
             dev: {
                 bsFiles: {
-                    src : [
+                    src: [
                         '<%= config.examples %>/**/*.js',
-                        '<%= config.examples %>/**/*.html'
+                        '<%= config.examples %>/**/*.html',
+                        '<%= config.examples %>/**/*.css',
+                        '<%= config.bower %>/**/*.js',
+                        '<%= config.dist %>/**/*.js'
                     ]
                 },
                 options: {
                     watchTask: true,
-                    server: '<%= config.examples %>'
+                    server: {
+                        baseDir: ['<%= config.dist %>', '<%= config.bower %>', '<%= config.examples %>']
+                    }
                 }
             }
         },
@@ -129,7 +135,7 @@ module.exports = function(grunt) {
             options: {
                 stripBanners: true,
                 banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-                            '<%= grunt.template.today("yyyy-mm-dd") %> \n */'
+                    '<%= grunt.template.today("yyyy-mm-dd") %> \n */'
 
             },
             dist: {
@@ -172,8 +178,8 @@ module.exports = function(grunt) {
                 src: '<%= config.build %>/main.js',
                 dest: '<%= config.dist %>/<%= pkg.name %>.js'
             },
-            'lite' : {
-                src : '<%= config.build %>/main-lite.js',
+            'lite': {
+                src: '<%= config.build %>/main-lite.js',
                 dest: '<%= config.dist %>/<%= pkg.name %>_lite.js'
             }
         },
@@ -184,25 +190,23 @@ module.exports = function(grunt) {
             dist: []
         },
         docco: {
-            options : {
-                dst : './docs',
-                layout : 'parallel'
+            options: {
+                dst: './docs',
+                layout: 'parallel'
             },
             docs: {
-                files : [
-                    {
-                        expand: true,
-                        cwd: '<%= config.dist %>',
-                        src: [
-                            '<%= pkg.name %>_lite.js',
-                        ]
-                    }
-                ]
+                files: [{
+                    expand: true,
+                    cwd: '<%= config.dist %>',
+                    src: [
+                        '<%= pkg.name %>_lite.js',
+                    ]
+                }]
             }
         }
     });
-    
-     
+
+
     grunt.registerTask('serve', 'start the server and preview your app, --allow-remote for remote access', function(target) {
         /*if (grunt.option('allow-remote')) {
             grunt.config.set('connect.options.hostname', '0.0.0.0');
@@ -211,7 +215,7 @@ module.exports = function(grunt) {
             return grunt.task.run(['build', 'connect:dist:keepalive']);
         }
         if (target === 'examples') {
-            return grunt.task.run(['build', 'browserSync','watch']);
+            return grunt.task.run(['build', 'browserSync', 'watch']);
         }
 
         grunt.task.run([
