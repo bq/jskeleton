@@ -27,7 +27,7 @@
     /*globals require,requireModule */
     /* jshint unused: false */
 
-    
+
     var Jskeleton = root.Jskeleton || {};
 
     Jskeleton.htmlBars = {
@@ -41,6 +41,7 @@
     //  @include ../helpers/html-bars.js
     //  @include ../utils/hook.js
     //  @include ../core/router.js
+    //  @include ../core/service.js
     //  @include ../core/application.js
     //  @include ../core/view-controller.js
 
