@@ -24,7 +24,7 @@ module.exports = function(grunt) {
         dist: 'dist',
         test: 'test',
         examples: 'examples',
-        docs : 'docs',
+        docs: 'docs',
         bower: 'bower_components'
     };
 
@@ -34,7 +34,7 @@ module.exports = function(grunt) {
         // Project settings
         config: config,
         pkg: grunt.file.readJSON('package.json'),
-        
+
         // Watches files for changes and runs tasks based on the changed files
         watch: {
             bower: {
@@ -42,8 +42,8 @@ module.exports = function(grunt) {
                 tasks: ['wiredep']
             },
             js: {
-                files: ['<%= config.src %>{,*/}*.js', '<%= config.examples %>{,*/}*.js'],
-                tasks: ['preprocess'],
+                files: ['<%= config.src %>/**/*.js', '<%= config.examples %>/**/*.js'],
+                tasks: ['preprocess']
             },
             build: {
                 files: ['<%= config.src %>/build/{,*/}*.js'],
@@ -54,57 +54,55 @@ module.exports = function(grunt) {
             },
             gruntfile: {
                 files: ['Gruntfile.js']
-            },
+            }
         },
         // The actual grunt server settings
         browserSync: {
             options: {
                 open: true,
-                port: 9000
-            },
-            dev: {
-                bsFiles: {
-                    src : [
-                        '<%= config.examples %>/**/*.js',
-                        '<%= config.examples %>/**/*.html'
-                    ]
+                port: 9000,
+                watchTask: true,
+                server: {
+                    files: ['<%= config.examples %>/**/*.js', '<%= config.src %>/**/*.js'],
+                    baseDir: '<%= config.examples %>',
+                    directory: true,
+                    routes: {
+                        '/bower_components': 'bower_components',
+                        '/dist': 'dist'
+                    }
                 },
-                options: {
-                    watchTask: true,
-                    server: '<%= config.examples %>'
-                }
-            },
-            todo: {
                 bsFiles: {
-                    src : [
+                    src: [
                         '<%= config.examples %>/**/*.js',
                         '<%= config.examples %>/**/*.html',
                         '<%= config.examples %>/**/*.css'
                     ]
-                },
+                }
+            },
+            dev: {
+                server: {
+                    directory: false,
+                    baseDir: '<%= config.examples %>/dev',
+
+                }
+            },
+            todo: {
                 options: {
-                    watchTask: true,
-                    server:{
-                        files: ['*.js'],
-                        baseDir:  '<%= config.examples %>',
-                        directory: true,
+                    server: {
+                        directory: false,
+                        baseDir: '<%= config.examples %>/todo',
+                        index: 'index.html',
                         routes: {
-                            '/bower_components' : 'bower_components',
-                            '/dist' : 'dist'
+                            '/bower_components': 'bower_components',
+                            '/dist': 'dist'
                         }
                     }
                 }
             },
             lab: {
-                bsFiles: {
-                    src : [
-                        '<%= config.examples %>/**/*.js',
-                        '<%= config.examples %>/**/*.html'
-                    ]
-                },
-                options: {
-                    watchTask: true,
-                    server: '<%= config.examples %>'
+                server: {
+                    directory: false,
+                    baseDir: '<%= config.examples %>/lab'
                 }
             }
         },
@@ -170,7 +168,7 @@ module.exports = function(grunt) {
             options: {
                 stripBanners: true,
                 banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-                            '<%= grunt.template.today("yyyy-mm-dd") %> \n */'
+                    '<%= grunt.template.today("yyyy-mm-dd") %> \n */'
 
             },
             dist: {
@@ -206,8 +204,8 @@ module.exports = function(grunt) {
                 src: '<%= config.build %>/main.js',
                 dest: '<%= config.dist %>/<%= pkg.name %>.js'
             },
-            'lite' : {
-                src : '<%= config.build %>/main-lite.js',
+            'lite': {
+                src: '<%= config.build %>/main-lite.js',
                 dest: '<%= config.dist %>/<%= pkg.name %>_lite.js'
             }
         },
@@ -218,37 +216,35 @@ module.exports = function(grunt) {
             dist: []
         },
         docco: {
-            options : {
-                dst : './docs',
-                layout : 'parallel'
+            options: {
+                dst: './docs',
+                layout: 'parallel'
             },
             docs: {
-                files : [
-                    {
-                        expand: true,
-                        cwd: '<%= config.dist %>',
-                        src: [
-                            '<%= pkg.name %>_lite.js',
-                        ]
-                    }
-                ]
+                files: [{
+                    expand: true,
+                    cwd: '<%= config.dist %>',
+                    src: [
+                        '<%= pkg.name %>_lite.js',
+                    ]
+                }]
             }
         }
     });
-    
-     
+
+
     grunt.registerTask('serve', 'start the server and preview your app, --allow-remote for remote access', function(target) {
         /*if (grunt.option('allow-remote')) {
             grunt.config.set('connect.options.hostname', '0.0.0.0');
         }*/
         if (target === 'lab') {
-            return grunt.task.run(['build', 'browserSync:lab','watch']);
+            return grunt.task.run(['build', 'browserSync:lab', 'watch']);
         }
         if (target === 'todo') {
-            return grunt.task.run(['build', 'browserSync:todo','watch']);
+            return grunt.task.run(['build', 'browserSync:todo', 'watch']);
         }
-        
-        grunt.task.run(['build', 'browserSync','watch']);
+
+        grunt.task.run(['build', 'browserSync', 'watch']);
 
 
     });
