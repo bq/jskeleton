@@ -4,14 +4,22 @@
   "description": "Awesome Framework!",
   "license": "Apache License 2.0",
   "scripts": {
-    "test": "./node_modules/.bin/_mocha test"
+    
+    "clean": "rm -rf node_modules bower_components",
+    "start": "grunt test",
+    "reset": "npm run reinstall",
+    "test": "grunt test",
+    "prepublish": "npm test && npm prune"
   },
   "devDependencies": {
     "apache-server-configs": "^2.7.1",
+    "browserify": "^9.0.8",
     "browserify-bower": "^0.4.1",
+    "chai": "^2.2.0",
     "grunt": "^0.4.5",
     "grunt-autoprefixer": "^1.0.0",
     "grunt-browser-sync": "^2.1.1",
+    "grunt-browserify": "^3.7.0",
     "grunt-concurrent": "^0.5.0",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-concat": "^0.5.0",
@@ -22,13 +30,16 @@
     "grunt-contrib-watch": "^0.6.1",
     "grunt-docco2": "^0.2.0",
     "grunt-mocha": "^0.4.10",
+    "grunt-mocha-cli": "^1.13.0",
     "grunt-newer": "^0.7.0",
     "grunt-preprocess": "^4.1.0",
     "grunt-rev": "^0.1.0",
     "grunt-wiredep": "^1.7.0",
+    "istanbul": "^0.3.13",
     "jshint-stylish": "^0.4.0",
     "load-grunt-tasks": "^0.4.0",
     "mocha": "^2.2.4",
+    "sinon": "^1.14.1",
     "time-grunt": "^1.1.1"
   },
   "browserify": {
