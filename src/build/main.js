@@ -45,6 +45,7 @@
     //  @include ../core/renderer.js
     //  @include ../helpers/html-bars.js
     //  @include ../utils/hook.js
+    //  @include ../utils/factory.js
     //  @include ../core/router.js
     //  @include ../core/service.js
     //  @include ../core/application.js
