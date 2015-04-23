@@ -75,9 +75,9 @@ module.exports = function(grunt) {
             todo: {
                bsFiles: {
                     src: [
-                        '<%= config.examples %>/**/*.js',
-                        '<%= config.examples %>/**/*.html',
-                        '<%= config.examples %>/**/*.css',
+                        '<%= config.examples %>/todo/*.js',
+                        '<%= config.examples %>/todo/*.html',
+                        '<%= config.examples %>/todo/*.css',
                         '<%= config.src %>/**/*.js'
                     ]
                 },
@@ -97,9 +97,9 @@ module.exports = function(grunt) {
             lab: {
                 bsFiles: {
                     src: [
-                        '<%= config.examples %>/**/*.js',
-                        '<%= config.examples %>/**/*.html',
-                        '<%= config.examples %>/**/*.css',
+                        '<%= config.examples %>/lab/*.js',
+                        '<%= config.examples %>/lab/*.html',
+                        '<%= config.examples %>/lab/*.css',
                         '<%= config.src %>/**/*.js'
                     ]
                 },
