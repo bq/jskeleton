@@ -48,7 +48,9 @@
     //  @include ../utils/factory.js
     //  @include ../core/router.js
     //  @include ../core/service.js
+    //  @include ../core/base-application.js
     //  @include ../core/application.js
+    //  @include ../core/child-application.js
     //  @include ../core/view-controller.js
 
 

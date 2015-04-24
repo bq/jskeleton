@@ -1,77 +1,65 @@
 'use strict';
+
 /*globals Marionette, Jskeleton, _, Backbone */
+
 /* jshint unused: false */
 
-var Application = Marionette.Application.extend({
+//
+//## Application
+//  The application is the container object where you split your webapp logic into 'pieces' as applications.
+//  It initialize regions, events, routes, channels and child apps per application object.
+//  A Jskeleton webapp can contains many Jskeleton.Applications as child apps of a unique Application 'main app'.
+Jskeleton.Application = Jskeleton.BaseApplication.extend({
+    //Default dom reference (usefull for the first webapp root region)
     defaultEl: 'body',
-    defaultRegion: 'root',
-    isChildApp: false,
-    globalChannel: 'global',
     constructor: function(options) {
         options = options || {};
-        this.aid = this.getAppId();
+
         this.rootEl = options.rootEl || this.rootEl || this.defaultEl;
-        this.router = Jskeleton.Router.getSingleton();
-        if (options.parentApp) {
-            this._childAppConstructor(options);
-        }
-        Marionette.Application.prototype.constructor.apply(this, arguments); //parent constructor (super)
+
+        //Jskeleton.BaseApplication constructor
+        Jskeleton.BaseApplication.prototype.constructor.apply(this, arguments);
+
         this.applications = options.applications || this.applications || {};
-        this._childApps = {}; //instances object subapps
+        //private object instances of subapps
+        this._childApps = {};
+
+        return this;
 
     },
+    //Method to start the application, start the childapplications and listening routes/events
     start: function(options) {
         this.triggerMethod('before:start', options);
         this._initCallbacks.run(options, this);
-        this._initApplications(options); //init child apps
-        this._initAppRoutesListeners(options); //init child apps
-        this._initAppEventsListeners(options); //init child apps
-        if (!this.parentApp) {
-            this.startRouter();
-        }
+        //init child apps
+        this._initChildApplications(options);
+        //Add routes listeners to the Jskeleton.router
+        this._initAppRoutesListeners(options);
+        //Add app events listeneres to the global channel
+        this._initAppEventsListeners(options);
+        //Start the Jskeleton router
+        this.startRouter();
         this.triggerMethod('start', options);
     },
-    processNavigation: function(controllerView) {
-        var hook = this.getHook();
-        this.triggerMethod('onNavigate', controllerView, hook);
-        hook.processBefore();
-        //TODO: Tener en cuenta que el controller puede no pintarse "asincronamente" si tiene un flag determinado, teniendo que devolver un promesa o algo por el estilo (lanzar un evento etc.)
-        controllerView.processNavigation.apply(controllerView, Array.prototype.slice.call(arguments, 1));
-        hook.processAfter();
-    },
+    //Method to explicit start a child app instance
     startChildApp: function(childApp, options) {
         childApp.start(options);
     },
-    factory: function(Class, options) {
-        options = options || {};
-        options.parentApp = this;
-        return new Class(options);
-    },
+    //Method to start listening the backbone.router (called by a Main app)
     startRouter: function() {
         this.router.start();
     },
-    _initChannel: function() { //backbone.radio
-        this.globalChannel = this.globalChannel ? Backbone.Radio.channel(this.globalChannel) : Backbone.Radio.channel('global');
-        this.privateChannel = this.privateChannel ? Backbone.Radio.channel(this.privateChannel) : Backbone.Radio.channel(this.aid);
-    },
-    _childAppConstructor: function(options) {
-        this.isChildApp = true; //flag if this is a childApp
-        this.parentApp = options.parentApp; //reference to the parent app (if exist)
-        if (!options.region) {
-            throw new Error('La sub app tiene que tener una region específica');
-        }
-        this.region = options.region;
-    },
+    //Private method to initialize the application regions
     _initializeRegions: function() {
-        if (!this.isChildApp) { // is a parent app (Main app)
-            this._ensureEl(); //ensure initial root DOM reference is available
-            this._initRegionManager();
-            this._createRootRegion(); // Create root region on root DOM reference
-            this._createLayoutApp();
-        } else { //is childApp
-            //TODO: ensure that parent region exists
-        }
+        //ensure initial root DOM reference is available
+        this._ensureEl();
+        this._initRegionManager();
+        // Create root region on root DOM reference
+        this._createRootRegion();
+        // Create a layout for the application if a layoutView its defined
+        this._createApplicationLayout();
     },
+    //Private method to ensure that the main application has a dom reference where create the root webapp region
     _ensureEl: function() {
         if (!this.$rootEl) {
             if (!this.rootEl) {
@@ -80,12 +68,14 @@ var Application = Marionette.Application.extend({
             this.$rootEl = $(this.rootEl);
         }
     },
+    //Add the root region to the main application
     _createRootRegion: function() {
         this.addRegions({
             root: this.rootEl
         });
     },
-    _createLayoutApp: function() {
+    //Create a layout for the Application to have more regions
+    _createApplicationLayout: function() {
         this.defaultRegion = 'root';
         if (this.layout && typeof this.layout === 'object') { //ensure layout object is defined
             this.layoutTemplate = this.layout.template; //TODO: lanzar aserción
@@ -102,6 +92,7 @@ var Application = Marionette.Application.extend({
             this._addLayoutRegions();
         }
     },
+    //Expose layout regions to the application namespace
     _addLayoutRegions: function() {
         var self = this;
         if (this._layout.regionManager.length > 0) { //mirar lo del length de regions
@@ -111,16 +102,18 @@ var Application = Marionette.Application.extend({
             });
         }
     },
-    _initApplications: function() {
+    //Iterate over child applications to start each one
+    _initChildApplications: function() {
         if (!this.isChildApp) {
             var self = this;
             _.each(this.applications, function(value, key) {
-                self._initApp(key, value);
+                self._initChildApp(key, value);
             });
             this.triggerMethod('applications:start');
         }
     },
-    _initApp: function(appName, appOptions) {
+    //Start child application with it's dependencies injected
+    _initChildApp: function(appName, appOptions) {
         var appClass = appOptions.appClass,
             startWithParent = appOptions.startWithParent !== undefined ? appOptions.startWithParent : true;
 
@@ -133,6 +126,7 @@ var Application = Marionette.Application.extend({
             this.startChildApp(instance, instanceOptions.startOptions);
         }
     },
+    //Get the region where a child application will be rendered
     _getChildAppRegion: function(appOptions) {
         var region;
         if (this.defaultRegion) { //the default region is 'root'
@@ -149,87 +143,8 @@ var Application = Marionette.Application.extend({
         }
         return region;
     },
-    _initAppRoutesListeners: function() {
-        var self = this;
-        this._viewControllers = [];
-        if (this.routes) {
-            _.each(this.routes, function(value, key) {
-                self._addAppRoute(key, value);
-            });
-        }
-    },
-    _addAppRoute: function(routeString, routeOptions) {
-        var self = this,
-            viewController;
-        viewController = this._getViewController(routeOptions);
-
-        this.router.route(routeString, routeOptions.triggerEvent, function() {
-            self.processNavigation.apply(self, [viewController].concat(arguments));
-        });
-    },
-    _getViewController: function(options) {
-        var self = this,
-            viewClass = options.view,
-            template = options.template,
-            viewControllerOptions = _.extend({
-                app: this,
-                channel: this.privateChannel,
-                service: this.service,
-                region: this.region
-            }, options.viewControllerOptions),
-            ViewControllerClass = options.viewControllerClass || this.getDefaultviewController(),
-            viewController;
-
-        if (!template) {
-            throw new Error('Tienes que definir un template');
-        }
-
-        ViewControllerClass = this.extendViewController(ViewControllerClass, template);
-
-        viewController = this.factory(ViewControllerClass, viewControllerOptions);
-
-        this._viewControllers.push(viewController);
-
-        return viewController;
-    },
-    extendViewController: function(ViewControllerClass, template) {
-        return ViewControllerClass.extend({
-            template: template
-        });
-    },
-    _initAppEventsListeners: function() {
-        var self = this;
-        this._controllers = [];
-        if (this.events) {
-            _.each(this.events, function(value, key) {
-                self._addAppEventListener(key, value);
-            });
-        }
-    },
-    _addAppEventListener: function(eventName, eventOptions) {
-        var controller = this._getViewController(eventOptions),
-            self = this;
-
-        this.globalChannel.on(eventName, function() {
-            self.processNavigation(controller);
-        });
-    },
+    //Get child app instance by name
     getChildApp: function(appName) {
         return this._childApps[appName];
-    },
-    getDefaultviewController: function() {
-        return Jskeleton.ViewController;
-    },
-    getDefaultLayoutClass: function() {
-        return Marionette.LayoutView;
-    },
-    getHook: function() {
-        return new Jskeleton.Hook();
-    },
-    getAppId: function() {
-        return _.uniqueId('a');
     }
 });
-
-
-Jskeleton.Application = Application;
