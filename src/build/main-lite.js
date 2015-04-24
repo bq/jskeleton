@@ -24,22 +24,15 @@
 
 })(window, function(root, $, _, Marionette) {
     'use strict';
-    /*globals require,requireModule */
+
     /* jshint unused: false */
 
 
     var Jskeleton = root.Jskeleton || {};
 
-    Jskeleton.htmlBars = {
-        compiler: requireModule('htmlbars-compiler'),
-        DOMHelper: requireModule('dom-helper').default,
-        hooks: requireModule('htmlbars-runtime').hooks,
-        render: requireModule('htmlbars-runtime').render
-    };
-
     //  @include ../core/renderer.js
     //  @include ../helpers/html-bars.js
-    //  @include ../utils/hook.js
+    //  @include ../utils/hooks.js
     //  @include ../utils/factory.js
     //  @include ../core/router.js
     //  @include ../core/service.js
