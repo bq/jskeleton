@@ -17,6 +17,8 @@ module.exports = function(grunt) {
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
 
+
+
     // Configurable paths
     var config = {
         src: 'src',
@@ -78,7 +80,7 @@ module.exports = function(grunt) {
                         '<%= config.examples %>/todo/*.js',
                         '<%= config.examples %>/todo/*.html',
                         '<%= config.examples %>/todo/*.css',
-                        '<%= config.src %>/**/*.js'
+                        '<%= config.dist %>/**/*.js'
                     ]
                 },
                 options: {
@@ -100,7 +102,7 @@ module.exports = function(grunt) {
                         '<%= config.examples %>/lab/*.js',
                         '<%= config.examples %>/lab/*.html',
                         '<%= config.examples %>/lab/*.css',
-                        '<%= config.src %>/**/*.js'
+                        '<%= config.dist %>/**/*.js'
                     ]
                 },
                 options: {
@@ -115,7 +117,7 @@ module.exports = function(grunt) {
                         }
                     }
                 }
-     
+
             }
         },
         // Empties folders to start fresh
@@ -149,13 +151,11 @@ module.exports = function(grunt) {
         },
 
         // Mocha testing framework configuration options
-        mocha: {
-            all: {
-                options: {
-                    run: true,
-                    urls: ['http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html']
-                }
-            }
+        mochacli: {
+            options : {
+                bail: true
+            },
+            all : ['test/spec/*.js']
         },
         // Automatically inject Bower components into the HTML file
         wiredep: {
@@ -267,16 +267,23 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('test', function(target) {
-        if (target !== 'watch') {
+       /* if (target !== 'watch') {
             grunt.task.run([
                 'clean:server',
                 'concurrent:test'
             ]);
-        }
+        }*/
+       if(target === 'framework'){
+           return grunt.task.run(['mochacli' ]);
+
+       }
+       if(target === 'examples'){
+           return grunt.task.run(['mochacli' ]);
+
+       }
 
         grunt.task.run([
-            'connect:test',
-            'mocha'
+            'mochacli'
         ]);
     });
 
