@@ -14,6 +14,7 @@
 Jskeleton.Application = Jskeleton.BaseApplication.extend({
     //Default dom reference (usefull for the first webapp root region)
     defaultEl: 'body',
+    defaultRegion: 'root',
     constructor: function(options) {
         options = options || {};
 
@@ -77,14 +78,16 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
         });
     },
     //Create a layout for the Application to have more regions
+    //Adds the layout regions to the application object as properties
     _createApplicationLayout: function() {
-        this.defaultRegion = 'root';
-        if (this.layout && typeof this.layout === 'object') { //ensure layout object is defined
+        //ensure layout object is defined
+        if (this.layout && typeof this.layout === 'object') {
             this.layoutTemplate = this.layout.template; //TODO: lanzar aserción
             if (!this.layoutTemplate) {
                 throw new Error('Si defines un objeto layout tienes que definir un template');
             }
-            this.layoutClass = this.layout.layoutClass || this.getDefaultLayoutClass();
+
+            this.layoutClass = this.layout.layoutClass || this.getDefaultLayoutClass(); //TODO: mirar si poner layout por defecto ( seria necesario entonces poder poner regiones de forma explicita)
             this.layoutClass = this.layoutClass.extend({
                 template: this.layoutTemplate
             });
@@ -98,7 +101,6 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     _addLayoutRegions: function() {
         var self = this;
         if (this._layout.regionManager.length > 0) { //mirar lo del length de regions
-            this.defaultRegion = undefined;
             _.each(this._layout.regionManager._regions, function(region, regionName) {
                 self[regionName] = region; //TOOD: mirar compartir instancias del region manager del layout
             });
@@ -128,21 +130,18 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
             this.startChildApp(instance, instanceOptions.startOptions);
         }
     },
-    //Get the region where a child application will be rendered
+    //Get the region where a child application will be rendered when process a route or an event
     _getChildAppRegion: function(appOptions) {
         var region;
-        if (this.defaultRegion) { //the default region is 'root'
-            if (appOptions.region === undefined || appOptions.region === this.defaultRegion) { //the subapp region must be undefined or 'root'
-                region = this._regionManager.get(this.defaultRegion); //root region
-            } else {
-                throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
-            }
-        } else {
-            region = this._layout.regionManager.get(appOptions.region);
-            if (!region) { //the region must exists
-                throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
-            }
+
+        if (this._layout && this._layout.regionManager) {
+            region = this._layout.regionManager.get(appOptions.region || this.defaultRegion);
         }
+
+        if (!region) { //the region must exists
+            throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
+        }
+
         return region;
     },
     //Get child app instance by name
