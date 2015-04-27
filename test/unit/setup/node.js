@@ -8,6 +8,7 @@ var requireHelper = require('./require-helper');
 chai.use(sinonChai);
 chai.use(chaiJq);
 
+global.should = chai.should();
 global.expect = chai.expect;
 global.sinon = sinon;
 

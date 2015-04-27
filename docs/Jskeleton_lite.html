@@ -56,18 +56,11 @@
 
 })(<span class="hljs-built_in">window</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(root, $, _, Marionette)</span> </span>{
 <span class="hljs-pi">    'use strict'</span>;
-    <span class="hljs-comment">/*globals require,requireModule */</span>
+
     <span class="hljs-comment">/* jshint unused: false */</span>
 
 
     <span class="hljs-keyword">var</span> Jskeleton = root.Jskeleton || {};
-
-    Jskeleton.htmlBars = {
-        compiler: requireModule(<span class="hljs-string">'htmlbars-compiler'</span>),
-        DOMHelper: requireModule(<span class="hljs-string">'dom-helper'</span>).default,
-        hooks: requireModule(<span class="hljs-string">'htmlbars-runtime'</span>).hooks,
-        render: requireModule(<span class="hljs-string">'htmlbars-runtime'</span>).render
-    };
 
      <span class="hljs-string">'use strict'</span>;
      <span class="hljs-comment">/*globals Marionette, Jskeleton, _ */</span>
@@ -165,42 +158,45 @@ data.context; //View-controller context</p>
     
          <span class="hljs-keyword">return</span> dom;
      };
-src/helpers/html-bars.js not found
-src/utils/hook.js not found
-<span class="hljs-pi">    'use strict'</span>;
-    <span class="hljs-comment">/*globals Jskeleton */</span>
-    <span class="hljs-comment">/* jshint unused: false */</span>
+        <span class="hljs-string">'use strict'</span>;
+        <span class="hljs-comment">/*globals Jskeleton */</span>
     
-    <span class="hljs-keyword">var</span> Router = Backbone.Router.extend({
+        Jskeleton._helpers = {};
     
-        routes: {},
+        Jskeleton.registerHelper = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(name, helperFunc)</span> </span>{
+            Jskeleton._helpers[name] = helperFunc;
+        };
     
-        initialize: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">this</span>.listenTo(<span class="hljs-keyword">this</span>, <span class="hljs-string">'route'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-                <span class="hljs-keyword">var</span> route = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">0</span>];
-                <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>] &amp;&amp; <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>].length) {
-                    route += <span class="hljs-string">':'</span> + <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>].join(<span class="hljs-string">':'</span>);
-                }
-                <span class="hljs-built_in">console</span>.log(route);
-            });
-        },
     
-        <span class="hljs-comment">/**
-         * A shorthand of app.router.route with the event name convention.
-         * @memberof app.router
-         * @example
-         * routes names and its events names
-         * user -&gt; router:route:user
-         * user/profile -&gt; router:route:user:profile
-         * user/:id -&gt; router:route:user
-         * user(/:id) -&gt; router:route:user
-         * @param {String} route   route name to listen
-         * @param {Function} handler function to calls when route is satisfied
-         */</span>
-        addRoute: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(route, handler)</span> </span>{
-            route = route || <span class="hljs-string">''</span>;
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">normalizeArray</span><span class="hljs-params">(env, array)</span> </span>{
+            <span class="hljs-keyword">var</span> out = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Array</span>(array.length);
     
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'router:add:before'</span>, route);</pre></div></div>
+            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>, l = array.length; i &lt; l; i++) {
+                out[i] = env.hooks.getValue(array[i]);
+            }
+    
+            <span class="hljs-keyword">return</span> out;
+        }
+    
+        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">normalizeObject</span><span class="hljs-params">(env, object)</span> </span>{
+            <span class="hljs-keyword">var</span> out = {};
+    
+            <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> prop <span class="hljs-keyword">in</span> object) {
+                out[prop] = env.hooks.getValue(object[prop]);
+            }
+    
+            <span class="hljs-keyword">return</span> out;
+        }
+    
+        Jskeleton.htmlBars.hooks.invokeHelper = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(morph, env, scope, visitor, _params, _hash, helper, templates, context)</span> </span>{
+            <span class="hljs-keyword">var</span> params = normalizeArray(env, _params);
+            <span class="hljs-keyword">var</span> hash = normalizeObject(env, _hash);
+            <span class="hljs-keyword">return</span> {
+                value: helper.call(context, hash, env, params, templates)
+            };
+        };
+    
+        Jskeleton.registerHelper(<span class="hljs-string">'example'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params, env)</span> </span>{</pre></div></div>
             
         </li>
         
@@ -211,27 +207,168 @@ src/utils/hook.js not found
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <p>Unify routes regexp names</p>
+              <p>env.app;
+env.channel;
+env.data; //view-controller</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">var</span> eventName = <span class="hljs-string">'router:route:'</span> + route.split(<span class="hljs-string">'('</span>)[<span class="hljs-number">0</span>].split(<span class="hljs-string">'/:'</span>)[<span class="hljs-number">0</span>].split(<span class="hljs-string">'/'</span>).join(<span class="hljs-string">':'</span>);
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'example helper'</span>, env);
+        });
     
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'router:add:after'</span>, eventName);
     
-            <span class="hljs-keyword">this</span>.route(route, eventName, handler);
-        },
+        Jskeleton.registerHelper(<span class="hljs-string">'pepe'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'example helper'</span>);
+        });
+    <span class="hljs-string">'use strict'</span>;
+    <span class="hljs-comment">/*globals Jskeleton,_ */</span>
+    <span class="hljs-comment">/* jshint unused: false */</span>
     
-        <span class="hljs-comment">/**
-         * Router initialization.
-         * Bypass all anchor links except those with data-bypass attribute
-         * Starts router history. All routes should be already added
-         * @memberof app.router
-         */</span>
-        init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'router.after'</span>);
+    <span class="hljs-keyword">var</span> Hook = Jskeleton.Hook = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">this</span>.beforeCallbacks = [];
+        <span class="hljs-keyword">this</span>.afterCallbacks = [];
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
     
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'router.Backbone.history.start'</span>);</pre></div></div>
+    
+    Hook.prototype.before = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(callback)</span> </span>{
+        <span class="hljs-keyword">this</span>.beforeCallbacks.push(callback);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+    
+    Hook.prototype.after = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(callback)</span> </span>{
+        <span class="hljs-keyword">this</span>.afterCallbacks.push(callback);
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+    
+    Hook.prototype.processBefore = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+        _.each(<span class="hljs-keyword">this</span>.beforeCallbacks, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(callback)</span> </span>{
+            callback.apply(self);
+        });
+        <span class="hljs-keyword">this</span>.beforeCallbacks = [];
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+    
+    Hook.prototype.processAfter = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+        _.each(<span class="hljs-keyword">this</span>.afterCallbacks, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(callback)</span> </span>{
+            callback.apply(self);
+        });
+        <span class="hljs-keyword">this</span>.afterCallbacks = [];
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    };
+    <span class="hljs-string">'use strict'</span>;
+    <span class="hljs-comment">/*globals Marionette, Jskeleton, _, Backbone */</span>
+    <span class="hljs-comment">/* jshint unused: false */</span>
+    
+    <span class="hljs-comment">/**
+     * Application object factory
+     * @exports factory
+     * @namespace
+     * @memberof app
+     */</span>
+    <span class="hljs-keyword">var</span> factory = {};
+    
+    <span class="hljs-comment">/**
+     * Default available factory objects
+     * @private
+     * @type {Object}
+     */</span>
+    factory.prototypes = {
+        Model: Backbone.Model,
+        Collection: Backbone.Collection
+    };
+    
+    <span class="hljs-comment">/**
+     * Available singletons objects
+     * @private
+     * @type {Object}
+     */</span>
+    factory.singletons = {};
+    
+    <span class="hljs-comment">/**
+     * Adds an object to the factory
+     * @param {String} key Name of the object to reference
+     * @param {Object} obj
+     */</span>
+    factory.add = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(key, obj)</span> </span>{
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.prototypes[key]) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'AlreadyDefinedFactoryObject - '</span> + key);
+        }
+        <span class="hljs-keyword">this</span>.prototypes[key] = obj;
+    };
+    
+    <span class="hljs-comment">/**
+     * Creates a new object
+     * @param  {String} obj         Name of the object to create
+     * @param  {Object} [options]   Constructor params
+     * @return {Object}             A new instance of the object reference
+     */</span>
+    factory.new = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(obj, options)</span> </span>{
+        options = options || {};
+    
+        <span class="hljs-keyword">var</span> FactoryObject;
+    
+        <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> obj === <span class="hljs-string">'object'</span> || <span class="hljs-keyword">typeof</span> obj === <span class="hljs-string">'function'</span>) {
+            FactoryObject = obj;
+        } <span class="hljs-keyword">else</span> {
+            FactoryObject = <span class="hljs-keyword">this</span>.prototypes[obj];
+        }
+    
+        <span class="hljs-keyword">if</span> (!FactoryObject) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'UndefinedFactoryObject - '</span> + obj);
+        }
+    
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> FactoryObject(options);
+    };
+    
+    <span class="hljs-comment">/**
+     * Creates a new object o retrieves the created one
+     * @param  {String} obj         Name of the object to create
+     * @param  {Object} [options]   Constructor params
+     * @return {Object}               A new instance of the object reference
+     */</span>
+    factory.singleton = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(obj, options)</span> </span>{
+        options = options || {};
+    
+        <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.singletons[obj]) {
+            <span class="hljs-keyword">this</span>.singletons[obj] = <span class="hljs-keyword">this</span>.new(obj, options);
+        }
+    
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.singletons[obj];
+    };
+    
+    <span class="hljs-comment">/**
+     * Retrieves an Object reference
+     * @param  {String} obj Name of the object to get reference
+     * @return {Object}     Reference to the original object in the factory
+     */</span>
+    factory.get = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(obj)</span> </span>{
+        <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.prototypes[obj]) {
+            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'UndefinedFactoryObject - '</span> + obj);
+        }
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.prototypes[obj];
+    };
+    
+    <span class="hljs-comment">/**
+     * Gets all object added to the factory
+     * @return {Array} A lis of all objects added to the factory
+     */</span>
+    factory.getAll = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.prototypes;
+    };
+    
+    
+    Jskeleton.factory = factory;
+    
+    <span class="hljs-string">'use strict'</span>;
+    
+    <span class="hljs-comment">/*globals Jskeleton, Backbone, _ */</span>
+    
+    <span class="hljs-comment">/* jshint unused: false */</span>
+    
+    <span class="hljs-keyword">var</span> paramsNames = <span class="hljs-regexp">/:\w(\_|\w|\d)*/g</span>;</pre></div></div>
             
         </li>
         
@@ -242,13 +379,21 @@ src/utils/hook.js not found
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-7">&#182;</a>
               </div>
-              <p>Trigger the initial route and enable HTML5 History API support, set the
-root folder to ‘/‘ by default.  Change in app.js.</p>
+              <h2 id="router">Router</h2>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>    
-            Backbone.history.start();</pre></div></div>
+            <div class="content"><div class='highlight'><pre>    Jskeleton.Router = Backbone.Router.extend({
+        routes: {},
+        initialize: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-keyword">this</span>.listenTo(<span class="hljs-keyword">this</span>, <span class="hljs-string">'route'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">var</span> route = <span class="hljs-built_in">arguments</span>[<span class="hljs-number">0</span>];
+                <span class="hljs-keyword">if</span> (<span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>] &amp;&amp; <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>].length) {
+                    route += <span class="hljs-string">':'</span> + <span class="hljs-built_in">arguments</span>[<span class="hljs-number">1</span>].join(<span class="hljs-string">':'</span>);
+                }
+                <span class="hljs-built_in">console</span>.log(route);
+            });
+        },</pre></div></div>
             
         </li>
         
@@ -259,6 +404,262 @@ root folder to ‘/‘ by default.  Change in app.js.</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-8">&#182;</a>
               </div>
+              <p>replace string chars (instead using encodeUrl)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        replaceSpecialChars: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(text)</span> </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> text === <span class="hljs-string">'string'</span>) {
+    
+                <span class="hljs-keyword">var</span> specialChars = <span class="hljs-string">'ãàáäâèéëêìíïîòóöôùúüûÑñÇç \''</span>,
+                    chars = <span class="hljs-string">'aaaaaeeeeiiiioooouuuunncc--'</span>;
+    
+                <span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i &lt; specialChars.length; i++) {
+                    text = text.replace(<span class="hljs-keyword">new</span> <span class="hljs-built_in">RegExp</span>(specialChars.charAt(i), <span class="hljs-string">'g'</span>), chars.charAt(i));
+                }
+            }
+    
+            <span class="hljs-keyword">return</span> text;
+        },
+        route: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString, options, callback)</span> </span>{
+            <span class="hljs-keyword">var</span> routeRegex,
+                handlerName = options.handlerName &amp;&amp; <span class="hljs-keyword">typeof</span> options.handlerName === <span class="hljs-string">'string'</span> ? options.handlerName : <span class="hljs-keyword">this</span>._getHandlerNameFromRoute(routeString),
+                argsNames = <span class="hljs-keyword">this</span>._getRouteParamsNames(routeString),
+                name = options.name;
+    
+            <span class="hljs-keyword">if</span> (!_.isRegExp(routeString)) {
+                routeRegex = <span class="hljs-keyword">this</span>._routeToRegExp(routeString);
+            }
+    
+            <span class="hljs-keyword">if</span> (!callback) {
+                callback = <span class="hljs-keyword">this</span>[name];
+            }
+    
+            <span class="hljs-keyword">var</span> router = <span class="hljs-keyword">this</span>;
+    
+            Backbone.history.route(routeRegex, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(fragment)</span> </span>{
+                <span class="hljs-keyword">var</span> args = router._extractParameters(routeRegex, fragment, argsNames);
+                <span class="hljs-keyword">if</span> (router.execute(callback, args, handlerName) !== <span class="hljs-literal">false</span>) {
+                    router.trigger.apply(router, [<span class="hljs-string">'route:'</span> + name].concat(args));
+                    router.trigger(<span class="hljs-string">'route'</span>, name, args);
+                    Backbone.history.trigger(<span class="hljs-string">'route'</span>, router, name, args);
+                }
+            });
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-9">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-9">&#182;</a>
+              </div>
+              <p>method to replace a route string with the specified params</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _replaceRouteString: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString, params)</span> </span>{
+            <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+            _.each(params, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(value, key)</span> </span>{
+                routeString = routeString.replace(<span class="hljs-regexp">/:(\w)+/</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(x)</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-10">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-10">&#182;</a>
+              </div>
+              <p>remove : character</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    x = x.substr(<span class="hljs-number">1</span>, x.length - <span class="hljs-number">1</span>);
+                    <span class="hljs-keyword">return</span> params[x] ? self.router.replaceSpecialChars(params[x]) : <span class="hljs-string">''</span>; <span class="hljs-comment">//todo</span>
+                });
+            });</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-11">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-11">&#182;</a>
+              </div>
+              <p>replace uncomplete conditionals ex. (:id) and coinditional parenthesis ()</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">return</span> routeString.replace(<span class="hljs-regexp">/\(([^\):])*:([^\):])*\)/g</span>, <span class="hljs-string">''</span>).replace(<span class="hljs-regexp">/\(|\)/g</span>, <span class="hljs-string">''</span>);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-12">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-12">&#182;</a>
+              </div>
+              <p>Cast url string to a default camel case name (commonly to call view-controller method)
+ex: ‘/show/details -&gt; onShowDetails’</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _getHandlerNameFromRoute: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString)</span> </span>{
+            <span class="hljs-keyword">var</span> replacedString = routeString.substr(<span class="hljs-number">0</span>, routeString.indexOf(<span class="hljs-string">':'</span>)).replace(<span class="hljs-regexp">/\/(\w|\d)?/g</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(x)</span> </span>{
+                    <span class="hljs-keyword">return</span> x.replace(<span class="hljs-regexp">/\//g</span>, <span class="hljs-string">''</span>).toUpperCase();
+                }),
+                handlerName = <span class="hljs-string">'on'</span> + replacedString.charAt(<span class="hljs-number">0</span>).toUpperCase() + replacedString.slice(<span class="hljs-number">1</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-13">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-13">&#182;</a>
+              </div>
+              <p>set the route handler name to the app route object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.routes[routeString].handlerName = handlerName;
+    
+            <span class="hljs-keyword">return</span> handlerName;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-14">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-14">&#182;</a>
+              </div>
+              <p>Execute a route handler with the provided parameters.
+Override Backbone.Router.exectue method to provide the
+view controller handlerName based on routeString.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        execute: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(callback, args, handlerName)</span> </span>{
+            <span class="hljs-keyword">if</span> (callback) {
+                callback.call(<span class="hljs-keyword">this</span>, args, handlerName);
+            }
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-15">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-15">&#182;</a>
+              </div>
+              <p>Execute a route handler with the provided parameters.
+Override Backbone.Router._extractParameters method to
+return parameters as object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _extractParameters: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(route, fragment, argsNames)</span> </span>{
+            <span class="hljs-keyword">var</span> params = route.exec(fragment).slice(<span class="hljs-number">1</span>),
+                paramsObject = {};
+    
+            _.each(params, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(param, i)</span> </span>{
+                <span class="hljs-keyword">if</span> (i === params.length - <span class="hljs-number">1</span>) {
+                    param = param || <span class="hljs-literal">null</span>;
+                } <span class="hljs-keyword">else</span> {
+                    param = param ? <span class="hljs-built_in">decodeURIComponent</span>(param) : <span class="hljs-literal">null</span>;
+                }
+    
+                <span class="hljs-keyword">if</span> (argsNames[i] !== <span class="hljs-literal">undefined</span>) {
+                    paramsObject[argsNames[i]] = param;
+                }
+            });
+    
+            <span class="hljs-keyword">return</span> paramsObject;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-16">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-16">&#182;</a>
+              </div>
+              <p>Extracts route params names as array.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _getRouteParamsNames: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString)</span> </span>{
+            <span class="hljs-keyword">var</span> name = paramsNames.exec(routeString),
+                names = [];
+    
+            <span class="hljs-keyword">while</span> (name !== <span class="hljs-literal">null</span>) {
+                names.push(name[<span class="hljs-number">0</span>].replace(<span class="hljs-string">':'</span>, <span class="hljs-string">''</span>));
+                name = paramsNames.exec(routeString);
+            }
+    
+            <span class="hljs-keyword">return</span> names;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-17">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-17">&#182;</a>
+              </div>
+              <p>Router initialization.
+Bypass all anchor links except those with data-bypass attribute
+Starts router history. All routes should be already added</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        init: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-18">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-18">&#182;</a>
+              </div>
+              <p>Trigger the initial route and enable HTML5 History API support, set the
+root folder to ‘/‘ by default.  Change in app.js.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            Backbone.history.start();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-19">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-19">&#182;</a>
+              </div>
               <p>log.debug(‘router.location.hash’, window.location.hash.replace(‘#/‘, ‘/‘));
 Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true);</p>
 
@@ -268,30 +669,25 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         start: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
             <span class="hljs-keyword">this</span>.init();
         }
-    });
+    }, {
+        getSingleton: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
     
+            <span class="hljs-keyword">var</span> instance = <span class="hljs-literal">null</span>;
     
-    Router.getSingleton = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-    
-        <span class="hljs-keyword">var</span> instance = <span class="hljs-literal">null</span>;
-    
-        <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">if</span> (!instance) {
-                instance = <span class="hljs-keyword">new</span> Router();
+            <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getInstance</span><span class="hljs-params">()</span> </span>{
+                <span class="hljs-keyword">if</span> (!instance) {
+                    instance = <span class="hljs-keyword">new</span> Jskeleton.Router();
+                }
+                <span class="hljs-keyword">return</span> instance;
             }
-            <span class="hljs-keyword">return</span> instance;
+    
+            Jskeleton.router = getInstance();
+            <span class="hljs-keyword">return</span> Jskeleton.router;
+        },
+        start: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(app)</span> </span>{
+            app.router.init();
         }
-    
-        Jskeleton.router = getInstance();
-        <span class="hljs-keyword">return</span> Jskeleton.router;
-    };
-    
-    
-    Router.start = <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(app)</span> </span>{
-        router.init();
-    };
-    
-    Jskeleton.Router = Router;
+    });
     <span class="hljs-string">'use strict'</span>;
     <span class="hljs-comment">/*globals Marionette, Jskeleton, _ */</span>
     <span class="hljs-comment">/* jshint unused: false */</span>
@@ -306,11 +702,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-9">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-9">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <p>Todo serviceOptions ?</p>
 
@@ -332,203 +728,299 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
     Jskeleton.Service = Service;
     
     <span class="hljs-string">'use strict'</span>;
+    
     <span class="hljs-comment">/*globals Marionette, Jskeleton, _, Backbone */</span>
-    <span class="hljs-comment">/* jshint unused: false */</span>
     
-    <span class="hljs-keyword">var</span> Application = Marionette.Application.extend({
-        defaultEl: <span class="hljs-string">'body'</span>,
-        defaultRegion: <span class="hljs-string">'root'</span>,
-        isChildApp: <span class="hljs-literal">false</span>,
-        globalChannel: <span class="hljs-string">'global'</span>,
-        constructor: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
-            options = options || {};
-            <span class="hljs-keyword">this</span>.aid = <span class="hljs-keyword">this</span>.getAppId();
-            <span class="hljs-keyword">this</span>.rootEl = options.rootEl || <span class="hljs-keyword">this</span>.rootEl || <span class="hljs-keyword">this</span>.defaultEl;
-            <span class="hljs-keyword">this</span>.router = Jskeleton.Router.getSingleton();
-            <span class="hljs-keyword">if</span> (options.parentApp) {
-                <span class="hljs-keyword">this</span>._childAppConstructor(options);
-            }
-            Marionette.Application.prototype.constructor.apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>); <span class="hljs-comment">//parent constructor (super)</span>
-            <span class="hljs-keyword">this</span>.applications = options.applications || <span class="hljs-keyword">this</span>.applications || {};
-            <span class="hljs-keyword">this</span>._childApps = {}; <span class="hljs-comment">//instances object subapps</span>
-    
-        },
-        start: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
-            <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'before:start'</span>, options);
-            <span class="hljs-keyword">this</span>._initCallbacks.run(options, <span class="hljs-keyword">this</span>);
-            <span class="hljs-keyword">this</span>._initApplications(options); <span class="hljs-comment">//init child apps</span>
-            <span class="hljs-keyword">this</span>._initAppRoutesListeners(options); <span class="hljs-comment">//init child apps</span>
-            <span class="hljs-keyword">this</span>._initAppEventsListeners(options); <span class="hljs-comment">//init child apps</span>
-            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.parentApp) {
-                <span class="hljs-keyword">this</span>.startRouter();
-            }
-            <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'start'</span>, options);
-        },
-        processNavigation: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(controllerView)</span> </span>{
-            <span class="hljs-keyword">var</span> hook = <span class="hljs-keyword">this</span>.getHook();
-            <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'onNavigate'</span>, controllerView, hook);
-            hook.processBefore();</pre></div></div>
+    <span class="hljs-comment">/* jshint unused: false */</span></pre></div></div>
             
         </li>
         
         
-        <li id="section-10">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-10">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
-              <p>TODO: Tener en cuenta que el controller puede no pintarse “asincronamente” si tiene un flag determinado, teniendo que devolver un promesa o algo por el estilo (lanzar un evento etc.)</p>
+              <h2 id="baseapplication">BaseApplication</h2>
+<p> BaseApplication Class that other Jskeleton.Applications can extend from.
+ It contains common application behavior as router/events initialization, application channels set up, common get methods…</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            controllerView.processNavigation.apply(controllerView, <span class="hljs-built_in">Array</span>.prototype.slice.call(<span class="hljs-built_in">arguments</span>, <span class="hljs-number">1</span>));
+            <div class="content"><div class='highlight'><pre>    Jskeleton.BaseApplication = Marionette.Application.extend({</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-22">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-22">&#182;</a>
+              </div>
+              <p>Default global webapp channel for communicate with other apps</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        globalChannel: <span class="hljs-string">'global'</span>,
+        constructor: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
+            options = options || {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-23">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-23">&#182;</a>
+              </div>
+              <p>generate application id</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.aid = <span class="hljs-keyword">this</span>.getAppId();
+    
+            <span class="hljs-keyword">this</span>.router = Jskeleton.Router.getSingleton();
+    
+            Marionette.Application.prototype.constructor.apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-24">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-24">&#182;</a>
+              </div>
+              <p>Call to the specified view-controller method for render a app state</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        invokeViewControllerRender: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(controllerView, args, handlerName)</span> </span>{
+            <span class="hljs-keyword">var</span> hook = <span class="hljs-keyword">this</span>.getHook();
+            <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'onNavigate'</span>, controllerView, hook);
+            hook.processBefore();
+    
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">typeof</span> controllerView[handlerName] !== <span class="hljs-string">'function'</span>) {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'El metodo '</span> + handlerName + <span class="hljs-string">' del view controller no existe'</span>);
+            }
+    
+            controllerView[handlerName].call(controllerView, args, <span class="hljs-keyword">this</span>.service);
+            controllerView.render.call(controllerView);
             hook.processAfter();
-        },
-        startChildApp: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(childApp, options)</span> </span>{
-            childApp.start(options);
-        },
-        factory: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(Class, options)</span> </span>{
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-25">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-25">&#182;</a>
+              </div>
+              <p>Factory method to instance objects from Class references</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        factory: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(Class, options)</span> </span>{
             options = options || {};
             options.parentApp = <span class="hljs-keyword">this</span>;
             <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Class(options);
-        },
-        startRouter: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">this</span>.router.start();
-        },
-        _initChannel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-comment">//backbone.radio</span>
-            <span class="hljs-keyword">this</span>.globalChannel = <span class="hljs-keyword">this</span>.globalChannel ? Backbone.Radio.channel(<span class="hljs-keyword">this</span>.globalChannel) : Backbone.Radio.channel(<span class="hljs-string">'global'</span>);
-            <span class="hljs-keyword">this</span>.privateChannel = <span class="hljs-keyword">this</span>.privateChannel ? Backbone.Radio.channel(<span class="hljs-keyword">this</span>.privateChannel) : Backbone.Radio.channel(<span class="hljs-keyword">this</span>.aid);
-        },
-        _childAppConstructor: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
-            <span class="hljs-keyword">this</span>.isChildApp = <span class="hljs-literal">true</span>; <span class="hljs-comment">//flag if this is a childApp</span>
-            <span class="hljs-keyword">this</span>.parentApp = options.parentApp; <span class="hljs-comment">//reference to the parent app (if exist)</span>
-            <span class="hljs-keyword">if</span> (!options.region) {
-                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'La sub app tiene que tener una region específica'</span>);
-            }
-            <span class="hljs-keyword">this</span>.region = options.region;
-        },
-        _initializeRegions: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.isChildApp) { <span class="hljs-comment">// is a parent app (Main app)</span>
-                <span class="hljs-keyword">this</span>._ensureEl(); <span class="hljs-comment">//ensure initial root DOM reference is available</span>
-                <span class="hljs-keyword">this</span>._initRegionManager();
-                <span class="hljs-keyword">this</span>._createRootRegion(); <span class="hljs-comment">// Create root region on root DOM reference</span>
-                <span class="hljs-keyword">this</span>._createLayoutApp();
-            } <span class="hljs-keyword">else</span> { <span class="hljs-comment">//is childApp</span></pre></div></div>
+        },</pre></div></div>
             
         </li>
         
         
-        <li id="section-11">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-11">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
-              <p>TODO: ensure that parent region exists</p>
+              <p>Internal method to create an application private channel and set the global channel</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            }
-        },
-        _ensureEl: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.$rootEl) {
-                <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.rootEl) {
-                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que definir una rootEl para la Main App'</span>);
-                }
-                <span class="hljs-keyword">this</span>.$rootEl = $(<span class="hljs-keyword">this</span>.rootEl);
-            }
-        },
-        _createRootRegion: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">this</span>.addRegions({
-                root: <span class="hljs-keyword">this</span>.rootEl
-            });
-        },
-        _createLayoutApp: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">this</span>.defaultRegion = <span class="hljs-string">'root'</span>;
-            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.layout &amp;&amp; <span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>.layout === <span class="hljs-string">'object'</span>) { <span class="hljs-comment">//ensure layout object is defined</span>
-                <span class="hljs-keyword">this</span>.layoutTemplate = <span class="hljs-keyword">this</span>.layout.template; <span class="hljs-comment">//TODO: lanzar aserción</span>
-                <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.layoutTemplate) {
-                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Si defines un objeto layout tienes que definir un template'</span>);
-                }
-                <span class="hljs-keyword">this</span>.layoutClass = <span class="hljs-keyword">this</span>.layout.layoutClass || <span class="hljs-keyword">this</span>.getDefaultLayoutClass();
-                <span class="hljs-keyword">this</span>.layoutClass = <span class="hljs-keyword">this</span>.layoutClass.extend({
-                    template: <span class="hljs-keyword">this</span>.layoutTemplate
-                });
-                <span class="hljs-keyword">this</span>._layout = <span class="hljs-keyword">this</span>.factory(<span class="hljs-keyword">this</span>.layoutClass, <span class="hljs-keyword">this</span>.layout.options);
-                <span class="hljs-keyword">this</span>.root.show(<span class="hljs-keyword">this</span>._layout);
-    
-                <span class="hljs-keyword">this</span>._addLayoutRegions();
-            }
-        },
-        _addLayoutRegions: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
-            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._layout.regionManager.length &gt; <span class="hljs-number">0</span>) { <span class="hljs-comment">//mirar lo del length de regions</span>
-                <span class="hljs-keyword">this</span>.defaultRegion = <span class="hljs-literal">undefined</span>;
-                _.each(<span class="hljs-keyword">this</span>._layout.regionManager._regions, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(region, regionName)</span> </span>{
-                    self[regionName] = region; <span class="hljs-comment">//TOOD: mirar compartir instancias del region manager del layout</span>
-                });
-            }
-        },
-        _initApplications: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.isChildApp) {
-                <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
-                _.each(<span class="hljs-keyword">this</span>.applications, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(value, key)</span> </span>{
-                    self._initApp(key, value);
-                });
-                <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'applications:start'</span>);
-            }
-        },
-        _initApp: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(appName, appOptions)</span> </span>{
-            <span class="hljs-keyword">var</span> appClass = appOptions.appClass,
-                startWithParent = appOptions.startWithParent !== <span class="hljs-literal">undefined</span> ? appOptions.startWithParent : <span class="hljs-literal">true</span>;
-    
-            appOptions.region = <span class="hljs-keyword">this</span>._getChildAppRegion(appOptions);
-    
-            <span class="hljs-keyword">if</span> (startWithParent === <span class="hljs-literal">true</span>) {
-                <span class="hljs-keyword">var</span> instanceOptions = _.omit(appOptions, <span class="hljs-string">'appClass'</span>, <span class="hljs-string">'startWithParent'</span>),
-                    instance = <span class="hljs-keyword">this</span>.factory(appClass, instanceOptions);
-                <span class="hljs-keyword">this</span>._childApps[appName] = instance;
-                <span class="hljs-keyword">this</span>.startChildApp(instance, instanceOptions.startOptions);
-            }
-        },
-        _getChildAppRegion: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(appOptions)</span> </span>{
-            <span class="hljs-keyword">var</span> region;
-            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.defaultRegion) { <span class="hljs-comment">//the default region is 'root'</span>
-                <span class="hljs-keyword">if</span> (appOptions.region === <span class="hljs-literal">undefined</span> || appOptions.region === <span class="hljs-keyword">this</span>.defaultRegion) { <span class="hljs-comment">//the subapp region must be undefined or 'root'</span>
-                    region = <span class="hljs-keyword">this</span>._regionManager.get(<span class="hljs-keyword">this</span>.defaultRegion); <span class="hljs-comment">//root region</span>
-                } <span class="hljs-keyword">else</span> {
-                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que crear en la aplicación (main) la region especificada a través de un layout'</span>);
-                }
-            } <span class="hljs-keyword">else</span> {
-                region = <span class="hljs-keyword">this</span>._layout.regionManager.get(appOptions.region);
-                <span class="hljs-keyword">if</span> (!region) { <span class="hljs-comment">//the region must exists</span>
-                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que crear en la aplicación (main) la region especificada a través de un layout'</span>);
-                }
-            }
-            <span class="hljs-keyword">return</span> region;
-        },
-        _initAppRoutesListeners: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <div class="content"><div class='highlight'><pre>        _initChannel: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{ <span class="hljs-comment">//backbone.radio</span>
+            <span class="hljs-keyword">this</span>.globalChannel = <span class="hljs-keyword">this</span>.globalChannel ? Backbone.Radio.channel(<span class="hljs-keyword">this</span>.globalChannel) : Backbone.Radio.channel(<span class="hljs-string">'global'</span>);
+            <span class="hljs-keyword">this</span>.privateChannel = <span class="hljs-keyword">this</span>.privateChannel ? Backbone.Radio.channel(<span class="hljs-keyword">this</span>.privateChannel) : Backbone.Radio.channel(<span class="hljs-keyword">this</span>.aid);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-27">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-27">&#182;</a>
+              </div>
+              <p>Add application routes  to the router and event handlers to the global channel</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _initRoutes: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
             <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
             <span class="hljs-keyword">this</span>._viewControllers = [];
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.routes) {
-                _.each(<span class="hljs-keyword">this</span>.routes, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(value, key)</span> </span>{
-                    self._addAppRoute(key, value);
+                _.each(<span class="hljs-keyword">this</span>.routes, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeOptions, routeName)</span> </span>{
+                    routeOptions = routeOptions || {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-28">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-28">&#182;</a>
+              </div>
+              <p>get view controller instance (it could be a view controller class asigned to the route or a default view controller if no class is specified)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    <span class="hljs-keyword">var</span> viewController = self._getViewController(routeOptions);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-29">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-29">&#182;</a>
+              </div>
+              <p>add the route handler to Jskeleton.Router</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    self._addAppRoute(routeName, routeOptions, viewController);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-30">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-30">&#182;</a>
+              </div>
+              <p>add the event handler to the app globalChannel</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                    self._addAppEventListener(routeName, routeOptions, viewController);
                 });
             }
-        },
-        _addAppRoute: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString, routeOptions)</span> </span>{
-            <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>,
-                viewController;
-            viewController = <span class="hljs-keyword">this</span>._getViewController(routeOptions);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _addAppRoute: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString, routeOptions, viewController)</span> </span>{
+            <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
     
-            <span class="hljs-keyword">this</span>.router.route(routeString, routeOptions.triggerEvent, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-                self.processNavigation.apply(self, [viewController].concat(<span class="hljs-built_in">arguments</span>));
+            <span class="hljs-keyword">this</span>.router.route(routeString, {
+                triggerEvent: routeOptions.triggerEvent,
+                handlerName: routeOptions.handlerName || <span class="hljs-keyword">this</span>.router._getHandlerNameFromRoute(routeString)
+            }, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(args, handlerName)</span> </span>{
+                self.invokeViewControllerRender(viewController, args, handlerName);
             });
-        },
-        _getViewController: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-32">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-32">&#182;</a>
+              </div>
+              <p>Add listen to a global event changing the url with the event parameters and calling to the view-controller</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _addAppEventListener: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString, routeOptions, viewController)</span> </span>{
+            <span class="hljs-keyword">if</span> (routeOptions.eventListener) {
+                <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>,
+                    handlerName = routeOptions.handlerName || <span class="hljs-keyword">this</span>.router._getHandlerNameFromRoute(routeString);
+    
+                <span class="hljs-keyword">this</span>.listenTo(<span class="hljs-keyword">this</span>.globalChannel, routeOptions.eventListener, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(args)</span> </span>{
+                    <span class="hljs-keyword">if</span> (!routeOptions.navigate) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-33">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-33">&#182;</a>
+              </div>
+              <p>update the url</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                        self._navigateTo.call(self, routeString, routeOptions, args);
+                    }
+    
+                    self.invokeViewControllerRender(viewController, args, handlerName);
+                });
+            }
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>Update the url with the specified parameters</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _navigateTo: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString, routeOptions, params)</span> </span>{
+            <span class="hljs-keyword">var</span> triggerValue = routeOptions.triggerNavigate === <span class="hljs-literal">true</span> ? <span class="hljs-literal">true</span> : <span class="hljs-literal">false</span>,
+                processedRoute = <span class="hljs-keyword">this</span>.router._replaceRouteString(routeString, params);
+    
+            <span class="hljs-keyword">this</span>.router.navigate(processedRoute, {
+                trigger: triggerValue
+            });
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-35">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-35">&#182;</a>
+              </div>
+              <p>Get a view controller instance (if no view controller is specified, a default view controller class is instantiated)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _getViewController: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
             <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>,
-                viewClass = options.view,
                 template = options.template,
                 viewControllerOptions = _.extend({
                     app: <span class="hljs-keyword">this</span>,
@@ -550,51 +1042,744 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
             <span class="hljs-keyword">this</span>._viewControllers.push(viewController);
     
             <span class="hljs-keyword">return</span> viewController;
-        },
-        extendViewController: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ViewControllerClass, template)</span> </span>{
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-36">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-36">&#182;</a>
+              </div>
+              <p>Extend view controller class for inyect template dependency</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        extendViewController: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(ViewControllerClass, template)</span> </span>{
             <span class="hljs-keyword">return</span> ViewControllerClass.extend({
                 template: template
             });
-        },
-        _initAppEventsListeners: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
-            <span class="hljs-keyword">this</span>._controllers = [];
-            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.events) {
-                _.each(<span class="hljs-keyword">this</span>.events, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(value, key)</span> </span>{
-                    self._addAppEventListener(key, value);
-                });
-            }
-        },
-        _addAppEventListener: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(eventName, eventOptions)</span> </span>{
-            <span class="hljs-keyword">var</span> controller = <span class="hljs-keyword">this</span>._getViewController(eventOptions),
-                self = <span class="hljs-keyword">this</span>;
-    
-            <span class="hljs-keyword">this</span>.globalChannel.on(eventName, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-                self.processNavigation(controller);
-            });
-        },
-        getChildApp: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(appName)</span> </span>{
-            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._childApps[appName];
-        },
-        getDefaultviewController: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-37">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-37">&#182;</a>
+              </div>
+              <p>Get default application view-controller class if no controller is specified</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getDefaultviewController: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
             <span class="hljs-keyword">return</span> Jskeleton.ViewController;
-        },
-        getDefaultLayoutClass: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-38">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-38">&#182;</a>
+              </div>
+              <p>Get default application layout class if no layoutClass is specified</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getDefaultLayoutClass: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
             <span class="hljs-keyword">return</span> Marionette.LayoutView;
-        },
-        getHook: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-39">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-39">&#182;</a>
+              </div>
+              <p>Factory hook method</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getHook: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
             <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Jskeleton.Hook();
-        },
-        getAppId: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-40">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-40">&#182;</a>
+              </div>
+              <p>Generate unique app id using underscore uniqueId method</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getAppId: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
             <span class="hljs-keyword">return</span> _.uniqueId(<span class="hljs-string">'a'</span>);
         }
     });
+    <span class="hljs-string">'use strict'</span>;
     
+    <span class="hljs-comment">/*globals Marionette, Jskeleton, _, Backbone */</span>
     
-    Jskeleton.Application = Application;
+    <span class="hljs-comment">/* jshint unused: false */</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-41">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-41">&#182;</a>
+              </div>
+              <h2 id="application">Application</h2>
+<p> Application class is a ‘container’ where to store your webapp logic and split it into small ‘pieces’ and ‘components’.
+ It initializes regions, events, routes, channels and child apps.
+ It has a global channel to communicate with others apps and a private channel to communicate with it’s components,
+ A Jskeleton webapp can contain many Jskeleton.Applications.
+ A Jskeleton.Application can define multiple child applications (Jskeleton.ChildApplication).</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Jskeleton.Application = Jskeleton.BaseApplication.extend({</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-42">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-42">&#182;</a>
+              </div>
+              <p>Default dom reference (usefull for the first webapp root region)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        defaultEl: <span class="hljs-string">'body'</span>,
+        constructor: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
+            options = options || {};
     
+            <span class="hljs-keyword">this</span>.rootEl = options.rootEl || <span class="hljs-keyword">this</span>.rootEl || <span class="hljs-keyword">this</span>.defaultEl;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-43">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-43">&#182;</a>
+              </div>
+              <p>Jskeleton.BaseApplication constructor</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            Jskeleton.BaseApplication.prototype.constructor.apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
+    
+            <span class="hljs-keyword">this</span>.applications = options.applications || <span class="hljs-keyword">this</span>.applications || {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-44">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-44">&#182;</a>
+              </div>
+              <p>private object instances of applications</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>._childApps = {};
+    
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+    
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-45">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-45">&#182;</a>
+              </div>
+              <p>Method to start the application, start the childapplications and start listening routes/events</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        start: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
+            <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'before:start'</span>, options);
+            <span class="hljs-keyword">this</span>._initCallbacks.run(options, <span class="hljs-keyword">this</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-46">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-46">&#182;</a>
+              </div>
+              <p>init child apps</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>._initChildApplications(options);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-47">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-47">&#182;</a>
+              </div>
+              <p>Add routes listeners to the Jskeleton.router</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>._initRoutes(options);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-48">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-48">&#182;</a>
+              </div>
+              <p>Add app events listeneres to the global channel
+this._initAppEventsListeners(options);
+Start the Jskeleton router</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.startRouter();
+            <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'start'</span>, options);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-49">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-49">&#182;</a>
+              </div>
+              <p>Method to explicit start a child app instance</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        startChildApp: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(childApp, options)</span> </span>{
+            childApp.start(options);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-50">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-50">&#182;</a>
+              </div>
+              <p>Method to start listening the backbone.router (called by a Main app)</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        startRouter: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-keyword">this</span>.router.start();
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-51">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-51">&#182;</a>
+              </div>
+              <p>Private method to initialize the application regions</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _initializeRegions: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-52">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-52">&#182;</a>
+              </div>
+              <p>ensure initial root DOM reference is available</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>._ensureEl();
+            <span class="hljs-keyword">this</span>._initRegionManager();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-53">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-53">&#182;</a>
+              </div>
+              <p>Create root region on root DOM reference</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>._createRootRegion();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-54">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-54">&#182;</a>
+              </div>
+              <p>Create a layout for the application if a layoutView its defined</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>._createApplicationLayout();
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-55">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-55">&#182;</a>
+              </div>
+              <p>Private method to ensure that the main application has a dom reference where create the root webapp region</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _ensureEl: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.$rootEl) {
+                <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.rootEl) {
+                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que definir una rootEl para la Main App'</span>);
+                }
+                <span class="hljs-keyword">this</span>.$rootEl = $(<span class="hljs-keyword">this</span>.rootEl);
+            }
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-56">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-56">&#182;</a>
+              </div>
+              <p>Add the root region to the main application</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _createRootRegion: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-keyword">this</span>.addRegions({
+                root: <span class="hljs-keyword">this</span>.rootEl
+            });
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-57">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-57">&#182;</a>
+              </div>
+              <p>Create a layout for the Application to have more regions</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _createApplicationLayout: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-keyword">this</span>.defaultRegion = <span class="hljs-string">'root'</span>;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.layout &amp;&amp; <span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>.layout === <span class="hljs-string">'object'</span>) { <span class="hljs-comment">//ensure layout object is defined</span>
+                <span class="hljs-keyword">this</span>.layoutTemplate = <span class="hljs-keyword">this</span>.layout.template; <span class="hljs-comment">//TODO: lanzar aserción</span>
+                <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.layoutTemplate) {
+                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Si defines un objeto layout tienes que definir un template'</span>);
+                }
+                <span class="hljs-keyword">this</span>.layoutClass = <span class="hljs-keyword">this</span>.layout.layoutClass || <span class="hljs-keyword">this</span>.getDefaultLayoutClass();
+                <span class="hljs-keyword">this</span>.layoutClass = <span class="hljs-keyword">this</span>.layoutClass.extend({
+                    template: <span class="hljs-keyword">this</span>.layoutTemplate
+                });
+                <span class="hljs-keyword">this</span>._layout = <span class="hljs-keyword">this</span>.factory(<span class="hljs-keyword">this</span>.layoutClass, <span class="hljs-keyword">this</span>.layout.options);
+                <span class="hljs-keyword">this</span>.root.show(<span class="hljs-keyword">this</span>._layout);
+    
+                <span class="hljs-keyword">this</span>._addLayoutRegions();
+            }
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-58">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-58">&#182;</a>
+              </div>
+              <p>Expose layout regions to the application namespace</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _addLayoutRegions: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._layout.regionManager.length &gt; <span class="hljs-number">0</span>) { <span class="hljs-comment">//mirar lo del length de regions</span>
+                <span class="hljs-keyword">this</span>.defaultRegion = <span class="hljs-literal">undefined</span>;
+                _.each(<span class="hljs-keyword">this</span>._layout.regionManager._regions, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(region, regionName)</span> </span>{
+                    self[regionName] = region; <span class="hljs-comment">//TOOD: mirar compartir instancias del region manager del layout</span>
+                });
+            }
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-59">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-59">&#182;</a>
+              </div>
+              <p>Iterate over child applications to start each one</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _initChildApplications: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.isChildApp) {
+                <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
+                _.each(<span class="hljs-keyword">this</span>.applications, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(value, key)</span> </span>{
+                    self._initChildApp(key, value);
+                });
+                <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'applications:start'</span>);
+            }
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-60">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-60">&#182;</a>
+              </div>
+              <p>Start child application with it’s dependencies injected</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _initChildApp: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(appName, appOptions)</span> </span>{
+            <span class="hljs-keyword">var</span> appClass = appOptions.appClass,
+                startWithParent = appOptions.startWithParent !== <span class="hljs-literal">undefined</span> ? appOptions.startWithParent : <span class="hljs-literal">true</span>;
+    
+            appOptions.region = <span class="hljs-keyword">this</span>._getChildAppRegion(appOptions);
+    
+            <span class="hljs-keyword">if</span> (startWithParent === <span class="hljs-literal">true</span>) {
+                <span class="hljs-keyword">var</span> instanceOptions = _.omit(appOptions, <span class="hljs-string">'appClass'</span>, <span class="hljs-string">'startWithParent'</span>),
+                    instance = <span class="hljs-keyword">this</span>.factory(appClass, instanceOptions);
+                <span class="hljs-keyword">this</span>._childApps[appName] = instance;
+                <span class="hljs-keyword">this</span>.startChildApp(instance, instanceOptions.startOptions);
+            }
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-61">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-61">&#182;</a>
+              </div>
+              <p>Get the region where a child application will be rendered</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _getChildAppRegion: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(appOptions)</span> </span>{
+            <span class="hljs-keyword">var</span> region;
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.defaultRegion) { <span class="hljs-comment">//the default region is 'root'</span>
+                <span class="hljs-keyword">if</span> (appOptions.region === <span class="hljs-literal">undefined</span> || appOptions.region === <span class="hljs-keyword">this</span>.defaultRegion) { <span class="hljs-comment">//the subapp region must be undefined or 'root'</span>
+                    region = <span class="hljs-keyword">this</span>._regionManager.get(<span class="hljs-keyword">this</span>.defaultRegion); <span class="hljs-comment">//root region</span>
+                } <span class="hljs-keyword">else</span> {
+                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que crear en la aplicación (main) la region especificada a través de un layout'</span>);
+                }
+            } <span class="hljs-keyword">else</span> {
+                region = <span class="hljs-keyword">this</span>._layout.regionManager.get(appOptions.region);
+                <span class="hljs-keyword">if</span> (!region) { <span class="hljs-comment">//the region must exists</span>
+                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que crear en la aplicación (main) la region especificada a través de un layout'</span>);
+                }
+            }
+            <span class="hljs-keyword">return</span> region;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-62">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-62">&#182;</a>
+              </div>
+              <p>Get child app instance by name</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        getChildApp: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(appName)</span> </span>{
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>._childApps[appName];
+        }
+    });
+    <span class="hljs-string">'use strict'</span>;
+    
+    <span class="hljs-comment">/*globals Marionette, Jskeleton, _, Backbone */</span>
+    
+    <span class="hljs-comment">/* jshint unused: false */</span></pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-63">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-63">&#182;</a>
+              </div>
+              <h2 id="childapplication">ChildApplication</h2>
+<p> ChildApplication class is a ‘container’ where to store your webapp logic and split it into small ‘pieces’ and ‘components’.
+ It initializes regions, events, routes and channels.
+ It cannot contain child applications.</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-64">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-64">&#182;</a>
+              </div>
+              <p>Default parent region name where the application will be rendered</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        defaultRegion: <span class="hljs-string">'root'</span>,
+        constructor: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
+            options = options || {};</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-65">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-65">&#182;</a>
+              </div>
+              <p>reference to the parent app</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.parentApp = options.parentApp;
+    
+            <span class="hljs-keyword">if</span> (!options.region) {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'La child app tiene que tener una region específica'</span>);
+            }</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-66">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-66">&#182;</a>
+              </div>
+              <p>Add the injected region as root</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.rootRegion = options.region;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-67">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-67">&#182;</a>
+              </div>
+              <p>Jskeleton.BaseApplication constructor</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            Jskeleton.BaseApplication.prototype.constructor.apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
+    
+            <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>;
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-68">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-68">&#182;</a>
+              </div>
+              <p>Method to start the application and listening routes/events</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        start: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
+            <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'before:start'</span>, options);
+    
+            <span class="hljs-keyword">this</span>._initCallbacks.run(options, <span class="hljs-keyword">this</span>);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-69">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-69">&#182;</a>
+              </div>
+              <p>Add routes listeners to the Jskeleton.router</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>._initRoutes(options);</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-70">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-70">&#182;</a>
+              </div>
+              <p>Add app events listeneres to the global channel
+this._initAppEventsListeners(options);</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>    
+            <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'start'</span>, options);
+        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-71">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-71">&#182;</a>
+              </div>
+              <p>Private method to initialize de application regions</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _initializeRegions: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-72">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-72">&#182;</a>
+              </div>
+              <p>ensure initial root region is available</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>._ensureRootRegion();
+    
+            <span class="hljs-keyword">this</span>._initRegionManager();</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-73">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-73">&#182;</a>
+              </div>
+              <p>Create a layout for the application if a layoutView its defined
+this._createLayoutApp();</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-74">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-74">&#182;</a>
+              </div>
+              <p>Private method to ensure that parent region exists</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _ensureRootRegion: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.rootRegion || <span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>.rootRegion.show !== <span class="hljs-string">'function'</span>) {
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que definir una region para la Child Application'</span>);
+            }
+        }
+    });
         <span class="hljs-string">'use strict'</span>;
-        <span class="hljs-comment">/*globals Jskeleton, Marionette, _ */</span>
+    
+        <span class="hljs-comment">/*globals Jskeleton, Marionette */</span>
     
         Jskeleton.ViewController = Marionette.LayoutView.extend({
             constructor: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{ <span class="hljs-comment">//inyectar app, channel, region</span>
@@ -618,18 +1803,6 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
                     <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'El view-controller necesita tener una region específica'</span>);
                 }
             },
-            processNavigation: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(route)</span> </span>{
-                <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'before:navigate'</span>);
-    
-                <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'state:change'</span>, <span class="hljs-keyword">this</span>.service, route);
-    
-                <span class="hljs-keyword">this</span>.renderViewController();
-    
-                <span class="hljs-keyword">this</span>.triggerMethod(<span class="hljs-string">'navigate'</span>);
-            },
-            renderViewController: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-                <span class="hljs-keyword">this</span>.render();
-            },
             mixinTemplateHelpers: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(target)</span> </span>{
                 target = target || {};
                 <span class="hljs-keyword">var</span> templateHelpers = <span class="hljs-keyword">this</span>.getOption(<span class="hljs-string">'templateHelpers'</span>);
@@ -649,29 +1822,8 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
                 };
     
                 <span class="hljs-keyword">return</span> templateContext;
-            }</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-12">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-12">&#182;</a>
-              </div>
-              <p>onRender: function(){</p>
-<p>}
-onBeforeNavigate: function(){
-    //TODO: service
-}
-onNavigate: function(){
-    //TODO: service
-}</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        });
+            }
+        });
 
 
     <span class="hljs-keyword">return</span> Jskeleton;

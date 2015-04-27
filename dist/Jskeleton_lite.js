@@ -268,13 +268,16 @@
     Jskeleton.factory = factory;
     
     'use strict';
-    /*globals Jskeleton */
+    
+    /*globals Jskeleton, Backbone, _ */
+    
     /* jshint unused: false */
     
-    var Router = Backbone.Router.extend({
+    var paramsNames = /:\w(\_|\w|\d)*/g;
     
+    //## Router
+    Jskeleton.Router = Backbone.Router.extend({
         routes: {},
-    
         initialize: function() {
             this.listenTo(this, 'route', function() {
                 var route = arguments[0];
@@ -284,45 +287,117 @@
                 console.log(route);
             });
         },
+        //replace string chars (instead using encodeUrl)
+        replaceSpecialChars: function(text) {
+            if (typeof text === 'string') {
     
-        /**
-         * A shorthand of app.router.route with the event name convention.
-         * @memberof app.router
-         * @example
-         * routes names and its events names
-         * user -> router:route:user
-         * user/profile -> router:route:user:profile
-         * user/:id -> router:route:user
-         * user(/:id) -> router:route:user
-         * @param {String} route   route name to listen
-         * @param {Function} handler function to calls when route is satisfied
-         */
-        addRoute: function(route, handler) {
-            route = route || '';
+                var specialChars = 'ãàáäâèéëêìíïîòóöôùúüûÑñÇç \'',
+                    chars = 'aaaaaeeeeiiiioooouuuunncc--';
     
-            console.log('router:add:before', route);
+                for (var i = 0; i < specialChars.length; i++) {
+                    text = text.replace(new RegExp(specialChars.charAt(i), 'g'), chars.charAt(i));
+                }
+            }
     
-            // Unify routes regexp names
-            var eventName = 'router:route:' + route.split('(')[0].split('/:')[0].split('/').join(':');
-    
-            console.log('router:add:after', eventName);
-    
-            this.route(route, eventName, handler);
+            return text;
         },
+        route: function(routeString, options, callback) {
+            var routeRegex,
+                handlerName = options.handlerName && typeof options.handlerName === 'string' ? options.handlerName : this._getHandlerNameFromRoute(routeString),
+                argsNames = this._getRouteParamsNames(routeString),
+                name = options.name;
     
-        /**
-         * Router initialization.
-         * Bypass all anchor links except those with data-bypass attribute
-         * Starts router history. All routes should be already added
-         * @memberof app.router
-         */
+            if (!_.isRegExp(routeString)) {
+                routeRegex = this._routeToRegExp(routeString);
+            }
+    
+            if (!callback) {
+                callback = this[name];
+            }
+    
+            var router = this;
+    
+            Backbone.history.route(routeRegex, function(fragment) {
+                var args = router._extractParameters(routeRegex, fragment, argsNames);
+                if (router.execute(callback, args, handlerName) !== false) {
+                    router.trigger.apply(router, ['route:' + name].concat(args));
+                    router.trigger('route', name, args);
+                    Backbone.history.trigger('route', router, name, args);
+                }
+            });
+            return this;
+        },
+        //method to replace a route string with the specified params
+        _replaceRouteString: function(routeString, params) {
+            var self = this;
+            _.each(params, function(value, key) {
+                routeString = routeString.replace(/:(\w)+/, function(x) {
+                    //remove : character
+                    x = x.substr(1, x.length - 1);
+                    return params[x] ? self.replaceSpecialChars(String(params[x])) : ''; //todo
+                });
+            });
+    
+            //replace uncomplete conditionals ex. (:id) and coinditional parenthesis ()
+            return routeString.replace(/\(([^\):])*:([^\):])*\)/g, '').replace(/\(|\)/g, '');
+        },
+        //Cast url string to a default camel case name (commonly to call view-controller method)
+        //ex: '/show/details -> onShowDetails'
+        _getHandlerNameFromRoute: function(routeString) {
+            var replacedString = routeString.substr(0, routeString.indexOf(':')).replace(/\/(\w|\d)?/g, function(x) {
+                    return x.replace(/\//g, '').toUpperCase();
+                }),
+                handlerName = 'on' + replacedString.charAt(0).toUpperCase() + replacedString.slice(1);
+    
+            return handlerName;
+        },
+        //Execute a route handler with the provided parameters.
+        //Override Backbone.Router.exectue method to provide the
+        //view controller handlerName based on routeString.
+        execute: function(callback, args, handlerName) {
+            if (callback) {
+                callback.call(this, args, handlerName);
+            }
+        },
+        //Execute a route handler with the provided parameters.
+        //Override Backbone.Router._extractParameters method to
+        //return parameters as object
+        _extractParameters: function(route, fragment, argsNames) {
+            var params = route.exec(fragment).slice(1),
+                paramsObject = {};
+    
+            _.each(params, function(param, i) {
+                if (i === params.length - 1) {
+                    param = param || null;
+                } else {
+                    param = param ? decodeURIComponent(param) : null;
+                }
+    
+                if (argsNames[i] !== undefined) {
+                    paramsObject[argsNames[i]] = param;
+                }
+            });
+    
+            return paramsObject;
+        },
+        //Extracts route params names as array.
+        _getRouteParamsNames: function(routeString) {
+            var name = paramsNames.exec(routeString),
+                names = [];
+    
+            while (name !== null) {
+                names.push(name[0].replace(':', ''));
+                name = paramsNames.exec(routeString);
+            }
+    
+            return names;
+        },
+        // Router initialization.
+        // Bypass all anchor links except those with data-bypass attribute
+        // Starts router history. All routes should be already added
         init: function() {
-            console.log('router.after');
-    
-            console.log('router.Backbone.history.start');
             // Trigger the initial route and enable HTML5 History API support, set the
             // root folder to '/' by default.  Change in app.js.
-    
             Backbone.history.start();
     
             // log.debug('router.location.hash', window.location.hash.replace('#/', '/'));
@@ -331,30 +406,25 @@
         start: function() {
             this.init();
         }
-    });
+    }, {
+        getSingleton: function() {
     
+            var instance = null;
     
-    Router.getSingleton = function() {
-    
-        var instance = null;
-    
-        function getInstance() {
-            if (!instance) {
-                instance = new Router();
+            function getInstance() {
+                if (!instance) {
+                    instance = new Jskeleton.Router();
+                }
+                return instance;
             }
-            return instance;
+    
+            Jskeleton.router = getInstance();
+            return Jskeleton.router;
+        },
+        start: function(app) {
+            app.router.init();
         }
-    
-        Jskeleton.router = getInstance();
-        return Jskeleton.router;
-    };
-    
-    
-    Router.start = function(app) {
-        router.init();
-    };
-    
-    Jskeleton.Router = Router;
+    });
     'use strict';
     /*globals Marionette, Jskeleton, _ */
     /* jshint unused: false */
@@ -382,177 +452,117 @@
     Jskeleton.Service = Service;
     
     'use strict';
+    
     /*globals Marionette, Jskeleton, _, Backbone */
+    
     /* jshint unused: false */
     
-    var Application = Marionette.Application.extend({
-        defaultEl: 'body',
-        defaultRegion: 'root',
-        isChildApp: false,
+    //## BaseApplication
+    //  BaseApplication Class that other Jskeleton.Applications can extend from.
+    //  It contains common application behavior as router/events initialization, application channels set up, common get methods...
+    Jskeleton.BaseApplication = Marionette.Application.extend({
+        //Default global webapp channel for communicate with other apps
         globalChannel: 'global',
         constructor: function(options) {
             options = options || {};
-            this.aid = this.getAppId();
-            this.rootEl = options.rootEl || this.rootEl || this.defaultEl;
-            this.router = Jskeleton.Router.getSingleton();
-            if (options.parentApp) {
-                this._childAppConstructor(options);
-            }
-            Marionette.Application.prototype.constructor.apply(this, arguments); //parent constructor (super)
-            this.applications = options.applications || this.applications || {};
-            this._childApps = {}; //instances object subapps
     
+            //generate application id
+            this.aid = this.getAppId();
+    
+            this.router = Jskeleton.Router.getSingleton();
+    
+            Marionette.Application.prototype.constructor.apply(this, arguments);
         },
-        start: function(options) {
-            this.triggerMethod('before:start', options);
-            this._initCallbacks.run(options, this);
-            this._initApplications(options); //init child apps
-            this._initAppRoutesListeners(options); //init child apps
-            this._initAppEventsListeners(options); //init child apps
-            if (!this.parentApp) {
-                this.startRouter();
-            }
-            this.triggerMethod('start', options);
-        },
-        processNavigation: function(controllerView) {
+        //Call to the specified view-controller method for render a app state
+        invokeViewControllerRender: function(controllerView, args, handlerName) {
             var hook = this.getHook();
             this.triggerMethod('onNavigate', controllerView, hook);
             hook.processBefore();
-            //TODO: Tener en cuenta que el controller puede no pintarse "asincronamente" si tiene un flag determinado, teniendo que devolver un promesa o algo por el estilo (lanzar un evento etc.)
-            controllerView.processNavigation.apply(controllerView, Array.prototype.slice.call(arguments, 1));
+    
+            if (typeof controllerView[handlerName] !== 'function') {
+                throw new Error('El metodo ' + handlerName + ' del view controller no existe');
+            }
+    
+            controllerView[handlerName].call(controllerView, args, this.service);
+            controllerView.render.call(controllerView);
             hook.processAfter();
         },
-        startChildApp: function(childApp, options) {
-            childApp.start(options);
-        },
+        //Factory method to instance objects from Class references
         factory: function(Class, options) {
             options = options || {};
             options.parentApp = this;
             return new Class(options);
         },
-        startRouter: function() {
-            this.router.start();
-        },
+        //Internal method to create an application private channel and set the global channel
         _initChannel: function() { //backbone.radio
             this.globalChannel = this.globalChannel ? Backbone.Radio.channel(this.globalChannel) : Backbone.Radio.channel('global');
             this.privateChannel = this.privateChannel ? Backbone.Radio.channel(this.privateChannel) : Backbone.Radio.channel(this.aid);
         },
-        _childAppConstructor: function(options) {
-            this.isChildApp = true; //flag if this is a childApp
-            this.parentApp = options.parentApp; //reference to the parent app (if exist)
-            if (!options.region) {
-                throw new Error('La sub app tiene que tener una region específica');
-            }
-            this.region = options.region;
-        },
-        _initializeRegions: function() {
-            if (!this.isChildApp) { // is a parent app (Main app)
-                this._ensureEl(); //ensure initial root DOM reference is available
-                this._initRegionManager();
-                this._createRootRegion(); // Create root region on root DOM reference
-                this._createLayoutApp();
-            } else { //is childApp
-                //TODO: ensure that parent region exists
-            }
-        },
-        _ensureEl: function() {
-            if (!this.$rootEl) {
-                if (!this.rootEl) {
-                    throw new Error('Tienes que definir una rootEl para la Main App');
-                }
-                this.$rootEl = $(this.rootEl);
-            }
-        },
-        _createRootRegion: function() {
-            this.addRegions({
-                root: this.rootEl
-            });
-        },
-        _createLayoutApp: function() {
-            this.defaultRegion = 'root';
-            if (this.layout && typeof this.layout === 'object') { //ensure layout object is defined
-                this.layoutTemplate = this.layout.template; //TODO: lanzar aserción
-                if (!this.layoutTemplate) {
-                    throw new Error('Si defines un objeto layout tienes que definir un template');
-                }
-                this.layoutClass = this.layout.layoutClass || this.getDefaultLayoutClass();
-                this.layoutClass = this.layoutClass.extend({
-                    template: this.layoutTemplate
-                });
-                this._layout = this.factory(this.layoutClass, this.layout.options);
-                this.root.show(this._layout);
-    
-                this._addLayoutRegions();
-            }
-        },
-        _addLayoutRegions: function() {
-            var self = this;
-            if (this._layout.regionManager.length > 0) { //mirar lo del length de regions
-                this.defaultRegion = undefined;
-                _.each(this._layout.regionManager._regions, function(region, regionName) {
-                    self[regionName] = region; //TOOD: mirar compartir instancias del region manager del layout
-                });
-            }
-        },
-        _initApplications: function() {
-            if (!this.isChildApp) {
-                var self = this;
-                _.each(this.applications, function(value, key) {
-                    self._initApp(key, value);
-                });
-                this.triggerMethod('applications:start');
-            }
-        },
-        _initApp: function(appName, appOptions) {
-            var appClass = appOptions.appClass,
-                startWithParent = appOptions.startWithParent !== undefined ? appOptions.startWithParent : true;
-    
-            appOptions.region = this._getChildAppRegion(appOptions);
-    
-            if (startWithParent === true) {
-                var instanceOptions = _.omit(appOptions, 'appClass', 'startWithParent'),
-                    instance = this.factory(appClass, instanceOptions);
-                this._childApps[appName] = instance;
-                this.startChildApp(instance, instanceOptions.startOptions);
-            }
-        },
-        _getChildAppRegion: function(appOptions) {
-            var region;
-            if (this.defaultRegion) { //the default region is 'root'
-                if (appOptions.region === undefined || appOptions.region === this.defaultRegion) { //the subapp region must be undefined or 'root'
-                    region = this._regionManager.get(this.defaultRegion); //root region
-                } else {
-                    throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
-                }
-            } else {
-                region = this._layout.regionManager.get(appOptions.region);
-                if (!region) { //the region must exists
-                    throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
-                }
-            }
-            return region;
-        },
-        _initAppRoutesListeners: function() {
+        //Add application routes  to the router and event handlers to the global channel
+        _initRoutes: function() {
             var self = this;
             this._viewControllers = [];
             if (this.routes) {
-                _.each(this.routes, function(value, key) {
-                    self._addAppRoute(key, value);
+                _.each(this.routes, function(routeOptions, routeName) {
+                    routeOptions = routeOptions || {};
+                    //get view controller instance (it could be a view controller class asigned to the route or a default view controller if no class is specified)
+                    var viewController = self._getViewController(routeOptions);
+                    //add the route handler to Jskeleton.Router
+                    self._addAppRoute(routeName, routeOptions, viewController);
+                    //add the event handler to the app globalChannel
+                    self._addAppEventListener(routeName, routeOptions, viewController);
                 });
             }
         },
-        _addAppRoute: function(routeString, routeOptions) {
-            var self = this,
-                viewController;
-            viewController = this._getViewController(routeOptions);
+        //
+        _addAppRoute: function(routeString, routeOptions, viewController) {
+            var self = this;
     
-            this.router.route(routeString, routeOptions.triggerEvent, function() {
-                self.processNavigation.apply(self, [viewController].concat(arguments));
+            this.router.route(routeString, {
+                triggerEvent: routeOptions.triggerEvent,
+                handlerName: routeOptions.handlerName || this._getViewControllerHandlerName(routeString)
+            }, function(args, handlerName) {
+                self.invokeViewControllerRender(viewController, args, handlerName);
             });
         },
+        //Add listen to a global event changing the url with the event parameters and calling to the view-controller
+        _addAppEventListener: function(routeString, routeOptions, viewController) {
+            if (routeOptions.eventListener) {
+                var self = this,
+                    handlerName = routeOptions.handlerName || this._getViewControllerHandlerName(routeString);
+    
+                this.listenTo(this.globalChannel, routeOptions.eventListener, function(args) {
+                    if (!routeOptions.navigate) {
+                        //update the url
+                        self._navigateTo.call(self, routeString, routeOptions, args);
+                    }
+    
+                    self.invokeViewControllerRender(viewController, args, handlerName);
+                });
+            }
+        },
+        //Update the url with the specified parameters
+        _navigateTo: function(routeString, routeOptions, params) {
+            var triggerValue = routeOptions.triggerNavigate === true ? true : false,
+                processedRoute = this.router._replaceRouteString(routeString, params);
+    
+            this.router.navigate(processedRoute, {
+                trigger: triggerValue
+            });
+        },
+        _getViewControllerHandlerName: function(routeString) {
+            var handlerName = this.routes[routeString].handlerName || this.router._getHandlerNameFromRoute(routeString);
+    
+            if (!this.routes[routeString].handlerName) {
+                //set the route handler name to the app route object
+                this.routes[routeString].handlerName = handlerName;
+            }
+    
+            return handlerName;
+        },
+        //Get a view controller instance (if no view controller is specified, a default view controller class is instantiated)
         _getViewController: function(options) {
             var self = this,
-                viewClass = options.view,
                 template = options.template,
                 viewControllerOptions = _.extend({
                     app: this,
@@ -575,50 +585,244 @@
     
             return viewController;
         },
+        //Extend view controller class for inyect template dependency
         extendViewController: function(ViewControllerClass, template) {
             return ViewControllerClass.extend({
                 template: template
             });
         },
-        _initAppEventsListeners: function() {
-            var self = this;
-            this._controllers = [];
-            if (this.events) {
-                _.each(this.events, function(value, key) {
-                    self._addAppEventListener(key, value);
-                });
-            }
-        },
-        _addAppEventListener: function(eventName, eventOptions) {
-            var controller = this._getViewController(eventOptions),
-                self = this;
-    
-            this.globalChannel.on(eventName, function() {
-                self.processNavigation(controller);
-            });
-        },
-        getChildApp: function(appName) {
-            return this._childApps[appName];
-        },
+        //Get default application view-controller class if no controller is specified
         getDefaultviewController: function() {
             return Jskeleton.ViewController;
         },
+        //Get default application layout class if no layoutClass is specified
         getDefaultLayoutClass: function() {
             return Marionette.LayoutView;
         },
+        //Factory hook method
         getHook: function() {
             return new Jskeleton.Hook();
         },
+        //Generate unique app id using underscore uniqueId method
         getAppId: function() {
             return _.uniqueId('a');
         }
     });
+    'use strict';
+    
+    /*globals Marionette, Jskeleton, _, Backbone */
+    
+    /* jshint unused: false */
     
     
-    Jskeleton.Application = Application;
+    //## Application
+    //  Application class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
+    //  It initializes regions, events, routes, channels and child apps.
+    //  It has a global channel to communicate with others apps and a private channel to communicate with it's components,
+    //  A Jskeleton webapp can contain many Jskeleton.Applications.
+    //  A Jskeleton.Application can define multiple child applications (Jskeleton.ChildApplication).
+    Jskeleton.Application = Jskeleton.BaseApplication.extend({
+        //Default dom reference (usefull for the first webapp root region)
+        defaultEl: 'body',
+        constructor: function(options) {
+            options = options || {};
     
+            this.rootEl = options.rootEl || this.rootEl || this.defaultEl;
+    
+            //Jskeleton.BaseApplication constructor
+            Jskeleton.BaseApplication.prototype.constructor.apply(this, arguments);
+    
+            this.applications = options.applications || this.applications || {};
+            //private object instances of applications
+            this._childApps = {};
+    
+            return this;
+    
+        },
+        //Method to start the application, start the childapplications and start listening routes/events
+        start: function(options) {
+            this.triggerMethod('before:start', options);
+            this._initCallbacks.run(options, this);
+            //init child apps
+            this._initChildApplications(options);
+            //Add routes listeners to the Jskeleton.router
+            this._initRoutes(options);
+            //Add app events listeneres to the global channel
+            // this._initAppEventsListeners(options);
+            //Start the Jskeleton router
+            this.startRouter();
+            this.triggerMethod('start', options);
+        },
+        //Method to explicit start a child app instance
+        startChildApp: function(childApp, options) {
+            childApp.start(options);
+        },
+        //Method to start listening the backbone.router (called by a Main app)
+        startRouter: function() {
+            this.router.start();
+        },
+        //Private method to initialize the application regions
+        _initializeRegions: function() {
+            //ensure initial root DOM reference is available
+            this._ensureEl();
+            this._initRegionManager();
+            // Create root region on root DOM reference
+            this._createRootRegion();
+            // Create a layout for the application if a layoutView its defined
+            this._createApplicationLayout();
+        },
+        //Private method to ensure that the main application has a dom reference where create the root webapp region
+        _ensureEl: function() {
+            if (!this.$rootEl) {
+                if (!this.rootEl) {
+                    throw new Error('Tienes que definir una rootEl para la Main App');
+                }
+                this.$rootEl = $(this.rootEl);
+            }
+        },
+        //Add the root region to the main application
+        _createRootRegion: function() {
+            this.addRegions({
+                root: this.rootEl
+            });
+        },
+        //Create a layout for the Application to have more regions
+        _createApplicationLayout: function() {
+            this.defaultRegion = 'root';
+            if (this.layout && typeof this.layout === 'object') { //ensure layout object is defined
+                this.layoutTemplate = this.layout.template; //TODO: lanzar aserción
+                if (!this.layoutTemplate) {
+                    throw new Error('Si defines un objeto layout tienes que definir un template');
+                }
+                this.layoutClass = this.layout.layoutClass || this.getDefaultLayoutClass();
+                this.layoutClass = this.layoutClass.extend({
+                    template: this.layoutTemplate
+                });
+                this._layout = this.factory(this.layoutClass, this.layout.options);
+                this.root.show(this._layout);
+    
+                this._addLayoutRegions();
+            }
+        },
+        //Expose layout regions to the application namespace
+        _addLayoutRegions: function() {
+            var self = this;
+            if (this._layout.regionManager.length > 0) { //mirar lo del length de regions
+                this.defaultRegion = undefined;
+                _.each(this._layout.regionManager._regions, function(region, regionName) {
+                    self[regionName] = region; //TOOD: mirar compartir instancias del region manager del layout
+                });
+            }
+        },
+        //Iterate over child applications to start each one
+        _initChildApplications: function() {
+            if (!this.isChildApp) {
+                var self = this;
+                _.each(this.applications, function(value, key) {
+                    self._initChildApp(key, value);
+                });
+                this.triggerMethod('applications:start');
+            }
+        },
+        //Start child application with it's dependencies injected
+        _initChildApp: function(appName, appOptions) {
+            var appClass = appOptions.appClass,
+                startWithParent = appOptions.startWithParent !== undefined ? appOptions.startWithParent : true;
+    
+            appOptions.region = this._getChildAppRegion(appOptions);
+    
+            if (startWithParent === true) {
+                var instanceOptions = _.omit(appOptions, 'appClass', 'startWithParent'),
+                    instance = this.factory(appClass, instanceOptions);
+                this._childApps[appName] = instance;
+                this.startChildApp(instance, instanceOptions.startOptions);
+            }
+        },
+        //Get the region where a child application will be rendered
+        _getChildAppRegion: function(appOptions) {
+            var region;
+            if (this.defaultRegion) { //the default region is 'root'
+                if (appOptions.region === undefined || appOptions.region === this.defaultRegion) { //the subapp region must be undefined or 'root'
+                    region = this._regionManager.get(this.defaultRegion); //root region
+                } else {
+                    throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
+                }
+            } else {
+                region = this._layout.regionManager.get(appOptions.region);
+                if (!region) { //the region must exists
+                    throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
+                }
+            }
+            return region;
+        },
+        //Get child app instance by name
+        getChildApp: function(appName) {
+            return this._childApps[appName];
+        }
+    });
+    'use strict';
+    
+    /*globals Marionette, Jskeleton, _, Backbone */
+    
+    /* jshint unused: false */
+    
+    
+    //## ChildApplication
+    //  ChildApplication class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
+    //  It initializes regions, events, routes and channels.
+    //  It cannot contain child applications.
+    Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
+        //Default parent region name where the application will be rendered
+        defaultRegion: 'root',
+        constructor: function(options) {
+            options = options || {};
+            //reference to the parent app
+            this.parentApp = options.parentApp;
+    
+            if (!options.region) {
+                throw new Error('La child app tiene que tener una region específica');
+            }
+    
+            //Add the injected region as root
+            this.rootRegion = options.region;
+    
+            //Jskeleton.BaseApplication constructor
+            Jskeleton.BaseApplication.prototype.constructor.apply(this, arguments);
+    
+            return this;
+        },
+        //Method to start the application and listening routes/events
+        start: function(options) {
+            this.triggerMethod('before:start', options);
+    
+            this._initCallbacks.run(options, this);
+            //Add routes listeners to the Jskeleton.router
+            this._initRoutes(options);
+            //Add app events listeneres to the global channel
+            // this._initAppEventsListeners(options);
+    
+            this.triggerMethod('start', options);
+        },
+        //Private method to initialize de application regions
+        _initializeRegions: function() {
+            //ensure initial root region is available
+            this._ensureRootRegion();
+    
+            this._initRegionManager();
+    
+            // Create a layout for the application if a layoutView its defined
+            // this._createLayoutApp();
+        },
+        //Private method to ensure that parent region exists
+        _ensureRootRegion: function() {
+            if (!this.rootRegion || typeof this.rootRegion.show !== 'function') {
+                throw new Error('Tienes que definir una region para la Child Application');
+            }
+        }
+    });
         'use strict';
-        /*globals Jskeleton, Marionette, _ */
+    
+        /*globals Jskeleton, Marionette */
     
         Jskeleton.ViewController = Marionette.LayoutView.extend({
             constructor: function(options) { //inyectar app, channel, region
@@ -642,18 +846,6 @@
                     throw new Error('El view-controller necesita tener una region específica');
                 }
             },
-            processNavigation: function(route) {
-                this.triggerMethod('before:navigate');
-    
-                this.triggerMethod('state:change', this.service, route);
-    
-                this.renderViewController();
-    
-                this.triggerMethod('navigate');
-            },
-            renderViewController: function() {
-                this.render();
-            },
             mixinTemplateHelpers: function(target) {
                 target = target || {};
                 var templateHelpers = this.getOption('templateHelpers');
@@ -674,15 +866,6 @@
     
                 return templateContext;
             }
-            //onRender: function(){
-            //
-            //}
-            // onBeforeNavigate: function(){
-            // 	//TODO: service
-            // }
-            // onNavigate: function(){
-            // 	//TODO: service
-            // }
         });
 
 
