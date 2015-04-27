@@ -1,11 +1,14 @@
 'use strict';
-/*globals Jskeleton */
+
+/*globals Jskeleton, Backbone, _ */
+
 /* jshint unused: false */
 
-var Router = Backbone.Router.extend({
+var paramsNames = /:\w(\_|\w|\d)*/g;
 
+//## Router
+Jskeleton.Router = Backbone.Router.extend({
     routes: {},
-
     initialize: function() {
         this.listenTo(this, 'route', function() {
             var route = arguments[0];
@@ -15,45 +18,120 @@ var Router = Backbone.Router.extend({
             console.log(route);
         });
     },
+    //replace string chars (instead using encodeUrl)
+    replaceSpecialChars: function(text) {
+        if (typeof text === 'string') {
 
-    /**
-     * A shorthand of app.router.route with the event name convention.
-     * @memberof app.router
-     * @example
-     * routes names and its events names
-     * user -> router:route:user
-     * user/profile -> router:route:user:profile
-     * user/:id -> router:route:user
-     * user(/:id) -> router:route:user
-     * @param {String} route   route name to listen
-     * @param {Function} handler function to calls when route is satisfied
-     */
-    addRoute: function(route, handler) {
-        route = route || '';
+            var specialChars = 'ãàáäâèéëêìíïîòóöôùúüûÑñÇç \'',
+                chars = 'aaaaaeeeeiiiioooouuuunncc--';
 
-        console.log('router:add:before', route);
+            for (var i = 0; i < specialChars.length; i++) {
+                text = text.replace(new RegExp(specialChars.charAt(i), 'g'), chars.charAt(i));
+            }
+        }
 
-        // Unify routes regexp names
-        var eventName = 'router:route:' + route.split('(')[0].split('/:')[0].split('/').join(':');
-
-        console.log('router:add:after', eventName);
-
-        this.route(route, eventName, handler);
+        return text;
     },
+    route: function(routeString, options, callback) {
+        var routeRegex,
+            handlerName = options.handlerName && typeof options.handlerName === 'string' ? options.handlerName : this._getHandlerNameFromRoute(routeString),
+            argsNames = this._getRouteParamsNames(routeString),
+            name = options.name;
 
-    /**
-     * Router initialization.
-     * Bypass all anchor links except those with data-bypass attribute
-     * Starts router history. All routes should be already added
-     * @memberof app.router
-     */
+        if (!_.isRegExp(routeString)) {
+            routeRegex = this._routeToRegExp(routeString);
+        }
+
+        if (!callback) {
+            callback = this[name];
+        }
+
+        var router = this;
+
+        Backbone.history.route(routeRegex, function(fragment) {
+            var args = router._extractParameters(routeRegex, fragment, argsNames);
+            if (router.execute(callback, args, handlerName) !== false) {
+                router.trigger.apply(router, ['route:' + name].concat(args));
+                router.trigger('route', name, args);
+                Backbone.history.trigger('route', router, name, args);
+            }
+        });
+        return this;
+    },
+    //method to replace a route string with the specified params
+    _replaceRouteString: function(routeString, params) {
+        var self = this;
+        _.each(params, function(value, key) {
+            routeString = routeString.replace(/:(\w)+/, function(x) {
+                //remove : character
+                x = x.substr(1, x.length - 1);
+                return params[x] ? self.router.replaceSpecialChars(params[x]) : ''; //todo
+            });
+        });
+
+        //replace uncomplete conditionals ex. (:id) and coinditional parenthesis ()
+        return routeString.replace(/\(([^\):])*:([^\):])*\)/g, '').replace(/\(|\)/g, '');
+    },
+    //Cast url string to a default camel case name (commonly to call view-controller method)
+    //ex: '/show/details -> onShowDetails'
+    _getHandlerNameFromRoute: function(routeString) {
+        var replacedString = routeString.substr(0, routeString.indexOf(':')).replace(/\/(\w|\d)?/g, function(x) {
+                return x.replace(/\//g, '').toUpperCase();
+            }),
+            handlerName = 'on' + replacedString.charAt(0).toUpperCase() + replacedString.slice(1);
+
+        //set the route handler name to the app route object
+        this.routes[routeString].handlerName = handlerName;
+
+        return handlerName;
+    },
+    //Execute a route handler with the provided parameters.
+    //Override Backbone.Router.exectue method to provide the
+    //view controller handlerName based on routeString.
+    execute: function(callback, args, handlerName) {
+        if (callback) {
+            callback.call(this, args, handlerName);
+        }
+    },
+    //Execute a route handler with the provided parameters.
+    //Override Backbone.Router._extractParameters method to
+    //return parameters as object
+    _extractParameters: function(route, fragment, argsNames) {
+        var params = route.exec(fragment).slice(1),
+            paramsObject = {};
+
+        _.each(params, function(param, i) {
+            if (i === params.length - 1) {
+                param = param || null;
+            } else {
+                param = param ? decodeURIComponent(param) : null;
+            }
+
+            if (argsNames[i] !== undefined) {
+                paramsObject[argsNames[i]] = param;
+            }
+        });
+
+        return paramsObject;
+    },
+    //Extracts route params names as array.
+    _getRouteParamsNames: function(routeString) {
+        var name = paramsNames.exec(routeString),
+            names = [];
+
+        while (name !== null) {
+            names.push(name[0].replace(':', ''));
+            name = paramsNames.exec(routeString);
+        }
+
+        return names;
+    },
+    // Router initialization.
+    // Bypass all anchor links except those with data-bypass attribute
+    // Starts router history. All routes should be already added
     init: function() {
-        console.log('router.after');
-
-        console.log('router.Backbone.history.start');
         // Trigger the initial route and enable HTML5 History API support, set the
         // root folder to '/' by default.  Change in app.js.
-
         Backbone.history.start();
 
         // log.debug('router.location.hash', window.location.hash.replace('#/', '/'));
@@ -62,27 +140,22 @@ var Router = Backbone.Router.extend({
     start: function() {
         this.init();
     }
-});
+}, {
+    getSingleton: function() {
 
+        var instance = null;
 
-Router.getSingleton = function() {
-
-    var instance = null;
-
-    function getInstance() {
-        if (!instance) {
-            instance = new Router();
+        function getInstance() {
+            if (!instance) {
+                instance = new Jskeleton.Router();
+            }
+            return instance;
         }
-        return instance;
+
+        Jskeleton.router = getInstance();
+        return Jskeleton.router;
+    },
+    start: function(app) {
+        app.router.init();
     }
-
-    Jskeleton.router = getInstance();
-    return Jskeleton.router;
-};
-
-
-Router.start = function(app) {
-    router.init();
-};
-
-Jskeleton.Router = Router;
+});
