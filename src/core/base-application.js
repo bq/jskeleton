@@ -31,8 +31,11 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         }
 
         controllerView[handlerName].call(controllerView, args, this.service);
-        controllerView.render.call(controllerView);
+        this._showControllerView(controllerView);
         hook.processAfter();
+    },
+    _showControllerView: function(controllerView) {
+        this.rootRegion.show(controllerView);
     },
     //Factory method to instance objects from Class references
     factory: function(Class, options) {
