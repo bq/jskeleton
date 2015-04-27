@@ -67,7 +67,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         this.router.route(routeString, {
             triggerEvent: routeOptions.triggerEvent,
-            handlerName: routeOptions.handlerName || this.router._getHandlerNameFromRoute(routeString)
+            handlerName: routeOptions.handlerName || this._getViewControllerHandlerName(routeString)
         }, function(args, handlerName) {
             self.invokeViewControllerRender(viewController, args, handlerName);
         });
@@ -76,7 +76,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     _addAppEventListener: function(routeString, routeOptions, viewController) {
         if (routeOptions.eventListener) {
             var self = this,
-                handlerName = routeOptions.handlerName || this.router._getHandlerNameFromRoute(routeString);
+                handlerName = routeOptions.handlerName || this._getViewControllerHandlerName(routeString);
 
             this.listenTo(this.globalChannel, routeOptions.eventListener, function(args) {
                 if (!routeOptions.navigate) {
@@ -96,6 +96,16 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         this.router.navigate(processedRoute, {
             trigger: triggerValue
         });
+    },
+    _getViewControllerHandlerName: function(routeString) {
+        var handlerName = this.routes[routeString].handlerName || this.router._getHandlerNameFromRoute(routeString);
+
+        if (!this.routes[routeString].handlerName) {
+            //set the route handler name to the app route object
+            this.routes[routeString].handlerName = handlerName;
+        }
+
+        return handlerName;
     },
     //Get a view controller instance (if no view controller is specified, a default view controller class is instantiated)
     _getViewController: function(options) {

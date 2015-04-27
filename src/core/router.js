@@ -65,7 +65,7 @@ Jskeleton.Router = Backbone.Router.extend({
             routeString = routeString.replace(/:(\w)+/, function(x) {
                 //remove : character
                 x = x.substr(1, x.length - 1);
-                return params[x] ? self.router.replaceSpecialChars(params[x]) : ''; //todo
+                return params[x] ? self.replaceSpecialChars(String(params[x])) : ''; //todo
             });
         });
 
@@ -79,9 +79,6 @@ Jskeleton.Router = Backbone.Router.extend({
                 return x.replace(/\//g, '').toUpperCase();
             }),
             handlerName = 'on' + replacedString.charAt(0).toUpperCase() + replacedString.slice(1);
-
-        //set the route handler name to the app route object
-        this.routes[routeString].handlerName = handlerName;
 
         return handlerName;
     },
