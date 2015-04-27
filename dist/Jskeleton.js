@@ -1,4 +1,5 @@
-(function(root, factory) {
+/*! Jskeleton - v0.0.1 - 2015-04-27 
+ */(function(root, factory) {
     'use strict';
     /*globals require,define */
     /* jshint unused: false */
@@ -12235,11 +12236,11 @@
                  dom: new DOMHelper(),
                  hooks: hooks,
                  helpers: Jskeleton._helpers,
-                 jskeleton: data.enviroment // for helper access to the enviroments
+                 enviroment: data.enviroment // for helper access to the enviroments
              },
              scope = hooks.createFreshScope();
     
-         hooks.bindSelf(env, scope, data.context);
+         hooks.bindSelf(env, scope, data);
     
          //template access: context (view-controller context) , templateHelpers and model serialized data
     
@@ -12286,18 +12287,40 @@
                 value: helper.call(context, hash, env, params, templates)
             };
         };
+         'use strict';
+         /*globals  Jskeleton, _ */
+         /* jshint unused: false */
     
-        Jskeleton.registerHelper('example', function(params, env) {
-        // env.app;
-        // env.channel;
-        // env.data; //view-controller
-            console.log('example helper', env);
-        });
+         Jskeleton.registerHelper('@component', function(params, env) {
+             // env.enviroment._app;
+             // env.enviroment.channel;
+             //env.enviroment._view, view-controller
+             //
     
+             params = params || {};
     
-        Jskeleton.registerHelper('pepe', function() {
-            console.log('example helper');
-        });
+             var componentName = params.name,
+                 ComponentClass,
+                 component,
+                 viewInstance = env.enviroment._view,
+                 componentData;
+    
+             if (!componentName) {
+                 throw new Error('Tienes que definir un nombre de clase');
+             }
+    
+             componentData = _.omit(params, 'name');
+    
+             component = Jskeleton.factory.new(componentName, componentData);
+    
+             if (!component || typeof component !== 'object') {
+                 throw new Error('No se ha podido crear el componente');
+             }
+    
+             viewInstance.addComponent(componentName, component);
+    
+             return component.render().$el.get(0);
+         });
     'use strict';
     /*globals Jskeleton,_ */
     /* jshint unused: false */
@@ -12517,7 +12540,8 @@
         //Cast url string to a default camel case name (commonly to call view-controller method)
         //ex: '/show/details -> onShowDetails'
         _getHandlerNameFromRoute: function(routeString) {
-            var replacedString = routeString.substr(0, routeString.indexOf(':')).replace(/\/(\w|\d)?/g, function(x) {
+            var endPos = routeString.indexOf(':') === -1 ? routeString.length : routeString.indexOf(':');
+            var replacedString = routeString.substr(0, endPos).replace(/\/(\w|\d)?/g, function(x) {
                     return x.replace(/\//g, '').toUpperCase();
                 }),
                 handlerName = 'on' + replacedString.charAt(0).toUpperCase() + replacedString.slice(1);
@@ -12657,8 +12681,15 @@
             }
     
             controllerView[handlerName].call(controllerView, args, this.service);
-            controllerView.render.call(controllerView);
+            this._showControllerView(controllerView);
             hook.processAfter();
+        },
+        _showControllerView: function(controllerView) {
+            if (this.mainRegion && this.mainRegion.currentView !== controllerView) {
+                this.mainRegion.show(controllerView);
+            } else {
+                controllerView.render();
+            }
         },
         //Factory method to instance objects from Class references
         factory: function(Class, options) {
@@ -12797,6 +12828,7 @@
     Jskeleton.Application = Jskeleton.BaseApplication.extend({
         //Default dom reference (usefull for the first webapp root region)
         defaultEl: 'body',
+        defaultRegion: 'root',
         constructor: function(options) {
             options = options || {};
     
@@ -12860,14 +12892,16 @@
             });
         },
         //Create a layout for the Application to have more regions
+        //Adds the layout regions to the application object as properties
         _createApplicationLayout: function() {
-            this.defaultRegion = 'root';
-            if (this.layout && typeof this.layout === 'object') { //ensure layout object is defined
+            //ensure layout object is defined
+            if (this.layout && typeof this.layout === 'object') {
                 this.layoutTemplate = this.layout.template; //TODO: lanzar aserción
                 if (!this.layoutTemplate) {
                     throw new Error('Si defines un objeto layout tienes que definir un template');
                 }
-                this.layoutClass = this.layout.layoutClass || this.getDefaultLayoutClass();
+    
+                this.layoutClass = this.layout.layoutClass || this.getDefaultLayoutClass(); //TODO: mirar si poner layout por defecto ( seria necesario entonces poder poner regiones de forma explicita)
                 this.layoutClass = this.layoutClass.extend({
                     template: this.layoutTemplate
                 });
@@ -12881,7 +12915,6 @@
         _addLayoutRegions: function() {
             var self = this;
             if (this._layout.regionManager.length > 0) { //mirar lo del length de regions
-                this.defaultRegion = undefined;
                 _.each(this._layout.regionManager._regions, function(region, regionName) {
                     self[regionName] = region; //TOOD: mirar compartir instancias del region manager del layout
                 });
@@ -12911,21 +12944,18 @@
                 this.startChildApp(instance, instanceOptions.startOptions);
             }
         },
-        //Get the region where a child application will be rendered
+        //Get the region where a child application will be rendered when process a route or an event
         _getChildAppRegion: function(appOptions) {
             var region;
-            if (this.defaultRegion) { //the default region is 'root'
-                if (appOptions.region === undefined || appOptions.region === this.defaultRegion) { //the subapp region must be undefined or 'root'
-                    region = this._regionManager.get(this.defaultRegion); //root region
-                } else {
-                    throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
-                }
-            } else {
-                region = this._layout.regionManager.get(appOptions.region);
-                if (!region) { //the region must exists
-                    throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
-                }
+    
+            if (this._layout && this._layout.regionManager) {
+                region = this._layout.regionManager.get(appOptions.region || this.defaultRegion);
             }
+    
+            if (!region) { //the region must exists
+                throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
+            }
+    
             return region;
         },
         //Get child app instance by name
@@ -12957,7 +12987,7 @@
             }
     
             //Add the injected region as root
-            this.rootRegion = options.region;
+            this.mainRegion = options.region;
     
             //Jskeleton.BaseApplication constructor
             Jskeleton.BaseApplication.prototype.constructor.apply(this, arguments);
@@ -12979,7 +13009,7 @@
         //Private method to initialize de application regions
         _initializeRegions: function() {
             //ensure initial root region is available
-            this._ensureRootRegion();
+            this._ensureMainRegion();
     
             this._initRegionManager();
     
@@ -12987,15 +13017,15 @@
             // this._createLayoutApp();
         },
         //Private method to ensure that parent region exists
-        _ensureRootRegion: function() {
-            if (!this.rootRegion || typeof this.rootRegion.show !== 'function') {
+        _ensureMainRegion: function() {
+            if (!this.mainRegion || typeof this.mainRegion.show !== 'function') {
                 throw new Error('Tienes que definir una region para la Child Application');
             }
         }
     });
         'use strict';
     
-        /*globals Jskeleton, Marionette */
+        /*globals Jskeleton, Marionette, _ */
     
         Jskeleton.ViewController = Marionette.LayoutView.extend({
             constructor: function(options) { //inyectar app, channel, region
@@ -13006,6 +13036,7 @@
                 this.region = options.region;
                 this.service = options.service;
                 this.context = {};
+                this.components = {};
                 Marionette.LayoutView.prototype.constructor.apply(this, arguments);
             },
             _ensureOptions: function(options) {
@@ -13038,6 +13069,18 @@
                 };
     
                 return templateContext;
+            },
+            addComponent: function(name, instance) {
+                this.components.name = instance;
+            },
+            destroy: function() {
+                _.each(this.components, function(component) {
+                    if (_.isFunction(component.destroy)) {
+                        component.destroy();
+                    }
+                });
+    
+                return Marionette.LayoutView.prototype.destroy.apply(this, arguments);
             }
         });
 

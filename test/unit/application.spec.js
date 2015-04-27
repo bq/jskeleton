@@ -68,7 +68,100 @@ describe('Jskeleton Main Application', function(){
 
     });
     
-    describe('when an app has been started, and registering another initializer', function(){
+    describe('when instantiating an app with options specified', function(){
+        beforeEach(function(){
+            this.fooOptions = 'bar';
+            this.app = new Jskeleton.Application({fooOptions : this.fooOptions});
+        });
+
+        it('should merge those options into the app', function(){
+            expect(this.app.fooOptions).to.equal(this.fooOptions);
+        });
+
     });
-    
+
+    describe('When instantiating an subapp without region defined', function(){
+        before(function(){
+            var childAppOpts = {};
+
+            this.ChildApp = Jskeleton.ChildApplication.extend(childAppOpts);
+
+            this.mainAppOpts = {
+                applications: {
+                    'testChildApp' : {
+                        appClass : this.ChildApp,
+                    }
+                }
+            };
+                    
+                        
+
+        });
+
+        it('should return an error with requeriments of an region class', function(){
+                   
+            expect(Jskeleton.Application.extend(this.mainAppOpts)).to.throw(Error);
+        });
+    });
+
+    describe('when instantiating an app like a Main app with one childApp', function(){
+        before(function(){
+
+            var childAppOpts = {};    
+            var ChildApp = Jskeleton.ChildApplication.extend(childAppOpts);
+            
+            var Layout = Marionette.LayoutView.extend({
+                    regions: {
+                        headerRegion: '.header',
+                        contentRegion: '.content',
+                        footerRegion: '.footer'
+                    }
+            });
+            
+            var mainAppOpts = {
+                layout : {
+                    layoutClass : Layout,
+                    template: '<div class="hero-unit">' +
+                              '<h1>Aplicación de libros</h1>' +
+                              '<h3> Header: </h3>' +
+                             '<div class="header"></div>' +
+                             '<h3> Contenido: </h3>' +
+                             '<div class="content"></div>' +
+                             '<h3> Footer: </h3>' +
+                             '<div class="footer"></div>' +
+                             '</div>'
+                },
+                applications: {
+                    'testChildApp' : {
+                        appClass : ChildApp,
+                        region : 'contentRegion'
+                    }
+                }
+            };
+            var MainApp = Jskeleton.Application.extend(mainAppOpts);            
+            this.mainApp = new MainApp();
+
+            //this.mainApp.start();
+
+        });
+
+        it('should merge those childapp options into the app', function(){
+            expect(this.mainApp.applications).to.have.property('testChildApp');
+        });
+
+        it('should the mainApp  has all childapp properties', function(){
+            expect(this.mainApp.applications.testChildApp).to.include.keys(
+               'appClass',
+               'region'
+            );
+        });
+
+        it('should childApps has region property', function(){
+            
+            var region = this.mainApp.applications.testChildApp.region; 
+            //expect(region).to.have.all.keys(['el', '_parent','$el']);
+            //expect(region).to.be.a('object');
+            //expect(this.mainApp.applications.testChildApp.region).to.have.all.keys(['el', '_parent','$el']);
+        });
+    });
 });

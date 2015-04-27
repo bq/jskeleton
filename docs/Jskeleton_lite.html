@@ -119,11 +119,11 @@ data.context; //View-controller context</p>
                  dom: <span class="hljs-keyword">new</span> DOMHelper(),
                  hooks: hooks,
                  helpers: Jskeleton._helpers,
-                 jskeleton: data.enviroment <span class="hljs-comment">// for helper access to the enviroments</span>
+                 enviroment: data.enviroment <span class="hljs-comment">// for helper access to the enviroments</span>
              },
              scope = hooks.createFreshScope();
     
-         hooks.bindSelf(env, scope, data.context);</pre></div></div>
+         hooks.bindSelf(env, scope, data);</pre></div></div>
             
         </li>
         
@@ -195,8 +195,11 @@ data.context; //View-controller context</p>
                 value: helper.call(context, hash, env, params, templates)
             };
         };
+         <span class="hljs-string">'use strict'</span>;
+         <span class="hljs-comment">/*globals  Jskeleton, _ */</span>
+         <span class="hljs-comment">/* jshint unused: false */</span>
     
-        Jskeleton.registerHelper(<span class="hljs-string">'example'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params, env)</span> </span>{</pre></div></div>
+         Jskeleton.registerHelper(<span class="hljs-string">'@component'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(params, env)</span> </span>{</pre></div></div>
             
         </li>
         
@@ -207,19 +210,37 @@ data.context; //View-controller context</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-6">&#182;</a>
               </div>
-              <p>env.app;
-env.channel;
-env.data; //view-controller</p>
+              <p>env.enviroment._app;
+env.enviroment.channel;
+env.enviroment._view, view-controller</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'example helper'</span>, env);
-        });
+            <div class="content"><div class='highlight'><pre>    
+             params = params || {};
     
+             <span class="hljs-keyword">var</span> componentName = params.name,
+                 ComponentClass,
+                 component,
+                 viewInstance = env.enviroment._view,
+                 componentData;
     
-        Jskeleton.registerHelper(<span class="hljs-string">'pepe'</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'example helper'</span>);
-        });
+             <span class="hljs-keyword">if</span> (!componentName) {
+                 <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que definir un nombre de clase'</span>);
+             }
+    
+             componentData = _.omit(params, <span class="hljs-string">'name'</span>);
+    
+             component = Jskeleton.factory.new(componentName, componentData);
+    
+             <span class="hljs-keyword">if</span> (!component || <span class="hljs-keyword">typeof</span> component !== <span class="hljs-string">'object'</span>) {
+                 <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'No se ha podido crear el componente'</span>);
+             }
+    
+             viewInstance.addComponent(componentName, component);
+    
+             <span class="hljs-keyword">return</span> component.render().$el.get(<span class="hljs-number">0</span>);
+         });
     <span class="hljs-string">'use strict'</span>;
     <span class="hljs-comment">/*globals Jskeleton,_ */</span>
     <span class="hljs-comment">/* jshint unused: false */</span>
@@ -480,7 +501,7 @@ env.data; //view-controller</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>                    x = x.substr(<span class="hljs-number">1</span>, x.length - <span class="hljs-number">1</span>);
-                    <span class="hljs-keyword">return</span> params[x] ? self.router.replaceSpecialChars(params[x]) : <span class="hljs-string">''</span>; <span class="hljs-comment">//todo</span>
+                    <span class="hljs-keyword">return</span> params[x] ? self.replaceSpecialChars(<span class="hljs-built_in">String</span>(params[x])) : <span class="hljs-string">''</span>; <span class="hljs-comment">//todo</span>
                 });
             });</pre></div></div>
             
@@ -515,10 +536,14 @@ ex: ‘/show/details -&gt; onShowDetails’</p>
             </div>
             
             <div class="content"><div class='highlight'><pre>        _getHandlerNameFromRoute: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString)</span> </span>{
-            <span class="hljs-keyword">var</span> replacedString = routeString.substr(<span class="hljs-number">0</span>, routeString.indexOf(<span class="hljs-string">':'</span>)).replace(<span class="hljs-regexp">/\/(\w|\d)?/g</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(x)</span> </span>{
+            <span class="hljs-keyword">var</span> endPos = routeString.indexOf(<span class="hljs-string">':'</span>) === -<span class="hljs-number">1</span> ? routeString.length : routeString.indexOf(<span class="hljs-string">':'</span>);
+            <span class="hljs-keyword">var</span> replacedString = routeString.substr(<span class="hljs-number">0</span>, endPos).replace(<span class="hljs-regexp">/\/(\w|\d)?/g</span>, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(x)</span> </span>{
                     <span class="hljs-keyword">return</span> x.replace(<span class="hljs-regexp">/\//g</span>, <span class="hljs-string">''</span>).toUpperCase();
                 }),
-                handlerName = <span class="hljs-string">'on'</span> + replacedString.charAt(<span class="hljs-number">0</span>).toUpperCase() + replacedString.slice(<span class="hljs-number">1</span>);</pre></div></div>
+                handlerName = <span class="hljs-string">'on'</span> + replacedString.charAt(<span class="hljs-number">0</span>).toUpperCase() + replacedString.slice(<span class="hljs-number">1</span>);
+    
+            <span class="hljs-keyword">return</span> handlerName;
+        },</pre></div></div>
             
         </li>
         
@@ -528,24 +553,6 @@ ex: ‘/show/details -&gt; onShowDetails’</p>
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-13">&#182;</a>
-              </div>
-              <p>set the route handler name to the app route object</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.routes[routeString].handlerName = handlerName;
-    
-            <span class="hljs-keyword">return</span> handlerName;
-        },</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-14">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Execute a route handler with the provided parameters.
 Override Backbone.Router.exectue method to provide the
@@ -562,11 +569,11 @@ view controller handlerName based on routeString.</p>
         </li>
         
         
-        <li id="section-15">
+        <li id="section-14">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-15">&#182;</a>
+                <a class="pilcrow" href="#section-14">&#182;</a>
               </div>
               <p>Execute a route handler with the provided parameters.
 Override Backbone.Router._extractParameters method to
@@ -596,11 +603,11 @@ return parameters as object</p>
         </li>
         
         
-        <li id="section-16">
+        <li id="section-15">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-16">&#182;</a>
+                <a class="pilcrow" href="#section-15">&#182;</a>
               </div>
               <p>Extracts route params names as array.</p>
 
@@ -621,11 +628,11 @@ return parameters as object</p>
         </li>
         
         
-        <li id="section-17">
+        <li id="section-16">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-17">&#182;</a>
+                <a class="pilcrow" href="#section-16">&#182;</a>
               </div>
               <p>Router initialization.
 Bypass all anchor links except those with data-bypass attribute
@@ -638,11 +645,11 @@ Starts router history. All routes should be already added</p>
         </li>
         
         
-        <li id="section-18">
+        <li id="section-17">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-18">&#182;</a>
+                <a class="pilcrow" href="#section-17">&#182;</a>
               </div>
               <p>Trigger the initial route and enable HTML5 History API support, set the
 root folder to ‘/‘ by default.  Change in app.js.</p>
@@ -654,11 +661,11 @@ root folder to ‘/‘ by default.  Change in app.js.</p>
         </li>
         
         
-        <li id="section-19">
+        <li id="section-18">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-19">&#182;</a>
+                <a class="pilcrow" href="#section-18">&#182;</a>
               </div>
               <p>log.debug(‘router.location.hash’, window.location.hash.replace(‘#/‘, ‘/‘));
 Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true);</p>
@@ -702,11 +709,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-20">
+        <li id="section-19">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-20">&#182;</a>
+                <a class="pilcrow" href="#section-19">&#182;</a>
               </div>
               <p>Todo serviceOptions ?</p>
 
@@ -736,11 +743,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-21">
+        <li id="section-20">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-21">&#182;</a>
+                <a class="pilcrow" href="#section-20">&#182;</a>
               </div>
               <h2 id="baseapplication">BaseApplication</h2>
 <p> BaseApplication Class that other Jskeleton.Applications can extend from.
@@ -753,11 +760,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-22">
+        <li id="section-21">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-22">&#182;</a>
+                <a class="pilcrow" href="#section-21">&#182;</a>
               </div>
               <p>Default global webapp channel for communicate with other apps</p>
 
@@ -770,11 +777,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-23">
+        <li id="section-22">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-23">&#182;</a>
+                <a class="pilcrow" href="#section-22">&#182;</a>
               </div>
               <p>generate application id</p>
 
@@ -790,11 +797,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-24">
+        <li id="section-23">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-24">&#182;</a>
+                <a class="pilcrow" href="#section-23">&#182;</a>
               </div>
               <p>Call to the specified view-controller method for render a app state</p>
 
@@ -810,18 +817,25 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
             }
     
             controllerView[handlerName].call(controllerView, args, <span class="hljs-keyword">this</span>.service);
-            controllerView.render.call(controllerView);
+            <span class="hljs-keyword">this</span>._showControllerView(controllerView);
             hook.processAfter();
+        },
+        _showControllerView: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(controllerView)</span> </span>{
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.mainRegion &amp;&amp; <span class="hljs-keyword">this</span>.mainRegion.currentView !== controllerView) {
+                <span class="hljs-keyword">this</span>.mainRegion.show(controllerView);
+            } <span class="hljs-keyword">else</span> {
+                controllerView.render();
+            }
         },</pre></div></div>
             
         </li>
         
         
-        <li id="section-25">
+        <li id="section-24">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-25">&#182;</a>
+                <a class="pilcrow" href="#section-24">&#182;</a>
               </div>
               <p>Factory method to instance objects from Class references</p>
 
@@ -836,11 +850,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-26">
+        <li id="section-25">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-26">&#182;</a>
+                <a class="pilcrow" href="#section-25">&#182;</a>
               </div>
               <p>Internal method to create an application private channel and set the global channel</p>
 
@@ -854,11 +868,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-27">
+        <li id="section-26">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-27">&#182;</a>
+                <a class="pilcrow" href="#section-26">&#182;</a>
               </div>
               <p>Add application routes  to the router and event handlers to the global channel</p>
 
@@ -874,11 +888,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-28">
+        <li id="section-27">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-28">&#182;</a>
+                <a class="pilcrow" href="#section-27">&#182;</a>
               </div>
               <p>get view controller instance (it could be a view controller class asigned to the route or a default view controller if no class is specified)</p>
 
@@ -889,11 +903,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-29">
+        <li id="section-28">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-29">&#182;</a>
+                <a class="pilcrow" href="#section-28">&#182;</a>
               </div>
               <p>add the route handler to Jskeleton.Router</p>
 
@@ -904,11 +918,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-30">
+        <li id="section-29">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-30">&#182;</a>
+                <a class="pilcrow" href="#section-29">&#182;</a>
               </div>
               <p>add the event handler to the app globalChannel</p>
 
@@ -922,11 +936,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-31">
+        <li id="section-30">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-31">&#182;</a>
+                <a class="pilcrow" href="#section-30">&#182;</a>
               </div>
               
             </div>
@@ -936,11 +950,32 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
     
             <span class="hljs-keyword">this</span>.router.route(routeString, {
                 triggerEvent: routeOptions.triggerEvent,
-                handlerName: routeOptions.handlerName || <span class="hljs-keyword">this</span>.router._getHandlerNameFromRoute(routeString)
+                handlerName: routeOptions.handlerName || <span class="hljs-keyword">this</span>._getViewControllerHandlerName(routeString)
             }, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(args, handlerName)</span> </span>{
                 self.invokeViewControllerRender(viewController, args, handlerName);
             });
         },</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-31">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-31">&#182;</a>
+              </div>
+              <p>Add listen to a global event changing the url with the event parameters and calling to the view-controller</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>        _addAppEventListener: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString, routeOptions, viewController)</span> </span>{
+            <span class="hljs-keyword">if</span> (routeOptions.eventListener) {
+                <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>,
+                    handlerName = routeOptions.handlerName || <span class="hljs-keyword">this</span>._getViewControllerHandlerName(routeString);
+    
+                <span class="hljs-keyword">this</span>.listenTo(<span class="hljs-keyword">this</span>.globalChannel, routeOptions.eventListener, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(args)</span> </span>{
+                    <span class="hljs-keyword">if</span> (!routeOptions.navigate) {</pre></div></div>
             
         </li>
         
@@ -950,27 +985,6 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-32">&#182;</a>
-              </div>
-              <p>Add listen to a global event changing the url with the event parameters and calling to the view-controller</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>        _addAppEventListener: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString, routeOptions, viewController)</span> </span>{
-            <span class="hljs-keyword">if</span> (routeOptions.eventListener) {
-                <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>,
-                    handlerName = routeOptions.handlerName || <span class="hljs-keyword">this</span>.router._getHandlerNameFromRoute(routeString);
-    
-                <span class="hljs-keyword">this</span>.listenTo(<span class="hljs-keyword">this</span>.globalChannel, routeOptions.eventListener, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(args)</span> </span>{
-                    <span class="hljs-keyword">if</span> (!routeOptions.navigate) {</pre></div></div>
-            
-        </li>
-        
-        
-        <li id="section-33">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>update the url</p>
 
@@ -987,11 +1001,11 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
         </li>
         
         
-        <li id="section-34">
+        <li id="section-33">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-34">&#182;</a>
+                <a class="pilcrow" href="#section-33">&#182;</a>
               </div>
               <p>Update the url with the specified parameters</p>
 
@@ -1004,6 +1018,29 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
             <span class="hljs-keyword">this</span>.router.navigate(processedRoute, {
                 trigger: triggerValue
             });
+        },
+        _getViewControllerHandlerName: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(routeString)</span> </span>{
+            <span class="hljs-keyword">var</span> handlerName = <span class="hljs-keyword">this</span>.routes[routeString].handlerName || <span class="hljs-keyword">this</span>.router._getHandlerNameFromRoute(routeString);
+    
+            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.routes[routeString].handlerName) {</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-34">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-34">&#182;</a>
+              </div>
+              <p>set the route handler name to the app route object</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>                <span class="hljs-keyword">this</span>.routes[routeString].handlerName = handlerName;
+            }
+    
+            <span class="hljs-keyword">return</span> handlerName;
         },</pre></div></div>
             
         </li>
@@ -1171,6 +1208,7 @@ Backbone.history.navigate(window.location.hash.replace(‘#/‘, ‘/‘), true)
             </div>
             
             <div class="content"><div class='highlight'><pre>        defaultEl: <span class="hljs-string">'body'</span>,
+        defaultRegion: <span class="hljs-string">'root'</span>,
         constructor: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
             options = options || {};
     
@@ -1424,18 +1462,33 @@ Start the Jskeleton router</p>
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-57">&#182;</a>
               </div>
-              <p>Create a layout for the Application to have more regions</p>
+              <p>Create a layout for the Application to have more regions
+Adds the layout regions to the application object as properties</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        _createApplicationLayout: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">this</span>.defaultRegion = <span class="hljs-string">'root'</span>;
-            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.layout &amp;&amp; <span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>.layout === <span class="hljs-string">'object'</span>) { <span class="hljs-comment">//ensure layout object is defined</span>
+            <div class="content"><div class='highlight'><pre>        _createApplicationLayout: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-58">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-58">&#182;</a>
+              </div>
+              <p>ensure layout object is defined</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.layout &amp;&amp; <span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>.layout === <span class="hljs-string">'object'</span>) {
                 <span class="hljs-keyword">this</span>.layoutTemplate = <span class="hljs-keyword">this</span>.layout.template; <span class="hljs-comment">//TODO: lanzar aserción</span>
                 <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.layoutTemplate) {
                     <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Si defines un objeto layout tienes que definir un template'</span>);
                 }
-                <span class="hljs-keyword">this</span>.layoutClass = <span class="hljs-keyword">this</span>.layout.layoutClass || <span class="hljs-keyword">this</span>.getDefaultLayoutClass();
+    
+                <span class="hljs-keyword">this</span>.layoutClass = <span class="hljs-keyword">this</span>.layout.layoutClass || <span class="hljs-keyword">this</span>.getDefaultLayoutClass(); <span class="hljs-comment">//TODO: mirar si poner layout por defecto ( seria necesario entonces poder poner regiones de forma explicita)</span>
                 <span class="hljs-keyword">this</span>.layoutClass = <span class="hljs-keyword">this</span>.layoutClass.extend({
                     template: <span class="hljs-keyword">this</span>.layoutTemplate
                 });
@@ -1449,11 +1502,11 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-58">
+        <li id="section-59">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-58">&#182;</a>
+                <a class="pilcrow" href="#section-59">&#182;</a>
               </div>
               <p>Expose layout regions to the application namespace</p>
 
@@ -1462,7 +1515,6 @@ Start the Jskeleton router</p>
             <div class="content"><div class='highlight'><pre>        _addLayoutRegions: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
             <span class="hljs-keyword">var</span> self = <span class="hljs-keyword">this</span>;
             <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._layout.regionManager.length &gt; <span class="hljs-number">0</span>) { <span class="hljs-comment">//mirar lo del length de regions</span>
-                <span class="hljs-keyword">this</span>.defaultRegion = <span class="hljs-literal">undefined</span>;
                 _.each(<span class="hljs-keyword">this</span>._layout.regionManager._regions, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(region, regionName)</span> </span>{
                     self[regionName] = region; <span class="hljs-comment">//TOOD: mirar compartir instancias del region manager del layout</span>
                 });
@@ -1472,11 +1524,11 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-59">
+        <li id="section-60">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-59">&#182;</a>
+                <a class="pilcrow" href="#section-60">&#182;</a>
               </div>
               <p>Iterate over child applications to start each one</p>
 
@@ -1495,11 +1547,11 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-60">
+        <li id="section-61">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-60">&#182;</a>
+                <a class="pilcrow" href="#section-61">&#182;</a>
               </div>
               <p>Start child application with it’s dependencies injected</p>
 
@@ -1522,41 +1574,38 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-61">
+        <li id="section-62">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-61">&#182;</a>
+                <a class="pilcrow" href="#section-62">&#182;</a>
               </div>
-              <p>Get the region where a child application will be rendered</p>
+              <p>Get the region where a child application will be rendered when process a route or an event</p>
 
             </div>
             
             <div class="content"><div class='highlight'><pre>        _getChildAppRegion: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(appOptions)</span> </span>{
             <span class="hljs-keyword">var</span> region;
-            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>.defaultRegion) { <span class="hljs-comment">//the default region is 'root'</span>
-                <span class="hljs-keyword">if</span> (appOptions.region === <span class="hljs-literal">undefined</span> || appOptions.region === <span class="hljs-keyword">this</span>.defaultRegion) { <span class="hljs-comment">//the subapp region must be undefined or 'root'</span>
-                    region = <span class="hljs-keyword">this</span>._regionManager.get(<span class="hljs-keyword">this</span>.defaultRegion); <span class="hljs-comment">//root region</span>
-                } <span class="hljs-keyword">else</span> {
-                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que crear en la aplicación (main) la region especificada a través de un layout'</span>);
-                }
-            } <span class="hljs-keyword">else</span> {
-                region = <span class="hljs-keyword">this</span>._layout.regionManager.get(appOptions.region);
-                <span class="hljs-keyword">if</span> (!region) { <span class="hljs-comment">//the region must exists</span>
-                    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que crear en la aplicación (main) la region especificada a través de un layout'</span>);
-                }
+    
+            <span class="hljs-keyword">if</span> (<span class="hljs-keyword">this</span>._layout &amp;&amp; <span class="hljs-keyword">this</span>._layout.regionManager) {
+                region = <span class="hljs-keyword">this</span>._layout.regionManager.get(appOptions.region || <span class="hljs-keyword">this</span>.defaultRegion);
             }
+    
+            <span class="hljs-keyword">if</span> (!region) { <span class="hljs-comment">//the region must exists</span>
+                <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que crear en la aplicación (main) la region especificada a través de un layout'</span>);
+            }
+    
             <span class="hljs-keyword">return</span> region;
         },</pre></div></div>
             
         </li>
         
         
-        <li id="section-62">
+        <li id="section-63">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-62">&#182;</a>
+                <a class="pilcrow" href="#section-63">&#182;</a>
               </div>
               <p>Get child app instance by name</p>
 
@@ -1575,11 +1624,11 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-63">
+        <li id="section-64">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-63">&#182;</a>
+                <a class="pilcrow" href="#section-64">&#182;</a>
               </div>
               <h2 id="childapplication">ChildApplication</h2>
 <p> ChildApplication class is a ‘container’ where to store your webapp logic and split it into small ‘pieces’ and ‘components’.
@@ -1593,11 +1642,11 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-64">
+        <li id="section-65">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-64">&#182;</a>
+                <a class="pilcrow" href="#section-65">&#182;</a>
               </div>
               <p>Default parent region name where the application will be rendered</p>
 
@@ -1610,11 +1659,11 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-65">
+        <li id="section-66">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-65">&#182;</a>
+                <a class="pilcrow" href="#section-66">&#182;</a>
               </div>
               <p>reference to the parent app</p>
 
@@ -1629,26 +1678,26 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-66">
-            <div class="annotation">
-              
-              <div class="pilwrap ">
-                <a class="pilcrow" href="#section-66">&#182;</a>
-              </div>
-              <p>Add the injected region as root</p>
-
-            </div>
-            
-            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.rootRegion = options.region;</pre></div></div>
-            
-        </li>
-        
-        
         <li id="section-67">
             <div class="annotation">
               
               <div class="pilwrap ">
                 <a class="pilcrow" href="#section-67">&#182;</a>
+              </div>
+              <p>Add the injected region as root</p>
+
+            </div>
+            
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>.mainRegion = options.region;</pre></div></div>
+            
+        </li>
+        
+        
+        <li id="section-68">
+            <div class="annotation">
+              
+              <div class="pilwrap ">
+                <a class="pilcrow" href="#section-68">&#182;</a>
               </div>
               <p>Jskeleton.BaseApplication constructor</p>
 
@@ -1662,11 +1711,11 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-68">
+        <li id="section-69">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-68">&#182;</a>
+                <a class="pilcrow" href="#section-69">&#182;</a>
               </div>
               <p>Method to start the application and listening routes/events</p>
 
@@ -1680,11 +1729,11 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-69">
+        <li id="section-70">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-69">&#182;</a>
+                <a class="pilcrow" href="#section-70">&#182;</a>
               </div>
               <p>Add routes listeners to the Jskeleton.router</p>
 
@@ -1695,11 +1744,11 @@ Start the Jskeleton router</p>
         </li>
         
         
-        <li id="section-70">
+        <li id="section-71">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-70">&#182;</a>
+                <a class="pilcrow" href="#section-71">&#182;</a>
               </div>
               <p>Add app events listeneres to the global channel
 this._initAppEventsListeners(options);</p>
@@ -1713,11 +1762,11 @@ this._initAppEventsListeners(options);</p>
         </li>
         
         
-        <li id="section-71">
+        <li id="section-72">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-71">&#182;</a>
+                <a class="pilcrow" href="#section-72">&#182;</a>
               </div>
               <p>Private method to initialize de application regions</p>
 
@@ -1728,28 +1777,28 @@ this._initAppEventsListeners(options);</p>
         </li>
         
         
-        <li id="section-72">
+        <li id="section-73">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-72">&#182;</a>
+                <a class="pilcrow" href="#section-73">&#182;</a>
               </div>
               <p>ensure initial root region is available</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>._ensureRootRegion();
+            <div class="content"><div class='highlight'><pre>            <span class="hljs-keyword">this</span>._ensureMainRegion();
     
             <span class="hljs-keyword">this</span>._initRegionManager();</pre></div></div>
             
         </li>
         
         
-        <li id="section-73">
+        <li id="section-74">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-73">&#182;</a>
+                <a class="pilcrow" href="#section-74">&#182;</a>
               </div>
               <p>Create a layout for the application if a layoutView its defined
 this._createLayoutApp();</p>
@@ -1761,25 +1810,25 @@ this._createLayoutApp();</p>
         </li>
         
         
-        <li id="section-74">
+        <li id="section-75">
             <div class="annotation">
               
               <div class="pilwrap ">
-                <a class="pilcrow" href="#section-74">&#182;</a>
+                <a class="pilcrow" href="#section-75">&#182;</a>
               </div>
               <p>Private method to ensure that parent region exists</p>
 
             </div>
             
-            <div class="content"><div class='highlight'><pre>        _ensureRootRegion: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
-            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.rootRegion || <span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>.rootRegion.show !== <span class="hljs-string">'function'</span>) {
+            <div class="content"><div class='highlight'><pre>        _ensureMainRegion: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+            <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.mainRegion || <span class="hljs-keyword">typeof</span> <span class="hljs-keyword">this</span>.mainRegion.show !== <span class="hljs-string">'function'</span>) {
                 <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'Tienes que definir una region para la Child Application'</span>);
             }
         }
     });
         <span class="hljs-string">'use strict'</span>;
     
-        <span class="hljs-comment">/*globals Jskeleton, Marionette */</span>
+        <span class="hljs-comment">/*globals Jskeleton, Marionette, _ */</span>
     
         Jskeleton.ViewController = Marionette.LayoutView.extend({
             constructor: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{ <span class="hljs-comment">//inyectar app, channel, region</span>
@@ -1790,6 +1839,7 @@ this._createLayoutApp();</p>
                 <span class="hljs-keyword">this</span>.region = options.region;
                 <span class="hljs-keyword">this</span>.service = options.service;
                 <span class="hljs-keyword">this</span>.context = {};
+                <span class="hljs-keyword">this</span>.components = {};
                 Marionette.LayoutView.prototype.constructor.apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
             },
             _ensureOptions: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(options)</span> </span>{
@@ -1822,6 +1872,18 @@ this._createLayoutApp();</p>
                 };
     
                 <span class="hljs-keyword">return</span> templateContext;
+            },
+            addComponent: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(name, instance)</span> </span>{
+                <span class="hljs-keyword">this</span>.components.name = instance;
+            },
+            destroy: <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">()</span> </span>{
+                _.each(<span class="hljs-keyword">this</span>.components, <span class="hljs-function"><span class="hljs-keyword">function</span><span class="hljs-params">(component)</span> </span>{
+                    <span class="hljs-keyword">if</span> (_.isFunction(component.destroy)) {
+                        component.destroy();
+                    }
+                });
+    
+                <span class="hljs-keyword">return</span> Marionette.LayoutView.prototype.destroy.apply(<span class="hljs-keyword">this</span>, <span class="hljs-built_in">arguments</span>);
             }
         });
 
