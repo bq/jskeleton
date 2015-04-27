@@ -1,14 +1,10 @@
 /*globals require,define,describe,it, Jskeleton, before */
 /* jshint unused: false */
-
-var _ = require('underscore');
-var Backbone = require('backbone');
-var factory = Jskeleton.factory;
-
-var myBackboneView = Backbone.View.extend({});
-factory.add('myBackboneView', myBackboneView);
-
 describe('In Factory module', function() {
+
+    var factory = Jskeleton.factory;
+    var myBackboneView = Backbone.View.extend({});
+    factory.add('myBackboneView', myBackboneView);
 
     var sandbox = sinon.sandbox.create();
 
