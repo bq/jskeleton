@@ -34,34 +34,36 @@ global.$ = global.jQuery = require('jquery');
 global._ = require('underscore');
 global.Backbone = require('backbone');
 global.Backbone.$ = global.$;
-global.Marionette = Backbone.Marionette = {};
+global.Marionette = Backbone.Marionette = require('backbone.marionette');
 global.slice = Array.prototype.slice;
 
-var htmlbarsDomHelper = require('../../../node_modules/htmlbars/dist/cjs/dom-helper.js');
-var htmlbarsCompiler =  require('../../../node_modules/htmlbars/dist/cjs/htmlbars-compiler.js');
-var htmlbarsRuntime =   require('../../../node_modules/htmlbars/dist/cjs/htmlbars-runtime.js');
+//var htmlbarsDomHelper = require('../../../node_modules/htmlbars/dist/cjs/dom-helper.js');
+//var htmlbarsCompiler =  require('../../../node_modules/htmlbars/dist/cjs/htmlbars-compiler.js');
+//var htmlbarsRuntime =   require('../../../node_modules/htmlbars/dist/cjs/htmlbars-runtime.js');
 global.BackboneRadio =  require('../../../lib/backbone.radio/backbone.radio.js');
 
 
 global.Jskeleton = {};
+global.Jskeleton = require('../../../dist/Jskeleton.js');
 
-global.Jskeleton.htmlBars =  {
+/*global.Jskeleton.htmlBars =  {
     compiler: htmlbarsCompiler,
     DOMHelper: htmlbarsDomHelper.default,
     /*hooks: htmlbarsRuntime.hooks,*/
-    render: htmlbarsRuntime.render
-};
+   /* render: htmlbarsRuntime.render
+};*/
 
 
 
 
-Marionette.Deferred = global.Backbone.$.Deferred;
+//Marionette.Deferred = global.Backbone.$.Deferred;
 requireHelper('/core/renderer.js');
 requireHelper('/helpers/html-bars.js');
 requireHelper('/utils/hooks.js');
 requireHelper('/utils/factory.js');
 requireHelper('/core/router.js');
 requireHelper('/core/service.js');
+requireHelper('/core/base-application.js');
 requireHelper('/core/application.js');
+requireHelper('/core/child-application.js');
 requireHelper('/core/view-controller.js');
-

@@ -7,7 +7,7 @@
     "clean": "rm -rf node_modules bower_components",
     "start": "grunt test",
     "reset": "npm run reinstall",
-    "test": "grunt test --mocha-reporter=dot",
+    "test": "grunt test --mocha-reporter=nyan",
     "coverage": "grunt coverage --mocha-reporter=dot",
     "prepublish": "npm test && npm prune"
   },
@@ -59,6 +59,7 @@
   },
   "dependencies": {
     "backbone": "^1.1.2",
+    "backbone.marionette": "^2.4.1",
     "htmlbars": "^0.13.5",
     "underscore": "^1.8.3"
   }

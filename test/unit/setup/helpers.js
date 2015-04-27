@@ -2,6 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var sinon = require('sinon');
 var $ = require('jquery');
+var _ = require('underscore');
 
 var $body = $(document.body);
 
