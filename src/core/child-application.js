@@ -4,11 +4,11 @@
 
 /* jshint unused: false */
 
-//
+
 //## ChildApplication
-//  The application is the container object where you split your webapp logic into 'pieces' as applications.
-//  It initialize regions, events, routes, channels and child apps per application object.
-//  A Jskeleton webapp can contains many Jskeleton.Applications as child apps of a unique Application 'main app'.
+//  ChildApplication class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
+//  It initializes regions, events, routes and channels.
+//  It cannot contain child applications.
 Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
     //Default parent region name where the application will be rendered
     defaultRegion: 'root',
@@ -35,9 +35,9 @@ Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
 
         this._initCallbacks.run(options, this);
         //Add routes listeners to the Jskeleton.router
-        this._initAppRoutesListeners(options);
+        this._initRoutes(options);
         //Add app events listeneres to the global channel
-        this._initAppEventsListeners(options);
+        // this._initAppEventsListeners(options);
 
         this.triggerMethod('start', options);
     },

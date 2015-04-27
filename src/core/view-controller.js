@@ -1,5 +1,6 @@
     'use strict';
-    /*globals Jskeleton, Marionette, _ */
+
+    /*globals Jskeleton, Marionette */
 
     Jskeleton.ViewController = Marionette.LayoutView.extend({
         constructor: function(options) { //inyectar app, channel, region
@@ -23,18 +24,6 @@
                 throw new Error('El view-controller necesita tener una region específica');
             }
         },
-        processNavigation: function(route) {
-            this.triggerMethod('before:navigate');
-
-            this.triggerMethod('state:change', this.service, route);
-
-            this.renderViewController();
-
-            this.triggerMethod('navigate');
-        },
-        renderViewController: function() {
-            this.render();
-        },
         mixinTemplateHelpers: function(target) {
             target = target || {};
             var templateHelpers = this.getOption('templateHelpers');
@@ -55,13 +44,4 @@
 
             return templateContext;
         }
-        //onRender: function(){
-        //
-        //}
-        // onBeforeNavigate: function(){
-        // 	//TODO: service
-        // }
-        // onNavigate: function(){
-        // 	//TODO: service
-        // }
     });

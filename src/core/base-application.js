@@ -4,11 +4,9 @@
 
 /* jshint unused: false */
 
-//
 //## BaseApplication
-//  The BaseApplication is the container object where you split your webapp logic into 'pieces' as applications.
-//  It initialize regions, events, routes, channels and child apps per application object.
-//  A Jskeleton webapp can contains many Jskeleton.Applications as child apps of a unique Application 'main app'.
+//  BaseApplication Class that other Jskeleton.Applications can extend from.
+//  It contains common application behavior as router/events initialization, application channels set up, common get methods...
 Jskeleton.BaseApplication = Marionette.Application.extend({
     //Default global webapp channel for communicate with other apps
     globalChannel: 'global',
@@ -22,12 +20,18 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         Marionette.Application.prototype.constructor.apply(this, arguments);
     },
-    //Start method to listen routes and events and start subapps
-    processNavigation: function(controllerView, args, handlerName) {
+    //Call to the specified view-controller method for render a app state
+    invokeViewControllerRender: function(controllerView, args, handlerName) {
         var hook = this.getHook();
         this.triggerMethod('onNavigate', controllerView, hook);
         hook.processBefore();
+
+        if (typeof controllerView[handlerName] !== 'function') {
+            throw new Error('El metodo ' + handlerName + ' del view controller no existe');
+        }
+
         controllerView[handlerName].call(controllerView, args, this.service);
+        controllerView.render.call(controllerView);
         hook.processAfter();
     },
     //Factory method to instance objects from Class references
@@ -41,28 +45,56 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         this.globalChannel = this.globalChannel ? Backbone.Radio.channel(this.globalChannel) : Backbone.Radio.channel('global');
         this.privateChannel = this.privateChannel ? Backbone.Radio.channel(this.privateChannel) : Backbone.Radio.channel(this.aid);
     },
-    //Add application routes to the router
-    _initAppRoutesListeners: function() {
+    //Add application routes  to the router and event handlers to the global channel
+    _initRoutes: function() {
         var self = this;
         this._viewControllers = [];
         if (this.routes) {
-            _.each(this.routes, function(value, key) {
-                self._addAppRoute(key, value);
+            _.each(this.routes, function(routeOptions, routeName) {
+                routeOptions = routeOptions || {};
+                //get view controller instance (it could be a view controller class asigned to the route or a default view controller if no class is specified)
+                var viewController = self._getViewController(routeOptions);
+                //add the route handler to Jskeleton.Router
+                self._addAppRoute(routeName, routeOptions, viewController);
+                //add the event handler to the app globalChannel
+                self._addAppEventListener(routeName, routeOptions, viewController);
             });
         }
     },
     //
-    _addAppRoute: function(routeString, routeOptions) {
-        var self = this,
-            viewController;
-        //get view controller instance (it could be a view controller class asigned to the route or a default view controller if no class is specified)
-        viewController = this._getViewController(routeOptions);
+    _addAppRoute: function(routeString, routeOptions, viewController) {
+        var self = this;
 
         this.router.route(routeString, {
             triggerEvent: routeOptions.triggerEvent,
-            handlerName: routeOptions.handlerName
-        }, function() {
-            self.processNavigation.apply(self, [viewController].concat(Array.prototype.slice.call(arguments)));
+            handlerName: routeOptions.handlerName || this.router._getHandlerNameFromRoute(routeString)
+        }, function(args, handlerName) {
+            self.invokeViewControllerRender(viewController, args, handlerName);
+        });
+    },
+    //Add listen to a global event changing the url with the event parameters and calling to the view-controller
+    _addAppEventListener: function(routeString, routeOptions, viewController) {
+        if (routeOptions.eventListener) {
+            var self = this,
+                handlerName = routeOptions.handlerName || this.router._getHandlerNameFromRoute(routeString);
+
+            this.listenTo(this.globalChannel, routeOptions.eventListener, function(args) {
+                if (!routeOptions.navigate) {
+                    //update the url
+                    self._navigateTo.call(self, routeString, routeOptions, args);
+                }
+
+                self.invokeViewControllerRender(viewController, args, handlerName);
+            });
+        }
+    },
+    //Update the url with the specified parameters
+    _navigateTo: function(routeString, routeOptions, params) {
+        var triggerValue = routeOptions.triggerNavigate === true ? true : false,
+            processedRoute = this.router._replaceRouteString(routeString, params);
+
+        this.router.navigate(processedRoute, {
+            trigger: triggerValue
         });
     },
     //Get a view controller instance (if no view controller is specified, a default view controller class is instantiated)
@@ -94,25 +126,6 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     extendViewController: function(ViewControllerClass, template) {
         return ViewControllerClass.extend({
             template: template
-        });
-    },
-    //
-    _initAppEventsListeners: function() {
-        var self = this;
-        this._controllers = [];
-        if (this.events) {
-            _.each(this.events, function(value, key) {
-                self._addAppEventListener(key, value);
-            });
-        }
-    },
-    //
-    _addAppEventListener: function(eventName, eventOptions) {
-        var controller = this._getViewController(eventOptions),
-            self = this;
-
-        this.globalChannel.on(eventName, function() {
-            self.processNavigation(controller);
         });
     },
     //Get default application view-controller class if no controller is specified

@@ -4,11 +4,13 @@
 
 /* jshint unused: false */
 
-//
+
 //## Application
-//  The application is the container object where you split your webapp logic into 'pieces' as applications.
-//  It initialize regions, events, routes, channels and child apps per application object.
-//  A Jskeleton webapp can contains many Jskeleton.Applications as child apps of a unique Application 'main app'.
+//  Application class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
+//  It initializes regions, events, routes, channels and child apps.
+//  It has a global channel to communicate with others apps and a private channel to communicate with it's components,
+//  A Jskeleton webapp can contain many Jskeleton.Applications.
+//  A Jskeleton.Application can define multiple child applications (Jskeleton.ChildApplication).
 Jskeleton.Application = Jskeleton.BaseApplication.extend({
     //Default dom reference (usefull for the first webapp root region)
     defaultEl: 'body',
@@ -21,22 +23,22 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
         Jskeleton.BaseApplication.prototype.constructor.apply(this, arguments);
 
         this.applications = options.applications || this.applications || {};
-        //private object instances of subapps
+        //private object instances of applications
         this._childApps = {};
 
         return this;
 
     },
-    //Method to start the application, start the childapplications and listening routes/events
+    //Method to start the application, start the childapplications and start listening routes/events
     start: function(options) {
         this.triggerMethod('before:start', options);
         this._initCallbacks.run(options, this);
         //init child apps
         this._initChildApplications(options);
         //Add routes listeners to the Jskeleton.router
-        this._initAppRoutesListeners(options);
+        this._initRoutes(options);
         //Add app events listeneres to the global channel
-        this._initAppEventsListeners(options);
+        // this._initAppEventsListeners(options);
         //Start the Jskeleton router
         this.startRouter();
         this.triggerMethod('start', options);

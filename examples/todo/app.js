@@ -13,29 +13,24 @@ var Controller = Marionette.Controller.extend({
 
 
 var ViewController = Jskeleton.ViewController.extend({
-    onStateChange: function( /*Service, route*/ ) {
+    onStateChange: function(params, service) {
         this.context.ViewControllerData = 'ViewControllerData';
-    },
-    pepe: function() {
-
     }
 });
 
-var AppHero = Jskeleton.Application.extend({
+var BookCatalogue = Jskeleton.ChildApplication.extend({
     //ServiceClass: Service,
     routes: {
-        'home': {
+        'book/show/:title(/:id)': {
             viewControllerClass: ViewController,
+            // handlerName: 'onStateChange',
+            // name: 'home:navigate',
+            // triggerEvent: ''
             // viewControllerOptions: {
             //     model: MiModel
             // },
-            template: '<h5> AppHero route handler {{example}} </h5>'
-        }
-    },
-    events: {
-        'app:hero:show': {
-            viewControllerClass: ViewController,
-            template: '<h5> AppHero event handler </h5>'
+            template: '<h5> AppHero route handler {{example}} </h5>',
+            eventListener: 'book:details'
         }
     }
 });
@@ -43,14 +38,11 @@ var AppHero = Jskeleton.Application.extend({
 
 var AppMain = Jskeleton.Application.extend({
     rootEl: '.app-container',
-    layout: {
-        template: '<h3> Content: </h3> <div class="content"></div> <h3> Footer: </h3> <div class="footer"></div>',
-        layoutClass: Layout
-    },
+    template: '<h3> Content: </h3> <div class="content"></div> <h3> Footer: </h3> <div class="footer"></div>',
+    layout: Layout,
     applications: {
-        'hero': {
-            appClass: AppHero,
-            region: 'contentRegion'
+        'bookCatalogue': {
+            appClass: BookCatalogue,
         }
     }
 });
