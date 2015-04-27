@@ -35,7 +35,11 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         hook.processAfter();
     },
     _showControllerView: function(controllerView) {
-        this.rootRegion.show(controllerView);
+        if (this.mainRegion && this.mainRegion.currentView !== controllerView) {
+            this.mainRegion.show(controllerView);
+        } else {
+            controllerView.render();
+        }
     },
     //Factory method to instance objects from Class references
     factory: function(Class, options) {

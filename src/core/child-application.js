@@ -22,7 +22,7 @@ Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
         }
 
         //Add the injected region as root
-        this.rootRegion = options.region;
+        this.mainRegion = options.region;
 
         //Jskeleton.BaseApplication constructor
         Jskeleton.BaseApplication.prototype.constructor.apply(this, arguments);
@@ -44,7 +44,7 @@ Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
     //Private method to initialize de application regions
     _initializeRegions: function() {
         //ensure initial root region is available
-        this._ensureRootRegion();
+        this._ensureMainRegion();
 
         this._initRegionManager();
 
@@ -52,8 +52,8 @@ Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
         // this._createLayoutApp();
     },
     //Private method to ensure that parent region exists
-    _ensureRootRegion: function() {
-        if (!this.rootRegion || typeof this.rootRegion.show !== 'function') {
+    _ensureMainRegion: function() {
+        if (!this.mainRegion || typeof this.mainRegion.show !== 'function') {
             throw new Error('Tienes que definir una region para la Child Application');
         }
     }
