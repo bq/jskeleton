@@ -75,7 +75,8 @@ Jskeleton.Router = Backbone.Router.extend({
     //Cast url string to a default camel case name (commonly to call view-controller method)
     //ex: '/show/details -> onShowDetails'
     _getHandlerNameFromRoute: function(routeString) {
-        var replacedString = routeString.substr(0, routeString.indexOf(':')).replace(/\/(\w|\d)?/g, function(x) {
+        var endPos = routeString.indexOf(':') === -1 ? routeString.length : routeString.indexOf(':');
+        var replacedString = routeString.substr(0, endPos).replace(/\/(\w|\d)?/g, function(x) {
                 return x.replace(/\//g, '').toUpperCase();
             }),
             handlerName = 'on' + replacedString.charAt(0).toUpperCase() + replacedString.slice(1);
