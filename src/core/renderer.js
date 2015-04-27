@@ -30,11 +30,11 @@
              dom: new DOMHelper(),
              hooks: hooks,
              helpers: Jskeleton._helpers,
-             jskeleton: data.enviroment // for helper access to the enviroments
+             enviroment: data.enviroment // for helper access to the enviroments
          },
          scope = hooks.createFreshScope();
 
-     hooks.bindSelf(env, scope, data.context);
+     hooks.bindSelf(env, scope, data);
 
      //template access: context (view-controller context) , templateHelpers and model serialized data
 

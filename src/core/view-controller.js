@@ -1,6 +1,6 @@
     'use strict';
 
-    /*globals Jskeleton, Marionette */
+    /*globals Jskeleton, Marionette, _ */
 
     Jskeleton.ViewController = Marionette.LayoutView.extend({
         constructor: function(options) { //inyectar app, channel, region
@@ -11,6 +11,7 @@
             this.region = options.region;
             this.service = options.service;
             this.context = {};
+            this.components = {};
             Marionette.LayoutView.prototype.constructor.apply(this, arguments);
         },
         _ensureOptions: function(options) {
@@ -43,5 +44,17 @@
             };
 
             return templateContext;
+        },
+        addComponent: function(name, instance) {
+            this.components.name = instance;
+        },
+        destroy: function() {
+            _.each(this.components, function(component) {
+                if (_.isFunction(component.destroy)) {
+                    component.destroy();
+                }
+            });
+
+            return Marionette.LayoutView.prototype.destroy.apply(this, arguments);
         }
     });

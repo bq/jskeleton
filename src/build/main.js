@@ -44,6 +44,7 @@
 
     //  @include ../core/renderer.js
     //  @include ../helpers/html-bars.js
+    //  @include ../helpers/component.js
     //  @include ../utils/hooks.js
     //  @include ../utils/factory.js
     //  @include ../core/router.js

@@ -35,15 +35,3 @@
             value: helper.call(context, hash, env, params, templates)
         };
     };
-
-    Jskeleton.registerHelper('example', function(params, env) {
-    // env.app;
-    // env.channel;
-    // env.data; //view-controller
-        console.log('example helper', env);
-    });
-
-
-    Jskeleton.registerHelper('pepe', function() {
-        console.log('example helper');
-    });
