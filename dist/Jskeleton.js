@@ -1,5 +1,4 @@
-/*! Jskeleton - v0.0.1 - 2015-04-23 
- */(function(root, factory) {
+(function(root, factory) {
     'use strict';
     /*globals require,define */
     /* jshint unused: false */
@@ -12250,8 +12249,197 @@
     
          return dom;
      };
-src/helpers/html-bars.js not found
-src/utils/hook.js not found
+        'use strict';
+        /*globals Jskeleton */
+    
+        Jskeleton._helpers = {};
+    
+        Jskeleton.registerHelper = function(name, helperFunc) {
+            Jskeleton._helpers[name] = helperFunc;
+        };
+    
+    
+        function normalizeArray(env, array) {
+            var out = new Array(array.length);
+    
+            for (var i = 0, l = array.length; i < l; i++) {
+                out[i] = env.hooks.getValue(array[i]);
+            }
+    
+            return out;
+        }
+    
+        function normalizeObject(env, object) {
+            var out = {};
+    
+            for (var prop in object) {
+                out[prop] = env.hooks.getValue(object[prop]);
+            }
+    
+            return out;
+        }
+    
+        Jskeleton.htmlBars.hooks.invokeHelper = function(morph, env, scope, visitor, _params, _hash, helper, templates, context) {
+            var params = normalizeArray(env, _params);
+            var hash = normalizeObject(env, _hash);
+            return {
+                value: helper.call(context, hash, env, params, templates)
+            };
+        };
+    
+        Jskeleton.registerHelper('example', function(params, env) {
+        // env.app;
+        // env.channel;
+        // env.data; //view-controller
+            console.log('example helper', env);
+        });
+    
+    
+        Jskeleton.registerHelper('pepe', function() {
+            console.log('example helper');
+        });
+    'use strict';
+    /*globals Jskeleton,_ */
+    /* jshint unused: false */
+    
+    var Hook = Jskeleton.Hook = function() {
+        this.beforeCallbacks = [];
+        this.afterCallbacks = [];
+        return this;
+    };
+    
+    
+    Hook.prototype.before = function(callback) {
+        this.beforeCallbacks.push(callback);
+        return this;
+    };
+    
+    Hook.prototype.after = function(callback) {
+        this.afterCallbacks.push(callback);
+        return this;
+    };
+    
+    Hook.prototype.processBefore = function() {
+        var self = this;
+        _.each(this.beforeCallbacks, function(callback) {
+            callback.apply(self);
+        });
+        this.beforeCallbacks = [];
+        return this;
+    };
+    
+    Hook.prototype.processAfter = function() {
+        var self = this;
+        _.each(this.afterCallbacks, function(callback) {
+            callback.apply(self);
+        });
+        this.afterCallbacks = [];
+        return this;
+    };
+    'use strict';
+    /*globals Marionette, Jskeleton, _, Backbone */
+    /* jshint unused: false */
+    
+    /**
+     * Application object factory
+     * @exports factory
+     * @namespace
+     * @memberof app
+     */
+    var factory = {};
+    
+    /**
+     * Default available factory objects
+     * @private
+     * @type {Object}
+     */
+    factory.prototypes = {
+        Model: Backbone.Model,
+        Collection: Backbone.Collection
+    };
+    
+    /**
+     * Available singletons objects
+     * @private
+     * @type {Object}
+     */
+    factory.singletons = {};
+    
+    /**
+     * Adds an object to the factory
+     * @param {String} key Name of the object to reference
+     * @param {Object} obj
+     */
+    factory.add = function(key, obj) {
+        if (this.prototypes[key]) {
+            throw new Error('AlreadyDefinedFactoryObject - ' + key);
+        }
+        this.prototypes[key] = obj;
+    };
+    
+    /**
+     * Creates a new object
+     * @param  {String} obj         Name of the object to create
+     * @param  {Object} [options]   Constructor params
+     * @return {Object}             A new instance of the object reference
+     */
+    factory.new = function(obj, options) {
+        options = options || {};
+    
+        var FactoryObject;
+    
+        if (typeof obj === 'object' || typeof obj === 'function') {
+            FactoryObject = obj;
+        } else {
+            FactoryObject = this.prototypes[obj];
+        }
+    
+        if (!FactoryObject) {
+            throw new Error('UndefinedFactoryObject - ' + obj);
+        }
+    
+        return new FactoryObject(options);
+    };
+    
+    /**
+     * Creates a new object o retrieves the created one
+     * @param  {String} obj         Name of the object to create
+     * @param  {Object} [options]   Constructor params
+     * @return {Object}               A new instance of the object reference
+     */
+    factory.singleton = function(obj, options) {
+        options = options || {};
+    
+        if (!this.singletons[obj]) {
+            this.singletons[obj] = this.new(obj, options);
+        }
+    
+        return this.singletons[obj];
+    };
+    
+    /**
+     * Retrieves an Object reference
+     * @param  {String} obj Name of the object to get reference
+     * @return {Object}     Reference to the original object in the factory
+     */
+    factory.get = function(obj) {
+        if (!this.prototypes[obj]) {
+            throw new Error('UndefinedFactoryObject - ' + obj);
+        }
+        return this.prototypes[obj];
+    };
+    
+    /**
+     * Gets all object added to the factory
+     * @return {Array} A lis of all objects added to the factory
+     */
+    factory.getAll = function() {
+        return this.prototypes;
+    };
+    
+    
+    Jskeleton.factory = factory;
+    
     'use strict';
     /*globals Jskeleton */
     /* jshint unused: false */

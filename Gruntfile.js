@@ -133,7 +133,10 @@ module.exports = function(grunt) {
                     ]
                 }]
             },
-            server: '.tmp'
+            server: '.tmp',
+            coverage : {
+                src: ['test/src']
+            }
         },
 
         // Make sure code styles are up to par and there are no obvious mistakes
@@ -147,15 +150,24 @@ module.exports = function(grunt) {
                 '<%= config.src %>{,*/}*.js',
                 '!<%= config.examples %>{,*/}*.js',
                 'test/spec/{,*/}*.js'
-            ]
+            ],
+            test : ['test/**/<%= pkg.name %>.js']
         },
 
         // Mocha testing framework configuration options
-        mochacli: {
-            options : {
-                bail: true
-            },
-            all : ['test/spec/*.js']
+        mochaTest: {
+            tests: {
+                options: {
+                    /*require: 'test/unit/setup/node.js',*/
+                    reporter: grunt.option('mocha-reporter') || 'nyan',
+                    clearRequireCache: true,
+                    mocha: require('mocha')
+                },
+                src:[
+                    /*'test/unit/setup/helpers.js',*/
+                    'test/unit/*.spec.js'
+                ]
+            }
         },
         // Automatically inject Bower components into the HTML file
         wiredep: {
@@ -209,6 +221,12 @@ module.exports = function(grunt) {
                     src: 'node_modules/apache-server-configs/dist/.htaccess',
                     dest: '<%= config.dist %>/.htaccess'
                 }]
+            },
+            coverage : {
+                expand: true,
+                flatten: true,
+                src: ['<%= config.dist %>/*.js'],
+                dest: 'test/coverage/instrument/build'
             }
         },
         preprocess: {
@@ -241,7 +259,33 @@ module.exports = function(grunt) {
                     ]
                 }]
             }
+        },
+        env : {
+            coverage: {
+                APP_DIR_FOR_CODE_COVERAGE: '../../../test/src/'
+            }
+        },
+        instrument: {
+            files: 'src/**/*.js',
+            options: {
+                lazy: true,
+                basePath: 'test'
+            }
+        },
+        storeCoverage: {
+            options: {
+                dir: 'coverage'
+            }
+        },
+        makeReport: {
+            src: 'coverage/**/*.json',
+            options: {
+                type: 'lcov',
+                dir: 'coverage',
+                print: 'detail'
+            }
         }
+        // end - code coverage settings
     });
 
 
@@ -274,18 +318,30 @@ module.exports = function(grunt) {
             ]);
         }*/
        if(target === 'framework'){
-           return grunt.task.run(['mochacli' ]);
+           return grunt.task.run(['mochaTest' ]);
 
        }
        if(target === 'examples'){
-           return grunt.task.run(['mochacli' ]);
+           return grunt.task.run(['mochaTest' ]);
 
        }
 
         grunt.task.run([
-            'mochacli'
+            'mochaTest'
         ]);
     });
+
+    grunt.registerTask('coverage', [
+        /*'jshint:test',*/
+        'clean:coverage',
+        'preprocess',
+        'env:coverage',
+        'instrument',
+        'mochaTest',
+        'storeCoverage',
+        'makeReport'
+    
+    ]);
 
     grunt.registerTask('build', [
         'jshint:all',

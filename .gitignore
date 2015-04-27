@@ -1,3 +1,5 @@
 node_modules
 .tmp
 bower_components
+npm-debug.log
+dist
