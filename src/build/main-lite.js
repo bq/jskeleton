@@ -40,6 +40,11 @@
     //  @include ../core/base-application.js
     //  @include ../core/application.js
     //  @include ../core/child-application.js
+    //  @include ../core/view.js
+    //  @include ../core/item-view.js
+    //  @include ../core/layout-view.js
+    //  @include ../core/collection-view.js
+    //  @include ../core/composite-view.js
     //  @include ../core/view-controller.js
 
 

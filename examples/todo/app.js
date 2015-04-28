@@ -1,25 +1,29 @@
-var DetailBookView = Marionette.ItemView.extend({
+var DetailBookView = Jskeleton.ItemView.extend({
+    initialize: function() {
+        this.listenTo(this.channel, 'book:detail:hightlight', function() {
+
+
+        });
+    },
     template: '<strong> Título del libro: </strong> <span class="title">{{title}}</span>' +
         '<strong> Autor del libro: </strong><span class="author">{{author}}</span>' +
-        '<strong> Identificador del libro: </strong><span class="id">{{id}}</span>',
+        '<strong> Identificador del libro: </strong><span class="id">{{id}}</span> <button class="view-details"> Ver detalles </button>',
     events: {
-        'click .title': 'onTitleClicked'
+        'click .view-details': 'onDetailsClicked'
     },
-    onTitleClicked: function() {
-        window.alert('pene');
+    onDetailsClicked: function() {
+        this.channel.trigger('book:details', {
+            id: this.model.get('id'),
+            title: this.model.get('title'),
+            author: this.model.get('author')
+        });
     }
 });
 
 Jskeleton.factory.add('DetailBookView', DetailBookView);
 
-var BookCollectionView = Marionette.CollectionView.extend({
-    childView: DetailBookView,
-    events: {
-        'click .title': 'onTitleClicked'
-    },
-    onTitleClicked: function() {
-        window.alert('title-clicked');
-    }
+var BookCollectionView = Jskeleton.CollectionView.extend({
+    childView: DetailBookView
 });
 
 Jskeleton.factory.add('BookCollectionView', BookCollectionView);
@@ -30,6 +34,9 @@ var BookDetailsViewController = Jskeleton.ViewController.extend({
             title: params.title,
             id: params.id,
             author: params.author || 'desconocido'
+        });
+        this.listenTo(this.channel, 'book:details', function() {
+            //service call
         });
     }
 });
@@ -68,11 +75,21 @@ var BookCatalogue = Jskeleton.ChildApplication.extend({
             template: '<span> Listado de libros: </span> {{@component name="BookCollectionView" collection=context.bookCollection}}',
             eventListener: 'book:list'
         }
-    }
+    },
+    // events: {
+    //     trigger: {
+
+    //     },
+    //     out: {
+
+    //     }
+    //     // 'all',
+    //     'book:details'
+    // }
 });
 
 
-var Layout = Marionette.LayoutView.extend({
+var Layout = Jskeleton.LayoutView.extend({
     regions: {
         headerRegion: '.header',
         contentRegion: '.content',
