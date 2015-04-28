@@ -1,7 +1,7 @@
 node_modules
-.tmp/
+.tmp
 bower_components
 npm-debug.log
-dist/
-docs/
+dist
+docs
 .idea

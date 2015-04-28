@@ -2,36 +2,21 @@
 /*globals Marionette, Jskeleton, _, Backbone */
 /* jshint unused: false */
 
-/**
- * Application object factory
- * @exports factory
- * @namespace
- * @memberof app
- */
+
+//Application object factory
 var factory = {};
 
-/**
- * Default available factory objects
- * @private
- * @type {Object}
- */
+
+//Default available factory objects
 factory.prototypes = {
     Model: Backbone.Model,
     Collection: Backbone.Collection
 };
 
-/**
- * Available singletons objects
- * @private
- * @type {Object}
- */
+//Available singletons objects
 factory.singletons = {};
 
-/**
- * Adds an object to the factory
- * @param {String} key Name of the object to reference
- * @param {Object} obj
- */
+//Adds an object class to the factory
 factory.add = function(key, obj) {
     if (this.prototypes[key]) {
         throw new Error('AlreadyDefinedFactoryObject - ' + key);
@@ -39,12 +24,9 @@ factory.add = function(key, obj) {
     this.prototypes[key] = obj;
 };
 
-/**
- * Creates a new object
- * @param  {String} obj         Name of the object to create
- * @param  {Object} [options]   Constructor params
- * @return {Object}             A new instance of the object reference
- */
+
+//Creates a new object.
+//Can recieve an object class or a string object factory key.
 factory.new = function(obj, options) {
     options = options || {};
 
@@ -63,12 +45,8 @@ factory.new = function(obj, options) {
     return new FactoryObject(options);
 };
 
-/**
- * Creates a new object o retrieves the created one
- * @param  {String} obj         Name of the object to create
- * @param  {Object} [options]   Constructor params
- * @return {Object}               A new instance of the object reference
- */
+
+//Creates a new singleton object o retrieves the created one
 factory.singleton = function(obj, options) {
     options = options || {};
 
@@ -79,11 +57,8 @@ factory.singleton = function(obj, options) {
     return this.singletons[obj];
 };
 
-/**
- * Retrieves an Object reference
- * @param  {String} obj Name of the object to get reference
- * @return {Object}     Reference to the original object in the factory
- */
+
+//Retrieves an Object reference
 factory.get = function(obj) {
     if (!this.prototypes[obj]) {
         throw new Error('UndefinedFactoryObject - ' + obj);
@@ -91,10 +66,7 @@ factory.get = function(obj) {
     return this.prototypes[obj];
 };
 
-/**
- * Gets all object added to the factory
- * @return {Array} A lis of all objects added to the factory
- */
+//Gets all objects added to the factory
 factory.getAll = function() {
     return this.prototypes;
 };
