@@ -73,9 +73,9 @@ module.exports = function(grunt) {
                         '/dist': 'dist'
                     }
                 },
-             },
+            },
             todo: {
-               bsFiles: {
+                bsFiles: {
                     src: [
                         '<%= config.examples %>/todo/*.js',
                         '<%= config.examples %>/todo/*.html',
@@ -134,7 +134,7 @@ module.exports = function(grunt) {
                 }]
             },
             server: '.tmp',
-            coverage : {
+            coverage: {
                 src: ['test/src']
             }
         },
@@ -142,16 +142,16 @@ module.exports = function(grunt) {
         // Make sure code styles are up to par and there are no obvious mistakes
         jshint: {
             options: {
-                jshintrc: '.jshintrc',
+                jshintrc: true,
                 reporter: require('jshint-stylish')
             },
             all: [
                 'Gruntfile.js',
                 '<%= config.src %>{,*/}*.js',
                 '!<%= config.examples %>{,*/}*.js',
-                'test/spec/{,*/}*.js'
+                'test/unit/**/*.js'
             ],
-            test : ['test/**/<%= pkg.name %>.js']
+            test: ['test/**/<%= pkg.name %>.js']
         },
 
         // Mocha testing framework configuration options
@@ -163,9 +163,10 @@ module.exports = function(grunt) {
                     clearRequireCache: true,
                     mocha: require('mocha')
                 },
-                src:[
-                    /*'test/unit/setup/helpers.js',*/
-                    'test/unit/*.spec.js'
+                src: [
+                    'test/unit/setup/helpers.js',
+                    'test/unit/jskeleton-src/*.spec.js',
+                    'test/unit/marionette-comp/*.spec.js'
                 ]
             }
         },
@@ -222,7 +223,7 @@ module.exports = function(grunt) {
                     dest: '<%= config.dist %>/.htaccess'
                 }]
             },
-            coverage : {
+            coverage: {
                 expand: true,
                 flatten: true,
                 src: ['<%= config.dist %>/*.js'],
@@ -260,7 +261,7 @@ module.exports = function(grunt) {
                 }]
             }
         },
-        env : {
+        env: {
             coverage: {
                 APP_DIR_FOR_CODE_COVERAGE: '../../../test/src/'
             }
@@ -311,20 +312,20 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('test', function(target) {
-       /* if (target !== 'watch') {
+        /* if (target !== 'watch') {
             grunt.task.run([
                 'clean:server',
                 'concurrent:test'
             ]);
         }*/
-       if(target === 'framework'){
-           return grunt.task.run(['mochaTest' ]);
+        if (target === 'framework') {
+            return grunt.task.run(['mochaTest']);
 
-       }
-       if(target === 'examples'){
-           return grunt.task.run(['mochaTest' ]);
+        }
+        if (target === 'examples') {
+            return grunt.task.run(['mochaTest']);
 
-       }
+        }
 
         grunt.task.run([
             'mochaTest'
@@ -340,7 +341,7 @@ module.exports = function(grunt) {
         'mochaTest',
         'storeCoverage',
         'makeReport'
-    
+
     ]);
 
     grunt.registerTask('build', [
