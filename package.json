@@ -9,7 +9,7 @@
         "reset": "npm run reinstall",
         "test": "grunt test --mocha-reporter=nyan",
         "coverage": "grunt coverage --mocha-reporter=dot",
-        "prepublish": "npm test && npm prune"
+        "grunt:debug": "node-debug $(which grunt)"
     },
     "devDependencies": {
         "apache-server-configs": "^2.7.1",
@@ -45,6 +45,7 @@
         "jshint-stylish": "^0.4.0",
         "load-grunt-tasks": "^0.4.0",
         "mocha": "^2.2.4",
+        "node-debug": "^0.1.0",
         "sinon": "^1.14.1",
         "sinon-chai": "^2.7.0",
         "time-grunt": "^1.1.1"
