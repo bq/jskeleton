@@ -46,7 +46,7 @@ Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
         //ensure initial root region is available
         this._ensureMainRegion();
 
-        this._initRegionManager();
+        Marionette.Application.prototype._initializeRegions.apply(this, arguments);
 
         // Create a layout for the application if a layoutView its defined
         // this._createLayoutApp();

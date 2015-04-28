@@ -1,11 +1,11 @@
-/* globals Marionette */
+/* globals Marionette, Jskeleton */
 
 describe('application regions', function() {
     'use strict';
 
     describe('when adding region selectors to an app, and starting the app', function() {
         beforeEach(function() {
-            this.app = new Marionette.Application();
+            this.app = new Jskeleton.Application();
 
             this.beforeAddRegionStub = this.sinon.stub();
             this.addRegionStub = this.sinon.stub();
@@ -49,7 +49,7 @@ describe('application regions', function() {
 
     describe('when adding region objects to an app', function() {
         beforeEach(function() {
-            this.app = new Marionette.Application();
+            this.app = new Jskeleton.Application();
             this.FooRegion = Marionette.Region.extend({
                 el: '#foo-region'
             });
@@ -73,7 +73,7 @@ describe('application regions', function() {
         beforeEach(function() {
             this.fooOption = 'bar';
             this.fooSelector = '#foo-region';
-            this.app = new Marionette.Application();
+            this.app = new Jskeleton.Application();
             this.FooRegion = Marionette.Region.extend();
 
             this.fooRegion = new this.FooRegion({
@@ -124,7 +124,7 @@ describe('application regions', function() {
 
         describe('and when regions is an object', function() {
             beforeEach(function() {
-                this.app = new Marionette.Application({
+                this.app = new Jskeleton.Application({
                     regions: {
                         fooRegion: this.fooSelector,
                         barRegion: {
@@ -150,7 +150,7 @@ describe('application regions', function() {
 
         describe('and when regions is an object and the application has predefined regions', function() {
             beforeEach(function() {
-                this.App = Marionette.Application.extend({
+                this.App = Jskeleton.Application.extend({
                     regions: {
                         fooRegion: this.fooSelector,
                         barRegion: {
@@ -195,7 +195,7 @@ describe('application regions', function() {
                     regions: this.regionOptionsStub
                 };
 
-                this.app = new Marionette.Application(this.options);
+                this.app = new Jskeleton.Application(this.options);
             });
 
             it('should initialize the regions immediately', function() {
@@ -222,7 +222,7 @@ describe('application regions', function() {
 
         describe('and when regions is a function and the application has predefined regions', function() {
             beforeEach(function() {
-                this.App = Marionette.Application.extend({
+                this.App = Jskeleton.Application.extend({
                     regions: {
                         fooRegion: this.fooSelector,
                         barRegion: {
@@ -290,7 +290,7 @@ describe('application regions', function() {
 
         describe('and when regions is an object', function() {
             beforeEach(function() {
-                this.App = Marionette.Application.extend({
+                this.App = Jskeleton.Application.extend({
                     regions: this.regions
                 });
 
@@ -317,7 +317,7 @@ describe('application regions', function() {
                     foo: 'bar'
                 };
 
-                this.App = Marionette.Application.extend({
+                this.App = Jskeleton.Application.extend({
                     regions: this.regionOptionsStub
                 });
 
@@ -350,7 +350,7 @@ describe('application regions', function() {
     describe('when adding custom region classes to an app', function() {
         beforeEach(function() {
             this.fooSelector = '#foo-region';
-            this.app = new Marionette.Application();
+            this.app = new Jskeleton.Application();
             this.FooRegion = Marionette.Region.extend({
                 el: this.fooSelector
             });
@@ -378,7 +378,7 @@ describe('application regions', function() {
 
     describe('when adding regions with a function', function() {
         beforeEach(function() {
-            this.app = new Marionette.Application();
+            this.app = new Jskeleton.Application();
 
             this.fooSelector = '#foo-region';
             this.barSelector = '#bar-region';
@@ -428,7 +428,7 @@ describe('application regions', function() {
 
     describe('when an app has a region', function() {
         beforeEach(function() {
-            this.app = new Marionette.Application();
+            this.app = new Jskeleton.Application();
             this.fooRegion = new Marionette.Region({
                 el: '#foo-region'
             });
@@ -450,7 +450,7 @@ describe('application regions', function() {
 
     describe('when destroying all regions in the app', function() {
         beforeEach(function() {
-            this.app = new Marionette.Application();
+            this.app = new Jskeleton.Application();
             this.app.addRegions({
                 fooRegion: '#foo-region',
                 barRegion: '#bar-region'
@@ -476,7 +476,7 @@ describe('application regions', function() {
 
     describe('when an app has multiple regions', function() {
         beforeEach(function() {
-            this.App = new Marionette.Application();
+            this.App = new Jskeleton.Application();
             this.App.addRegions({
                 r1: '#region1',
                 r2: '#region2'
@@ -493,7 +493,7 @@ describe('application regions', function() {
 
     describe('when removing a region', function() {
         beforeEach(function() {
-            this.app = new Marionette.Application();
+            this.app = new Jskeleton.Application();
             this.app.addRegions({
                 fooRegion: '#foo-region',
                 barRegion: '#bar-region'
@@ -532,7 +532,7 @@ describe('application regions', function() {
         beforeEach(function() {
             this.getRegionManagerStub = this.sinon.stub().returns(new Marionette.RegionManager());
 
-            this.App = Marionette.Application.extend({
+            this.App = Jskeleton.Application.extend({
                 getRegionManager: this.getRegionManagerStub
             });
 

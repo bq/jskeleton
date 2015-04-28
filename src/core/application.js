@@ -56,7 +56,9 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     _initializeRegions: function() {
         //ensure initial root DOM reference is available
         this._ensureEl();
-        this._initRegionManager();
+
+        Marionette.Application.prototype._initializeRegions.apply(this, arguments);
+
         // Create root region on root DOM reference
         this._createRootRegion();
         // Create a layout for the application if a layoutView its defined
