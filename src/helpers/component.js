@@ -20,7 +20,14 @@
              throw new Error('Tienes que definir un nombre de clase');
          }
 
+         //omit component factory name
          componentData = _.omit(params, 'name');
+
+         //inject component dependencies
+         componentData = _.extend(componentData, {
+             channel: env.enviroment._channel,
+             _app: env.enviroment._app
+         });
 
          component = Jskeleton.factory.new(componentName, componentData);
 
