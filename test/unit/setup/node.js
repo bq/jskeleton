@@ -74,6 +74,7 @@ if(!process.env || process.env.SOURCES !== 'MARIONETTE'){
     requireHelper('/core/collection-view.js');
     requireHelper('/core/composite-view.js');
     requireHelper('/core/view-controller.js');
+    requireHelper('/core/layout-view.js');
 }
 
 
