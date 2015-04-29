@@ -7,12 +7,11 @@
             options = options || {};
             this._ensureOptions(options);
             this._app = options.app;
-            this.channel = options.channel;
             this.region = options.region;
             this.service = options.service;
             this.context = {};
             this.components = {};
-            Marionette.LayoutView.prototype.constructor.apply(this, arguments);
+            Jskeleton.LayoutView.prototype.constructor.apply(this, arguments);
         },
         _ensureOptions: function(options) {
             if (!options.app) {
@@ -25,6 +24,7 @@
                 throw new Error('El view-controller necesita tener una region específica');
             }
         },
+        //expose app enviroment, view-controller context and marionette.templateHelpers to the view-controller template
         mixinTemplateHelpers: function(target) {
             target = target || {};
             var templateHelpers = this.getOption('templateHelpers');

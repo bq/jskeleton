@@ -1,8 +1,9 @@
 {
-    "name": "Jskeleton",
+    "name": "jskeleton",
     "version": "0.0.1",
     "description": "Awesome Framework!",
     "license": "Apache License 2.0",
+    "main": "dist/jskeleton.js",
     "scripts": {
         "clean": "rm -rf node_modules bower_components",
         "start": "grunt test",
