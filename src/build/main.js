@@ -6,32 +6,36 @@
     if (typeof define === 'function' && define.amd) {
         define(['jquery',
             'underscore',
+            'backbone',
             'backbone.marionette'
-        ], function($, _, Marionette) {
-            return factory.call(root, root, $, _, Marionette);
+        ], function($, _, Backbone, Marionette) {
+            return factory.call(root, root, $, _, Backbone, Marionette);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         var $ = require('jquery'),
             _ = require('underscore'),
-            Marionette = require('backbone.marionette'),
-            Jskeleton = factory(root, $, _, Marionette);
+            Backbone = require('backbone');
 
-        root.Jskeleton = Jskeleton;
+        Backbone.$ = $;
+
+        var Marionette = require('backbone.marionette'),
+            Jskeleton = factory(root, $, _, Backbone, Marionette);
+
         module.exports = Jskeleton;
     } else if (root !== undefined) {
-        root.Jskeleton = factory.call(root, root, root.$, root._, root.Marionette);
+        root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
     }
 
-})(window, function(root, $, _, Marionette) {
+})(this, function(root, $, _, Backbone, Marionette) {
     'use strict';
     /*globals require,requireModule */
     /* jshint unused: false */
 
+    //  @include ../../lib/backbone.radio/backbone.radio.js
     //  @include ../../lib/htmlbars/loader.js
     //  @include ../../lib/htmlbars/dom-helper.amd.js
     //  @include ../../lib/htmlbars/htmlbars-compiler.amd.js
     //  @include ../../lib/htmlbars/htmlbars-runtime.amd.js
-    //  @include ../../lib/backbone.radio/backbone.radio.js
 
     var Jskeleton = root.Jskeleton || {};
 

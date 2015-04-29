@@ -6,23 +6,27 @@
     if (typeof define === 'function' && define.amd) {
         define(['jquery',
             'underscore',
+            'backbone',
             'backbone.marionette'
-        ], function($, _, Marionette) {
-            return factory.call(root, root, $, _, Marionette);
+        ], function($, _, Backbone, Marionette) {
+            return factory.call(root, root, $, _, Backbone, Marionette);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         var $ = require('jquery'),
             _ = require('underscore'),
-            Marionette = require('backbone.marionette'),
-            Jskeleton = factory(root, $, _, Marionette);
+            Backbone = require('backbone');
 
-        root.Jskeleton = Jskeleton;
+        Backbone.$ = $;
+
+        var Marionette = require('backbone.marionette'),
+            Jskeleton = factory(root, $, _, Backbone, Marionette);
+
         module.exports = Jskeleton;
     } else if (root !== undefined) {
-        root.Jskeleton = factory.call(root, root, root.$, root._, root.Marionette);
+        root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
     }
 
-})(window, function(root, $, _, Marionette) {
+})(this, function(root, $, _, Backbone, Marionette) {
     'use strict';
 
     /* jshint unused: false */
