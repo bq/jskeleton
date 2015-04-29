@@ -1241,13 +1241,13 @@ describe('collection view', function() {
         });
     });
 
-    describe('has a valid inheritance chain back to Marionette.View', function() {
+    describe('has a valid inheritance chain back to Jskeleton.View', function() {
         beforeEach(function() {
             this.constructor = this.sinon.spy(Jskeleton, 'View');
             this.collectionView = new Jskeleton.CollectionView();
         });
 
-        it('calls the parent Marionette.Views constructor function on instantiation', function() {
+        it('calls the parent Jskeleton.Views constructor function on instantiation', function() {
             expect(this.constructor).to.have.been.called;
         });
     });
