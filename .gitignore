@@ -4,5 +4,6 @@ bower_components
 npm-debug.log
 dist
 docs
+metrics
 .idea
 .log

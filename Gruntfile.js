@@ -285,6 +285,13 @@ module.exports = function(grunt) {
                 dir: 'coverage',
                 print: 'detail'
             }
+        },
+        plato: {
+            report: {
+              files: {
+                'metrics': ['src/**/*.js', 'test/**/*.js']
+              }
+            }
         }
         // end - code coverage settings
     });
@@ -351,12 +358,19 @@ module.exports = function(grunt) {
         'preprocess:lite',
         'concat',
         'docco',
-        'wiredep'
+        'wiredep',
+        'plato'
     ]);
+
+    grunt.registerTask('metrics', [
+        'plato'
+        ]);
 
     grunt.registerTask('default', [
         'newer:jshint',
         'test',
         'build'
     ]);
+
+
 };
