@@ -11,6 +11,6 @@ Jskeleton.View = Marionette.View.extend({
         this.channel = options.channel || this;
         this._app = options.app;
 
-        Marionette.View.prototype.constructor.apply(this, arguments);
+        Marionette.View.apply(this, arguments);
     }
 });

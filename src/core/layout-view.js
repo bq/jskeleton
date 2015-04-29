@@ -12,6 +12,6 @@ Jskeleton.LayoutView = Marionette.LayoutView.extend({
         this._firstRender = true;
         this._initializeRegions(options);
 
-        Jskeleton.ItemView.prototype.constructor.call(this, options);
+        Jskeleton.ItemView.call(this, options);
     }
 });

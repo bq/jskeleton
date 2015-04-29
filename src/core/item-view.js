@@ -6,6 +6,6 @@
 
 Jskeleton.ItemView = Marionette.ItemView.extend({
     constructor: function(options) {
-        Jskeleton.View.prototype.constructor.apply(this, arguments);
+        Jskeleton.View.apply(this, arguments);
     }
 });
