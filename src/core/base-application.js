@@ -162,6 +162,68 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         return viewController;
     },
+    _proxyEvents: function(options) {
+        var events = options.events || this.events || {};
+
+        this._proxyTriggerEvents(events.triggers);
+        this._proxyListenEvents(events.listen);
+    },
+    _proxyTriggerEvents: function(triggerArray) {
+        var self = this;
+        if (triggerArray && typeof triggerArray === 'object') {
+            _.each(triggerArray, function(eventName) {
+                self.listenTo(self.privateChannel, eventName, function() {
+                    var args;
+
+                    if (eventName === 'all') {
+                        eventName = arguments[0];
+                        //casting arguments array-like object to array with excluding the eventName argument
+                        args = [eventName].concat(Array.prototype.slice.call(arguments, 1));
+                    } else {
+                        //casting arguments array-like object to array
+                        args = Array.prototype.slice.call(arguments);
+                    }
+
+                    //trigger the event throw the globalChannel
+                    self.globalChannel.trigger.apply(self.globalChannel, [eventName].concat(args));
+                });
+            });
+
+        }
+    },
+    _proxyListenEvents: function(listenObject) {
+        var self = this;
+        if (listenObject && typeof listenObject === 'object') {
+            _.each(listenObject, function(eventName) {
+                self.listenTo(self.globalChannel, eventName, function() {
+                    var args;
+
+                    if (eventName === 'all') {
+                        eventName = arguments[0];
+                        //casting arguments array-like object to array with excluding the eventName argument
+                        args = [eventName].concat(Array.prototype.slice.call(arguments, 1));
+                    } else {
+                        //casting arguments array-like object to array
+                        args = Array.prototype.slice.call(arguments);
+                    }
+
+                    //trigger the event throw the globalChannel
+                    self.privateChannel.trigger.apply(self.privateChannel, [eventName].concat(args));
+                });
+            });
+        }
+    },
+    start: function(options) {
+        options = options || {};
+
+        this._initCallbacks.run(options, this);
+
+        //Add routes listeners to the Jskeleton.router
+        this._initRoutes(options);
+
+        //Add app proxy events
+        this._proxyEvents(options);
+    },
     //Get default application view-controller class if no controller is specified
     getDefaultviewController: function() {
         return Jskeleton.ViewController;

@@ -33,10 +33,7 @@ Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
     start: function(options) {
         this.triggerMethod('before:start', options);
 
-        this._initCallbacks.run(options, this);
-        //Add routes listeners to the Jskeleton.router
-        this._initRoutes(options);
-        //Add app events listeneres to the global channel
+        Jskeleton.BaseApplication.prototype.start.apply(this, arguments);
         // this._initAppEventsListeners(options);
 
         this.triggerMethod('start', options);

@@ -33,13 +33,11 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     //Method to start the application, start the childapplications and start listening routes/events
     start: function(options) {
         this.triggerMethod('before:start', options);
-        this._initCallbacks.run(options, this);
         //init child apps
         this._initChildApplications(options);
-        //Add routes listeners to the Jskeleton.router
-        this._initRoutes(options);
-        //Add app events listeneres to the global channel
-        // this._initAppEventsListeners(options);
+
+        Jskeleton.BaseApplication.prototype.start.apply(this, arguments);
+
         //Start the Jskeleton router
         this.startRouter();
         this.triggerMethod('start', options);

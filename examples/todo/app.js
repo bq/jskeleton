@@ -12,6 +12,7 @@ var DetailBookView = Jskeleton.ItemView.extend({
         'click .view-details': 'onDetailsClicked'
     },
     onDetailsClicked: function() {
+        console.log('clicked on: ', this.model.get('id'));
         this.channel.trigger('book:details', {
             id: this.model.get('id'),
             title: this.model.get('title'),
@@ -34,9 +35,6 @@ var BookDetailsViewController = Jskeleton.ViewController.extend({
             title: params.title,
             id: params.id,
             author: params.author || 'desconocido'
-        });
-        this.listenTo(this.channel, 'book:details', function() {
-            //service call
         });
     }
 });
@@ -76,16 +74,14 @@ var BookCatalogue = Jskeleton.ChildApplication.extend({
             eventListener: 'book:list'
         }
     },
-    // events: {
-    //     trigger: {
-
-    //     },
-    //     out: {
-
-    //     }
-    //     // 'all',
-    //     'book:details'
-    // }
+    events: {
+        triggers: [
+            'book:details'
+        ],
+        // listen: [
+        // 'all'
+        // ]
+    }
 });
 
 
@@ -124,5 +120,9 @@ var AppMain = Jskeleton.Application.extend({
 });
 
 var app = new AppMain();
+
+app.router.route("*notFound", "page", function() {
+    console.log("404 error", arguments);
+});
 
 app.start();
