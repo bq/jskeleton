@@ -3,7 +3,7 @@
     "version": "0.0.1",
     "description": "Awesome Framework!",
     "license": "Apache License 2.0",
-    "main": "dist/jskeleton.js",
+    "main": "./dist/jskeleton.js",
     "scripts": {
         "clean": "rm -rf node_modules bower_components",
         "start": "grunt test",
@@ -64,9 +64,11 @@
         "node": ">=0.10.0"
     },
     "dependencies": {
-        "backbone": "^1.1.2",
-        "jquery": "^2.1.4",
         "backbone.marionette": "^2.4.1",
-        "underscore": "^1.8.3"
+        "backbone": "1.0.0 - 1.1.2",
+        "underscore": "^1.4.4",
+        "backbone.babysitter": "^0.1.0",
+        "backbone.wreqr": "^1.0.0",
+        "jquery": "^1.8.0 || ^2.0.0"
     }
 }
