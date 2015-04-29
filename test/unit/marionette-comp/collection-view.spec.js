@@ -5,7 +5,7 @@ describe('collection view', function() {
     // Shared View Definitions
     // -----------------------
 
-    this.ChildView = Backbone.Marionette.ItemView.extend({
+    this.ChildView = Jskeleton.ItemView.extend({
       tagName: 'span',
       render: function() {
         this.$el.html(this.model.get('foo'));
@@ -438,7 +438,7 @@ describe('collection view', function() {
 
       this.model = new Backbone.Model({foo: 'bar'});
 
-      this.EmptyView = Backbone.Marionette.ItemView.extend({
+      this.EmptyView = Jskeleton.ItemView.extend({
         render: function() {}
       });
 
@@ -829,8 +829,8 @@ describe('collection view', function() {
       this.collection = new Backbone.Collection([this.model]);
 
       this.collectionView = new this.MockCollectionView({
-        childView: Backbone.Marionette.ItemView.extend({
-          template: function() { return '<%= foo %>'; }
+        childView: Jskeleton.ItemView.extend({
+          template: '{{foo}}'
         }),
         collection: this.collection
       });
@@ -943,12 +943,12 @@ describe('collection view', function() {
 
   describe('when a child view is added to a collection view, after the collection view has been shown', function() {
     beforeEach(function() {
-      this.ChildView = Backbone.Marionette.ItemView.extend({
+      this.ChildView = Jskeleton.ItemView.extend({
         onBeforeShow: function() {},
         onShow: function() {},
         onDomRefresh: function() {},
         onRender: function() {},
-        template: _.template('<%= foo %>')
+        template: '{{ foo }}'
       });
 
       this.CollectionView = Backbone.Marionette.CollectionView.extend({
@@ -1028,7 +1028,7 @@ describe('collection view', function() {
   describe('when setting a childView in the constructor options', function() {
     beforeEach(function() {
       this.ItemView = Marionette.ItemView.extend({
-        template: function() {},
+        template: '',
         MyItemView: true
       });
 
@@ -1179,7 +1179,7 @@ describe('collection view', function() {
       var suite = this;
 
       this.ItemView = Marionette.ItemView.extend({
-        template: _.template('<div>hi mom</div>'),
+        template: '<div>hi mom</div>',
         onShow: function() {
           suite.isBuffering = suite.collectionView.isBuffering;
         }
