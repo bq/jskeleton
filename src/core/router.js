@@ -33,29 +33,39 @@ Jskeleton.Router = Backbone.Router.extend({
         return text;
     },
     route: function(routeString, options, callback) {
-        var routeRegex,
-            handlerName = options.handlerName && typeof options.handlerName === 'string' ? options.handlerName : this._getHandlerNameFromRoute(routeString),
-            argsNames = this._getRouteParamsNames(routeString),
-            name = options.name;
+        options = options || {};
 
-        if (!_.isRegExp(routeString)) {
-            routeRegex = this._routeToRegExp(routeString);
-        }
+        //register route with the jskeleton implementation for view-controller and app-workflow
+        if (options.viewControllerHandler === true) {
+            var routeRegex,
+                handlerName = options.handlerName && typeof options.handlerName === 'string' ? options.handlerName : this._getHandlerNameFromRoute(routeString),
+                argsNames = this._getRouteParamsNames(routeString),
+                name = options.name;
 
-        if (!callback) {
-            callback = this[name];
-        }
-
-        var router = this;
-
-        Backbone.history.route(routeRegex, function(fragment) {
-            var args = router._extractParameters(routeRegex, fragment, argsNames);
-            if (router.execute(callback, args, handlerName) !== false) {
-                router.trigger.apply(router, ['route:' + name].concat(args));
-                router.trigger('route', name, args);
-                Backbone.history.trigger('route', router, name, args);
+            if (!_.isRegExp(routeString)) {
+                routeRegex = this._routeToRegExp(routeString);
             }
-        });
+
+            if (!callback) {
+                callback = this[name];
+            }
+
+            var router = this;
+
+            Backbone.history.route(routeRegex, function(fragment) {
+                var args = router._extractParametersAsObject(routeRegex, fragment, argsNames);
+                if (router.execute(callback, args, handlerName) !== false) {
+                    router.trigger.apply(router, ['route:' + name].concat(args));
+                    router.trigger('route', name, args);
+                    Backbone.history.trigger('route', router, name, args);
+                }
+            });
+
+        } else {
+            //register a route with the original Backbone.Router.route implementation
+            Backbone.Router.prototype.route.apply(this, arguments);
+        }
+
         return this;
     },
     //method to replace a route string with the specified params
@@ -92,9 +102,8 @@ Jskeleton.Router = Backbone.Router.extend({
         }
     },
     //Execute a route handler with the provided parameters.
-    //Override Backbone.Router._extractParameters method to
     //return parameters as object
-    _extractParameters: function(route, fragment, argsNames) {
+    _extractParametersAsObject: function(route, fragment, argsNames) {
         var params = route.exec(fragment).slice(1),
             paramsObject = {};
 
