@@ -12,5 +12,6 @@ Jskeleton.View = Marionette.View.extend({
         this._app = options.app;
 
         Marionette.View.apply(this, arguments);
+
     }
 });
