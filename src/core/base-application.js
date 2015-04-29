@@ -84,6 +84,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         var self = this;
 
         this.router.route(routeString, {
+            viewControllerHandler: true,
             triggerEvent: routeObject.triggerEvent,
             handlerName: routeObject.handlerName || this._getViewControllerHandlerName(routeString)
         }, function(args, handlerName) {
