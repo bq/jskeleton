@@ -61,6 +61,7 @@ if(!process.env || process.env.SOURCES !== 'MARIONETTE'){
     global.Jskeleton = require('../../../dist/Jskeleton.js');
     requireHelper('/core/renderer.js');
     requireHelper('/helpers/html-bars.js');
+    requireHelper('/helpers/component.js');
     requireHelper('/utils/hooks.js');
     requireHelper('/utils/factory.js');
     requireHelper('/core/router.js');
