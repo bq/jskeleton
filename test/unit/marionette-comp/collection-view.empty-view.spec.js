@@ -1,4 +1,3 @@
-/* globals Jskeleton */
 describe('collectionview - emptyView', function() {
   'use strict';
 

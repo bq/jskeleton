@@ -1,6 +1,3 @@
-/*globals require,define,describe,it, Jskeleton, before */
-/* jshint unused: false */
-
 describe('Jskeleton Main Application', function() {
     'use strict';
     describe('when registering and initializer and starting the application', function() {
@@ -162,7 +159,7 @@ describe('Jskeleton Main Application', function() {
 
         it('should childApps has region property', function() {
 
-            var region = this.mainApp.applications.testChildApp.region;
+            //var region = this.mainApp.applications.testChildApp.region;
             //expect(region).to.have.all.keys(['el', '_parent','$el']);
             //expect(region).to.be.a('object');
             //expect(this.mainApp.applications.testChildApp.region).to.have.all.keys(['el', '_parent','$el']);

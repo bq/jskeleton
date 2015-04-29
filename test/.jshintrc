@@ -10,6 +10,7 @@
     "Backbone"           : true,
     "Marionette"         : true,
     "slice"              : true,
+    "Jskeleton"          : true,
 
     "jasmine"            : true,
     "describe"           : true,
@@ -18,6 +19,8 @@
     "xit"                : true,
     "expect"             : true,
     "beforeEach"         : true,
+    "before"             : true,
+    "after"              : true,
     "afterEach"          : true,
     "spyOn"              : true,
     "sinon"              : true,

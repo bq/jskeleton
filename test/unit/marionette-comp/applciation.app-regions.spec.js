@@ -1,5 +1,3 @@
-/* globals Marionette, Jskeleton */
-
 describe('application regions', function() {
     'use strict';
 

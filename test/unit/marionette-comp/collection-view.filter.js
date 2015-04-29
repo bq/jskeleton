@@ -8,13 +8,13 @@ describe('collection view - filter', function() {
     this.failModel = new Backbone.Model({foo: false});
     this.collection = new Backbone.Collection();
 
-    this.EmptyView = Backbone.Marionette.ItemView.extend({
+    this.EmptyView = Jskeleton.ItemView.extend({
       template: function() {
         return 'empty';
       }
     });
 
-    this.ChildView = Backbone.Marionette.ItemView.extend({
+    this.ChildView = Jskeleton.ItemView.extend({
       template: function(data) {
         return data.foo;
       }
@@ -28,7 +28,7 @@ describe('collection view - filter', function() {
       return !spec.filter(child);
     });
 
-    this.CollectionView = Backbone.Marionette.CollectionView.extend({
+    this.CollectionView = Jskeleton.CollectionView.extend({
       emptyView: this.EmptyView,
       childView: this.ChildView,
       filter: this.filter,
@@ -54,7 +54,7 @@ describe('collection view - filter', function() {
     });
 
     it('always returns true when no filter is supplied', function() {
-      var collectionView = new Backbone.Marionette.CollectionView();
+      var collectionView = new Jskeleton.CollectionView();
       expect(collectionView._shouldAddChild(this.passModel)).to.be.true;
       expect(collectionView._shouldAddChild(this.failModel)).to.be.true;
     });

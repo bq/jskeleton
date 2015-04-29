@@ -6,11 +6,11 @@ describe('collection view - childViewOptions', function() {
     this.childViewOptions = {foo: 'bar'};
     this.childViewOptionsStub = this.sinon.stub().returns(this.childViewOptions);
 
-    this.ItemView = Backbone.Marionette.ItemView.extend({
+    this.ItemView = Jskeleton.ItemView.extend({
       render: this.sinon.stub()
     });
 
-    this.CollectionView = Backbone.Marionette.CollectionView.extend({
+    this.CollectionView = Jskeleton.CollectionView.extend({
       collection: this.collection,
       childView: this.ItemView,
       childViewOptions: this.childViewOptions
