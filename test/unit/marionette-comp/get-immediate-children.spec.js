@@ -2,14 +2,14 @@ describe('_getImmediateChildren', function() {
   beforeEach(function() {
 
     // A suitable view to use as a child
-    this.BaseView = Marionette.ItemView.extend({
+    this.BaseView = Jskeleton.ItemView.extend({
       template: false
     });
   });
 
-  describe('Marionette.View', function() {
+  describe('Jskeleton.View', function() {
     beforeEach(function() {
-      this.view = new Marionette.View();
+      this.view = new Jskeleton.View();
     });
     it('should return an empty array for getImmediateChildren', function() {
       expect(this.view._getImmediateChildren())
@@ -18,10 +18,10 @@ describe('_getImmediateChildren', function() {
     });
   });
 
-  describe('Marionette.CollectionView', function() {
+  describe('Jskeleton.CollectionView', function() {
     describe('when empty', function() {
       beforeEach(function() {
-        this.collectionView = new Marionette.CollectionView();
+        this.collectionView = new Jskeleton.CollectionView();
       });
       it('should return an empty array for getImmediateChildren', function() {
         expect(this.collectionView._getImmediateChildren())
@@ -32,7 +32,7 @@ describe('_getImmediateChildren', function() {
 
     describe('when there are children', function() {
       beforeEach(function() {
-        this.collectionView = new Marionette.CollectionView({
+        this.collectionView = new Jskeleton.CollectionView({
           collection: new Backbone.Collection([{}, {}]),
           childView: this.BaseView
         });
@@ -50,10 +50,10 @@ describe('_getImmediateChildren', function() {
     });
   });
 
-  describe('Marionette.LayoutView', function() {
+  describe('Jskeleton.LayoutView', function() {
     describe('without regions', function() {
       beforeEach(function() {
-        this.layoutView = new Marionette.LayoutView({
+        this.layoutView = new Jskeleton.LayoutView({
           template: false
         });
       });
@@ -66,7 +66,7 @@ describe('_getImmediateChildren', function() {
 
     describe('when there are empty regions', function() {
       beforeEach(function() {
-        this.layoutView = new Marionette.LayoutView({
+        this.layoutView = new Jskeleton.LayoutView({
           template: _.template('<main></main><footer></footer>'),
           regions: {
             main: '.main',
@@ -84,7 +84,7 @@ describe('_getImmediateChildren', function() {
 
     describe('when there are non-empty regions', function() {
       beforeEach(function() {
-        this.layoutView = new Marionette.LayoutView({
+        this.layoutView = new Jskeleton.LayoutView({
           template: _.template('<main></main><footer></footer>'),
           regions: {
             main: 'main',
