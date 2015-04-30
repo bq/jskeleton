@@ -8,7 +8,7 @@ describe('composite view - childViewContainer', function() {
 
     this.templateFn = _.template('<div id="foo"></div>');
 
-    this.ItemView = Marionette.ItemView.extend({
+    this.ItemView = Jskeleton.ItemView.extend({
       tagName: 'li',
       render: function() {
         this.$el.html(this.model.get('foo'));
@@ -18,7 +18,7 @@ describe('composite view - childViewContainer', function() {
 
   describe('when rendering a collection in a composite view with a "childViewContainer" specified', function() {
     beforeEach(function() {
-      this.CompositeView = Marionette.CompositeView.extend({
+      this.CompositeView = Jskeleton.CompositeView.extend({
         childView: this.ItemView,
         template: this.templateFn,
         ui: {foo: '#foo'},
@@ -87,7 +87,7 @@ describe('composite view - childViewContainer', function() {
 
   describe('when rendering a collection in a composite view with a missing "childViewContainer" specified', function() {
     beforeEach(function() {
-      this.CompositeView = Marionette.CompositeView.extend({
+      this.CompositeView = Jskeleton.CompositeView.extend({
         template: this.templateFn,
         childView: this.ItemView,
         childViewContainer: '#bar'
@@ -104,7 +104,7 @@ describe('composite view - childViewContainer', function() {
 
     describe('and referencing the @ui hash', function() {
       beforeEach(function() {
-        this.CompositeView = Marionette.CompositeView.extend({
+        this.CompositeView = Jskeleton.CompositeView.extend({
           template: this.templateFn,
           childView: this.ItemView,
           childViewContainer: '@ui.bar'
@@ -119,7 +119,7 @@ describe('composite view - childViewContainer', function() {
 
   describe('when rendering a collection in a composite view without a "childViewContainer" specified', function() {
     beforeEach(function() {
-      this.CompositeView = Marionette.CompositeView.extend({
+      this.CompositeView = Jskeleton.CompositeView.extend({
         template: this.templateFn,
         childView: this.ItemView,
         collection: this.collection
@@ -136,11 +136,11 @@ describe('composite view - childViewContainer', function() {
 
   describe('when a collection is loaded / reset after the view is created and before it is rendered', function() {
     beforeEach(function() {
-      this.ItemView = Marionette.ItemView.extend({
+      this.ItemView = Jskeleton.ItemView.extend({
         template: this.templateFn
       });
 
-      this.CompositeView = Marionette.CompositeView.extend({
+      this.CompositeView = Jskeleton.CompositeView.extend({
         template: this.templateFn,
         childViewContainer: '#foo',
         childView: this.ItemView,
@@ -160,7 +160,7 @@ describe('composite view - childViewContainer', function() {
     beforeEach(function() {
       var suite = this;
 
-      this.CompositeView = Marionette.CompositeView.extend({
+      this.CompositeView = Jskeleton.CompositeView.extend({
         template: this.templateFn,
         childView: this.ItemView,
         childViewContainer: '#foo',
@@ -204,7 +204,7 @@ describe('composite view - childViewContainer', function() {
   describe('when a composite view has the "childViewContainer" specified as a function', function() {
     beforeEach(function() {
       this.collection = new Backbone.Collection([{}]);
-      this.CompositeView = Marionette.CompositeView.extend({
+      this.CompositeView = Jskeleton.CompositeView.extend({
         template: this.templateFn,
         childView: this.ItemView,
         collection: this.collection
