@@ -60,7 +60,7 @@ describe('region', function() {
         el: '#not-existed-region'
       });
 
-      this.MyView = Backbone.Marionette.View.extend({
+      this.MyView = Jskeleton.View.extend({
         render: function() {
           $(this.el).html('some content');
         }
@@ -122,7 +122,7 @@ describe('region', function() {
         onSwapOut: function() {}
       });
 
-      this.MyView = Backbone.View.extend({
+      this.MyView = Jskeleton.View.extend({
         events: {
           'click': function() {}
         },
@@ -375,7 +375,7 @@ describe('region', function() {
           onSwap: function() {}
         });
 
-        this.MyView2 = Backbone.View.extend({
+        this.MyView2 = Jskeleton.View.extend({
           render: function() {
             $(this.el).html('some more content');
           },
@@ -458,7 +458,7 @@ describe('region', function() {
         el: '#region'
       });
 
-      this.LayoutView = Backbone.Marionette.LayoutView.extend({
+      this.LayoutView = Jskeleton.LayoutView.extend({
         regions: {
           subRegion: '.sub-region'
         },
@@ -472,7 +472,7 @@ describe('region', function() {
         }
       });
 
-      this.SubView = Backbone.Marionette.ItemView.extend({
+      this.SubView = Jskeleton.ItemView.extend({
         render: function() {
           $(this.el).html('some content');
         },
@@ -510,7 +510,7 @@ describe('region', function() {
         el: '#region'
       });
 
-      this.MyView = Backbone.View.extend({
+      this.MyView = Jskeleton.View.extend({
         render: function() {
           $(this.el).html('some content');
         },
@@ -545,7 +545,7 @@ describe('region', function() {
         el: '#region'
       });
 
-      this.MyView = Backbone.View.extend({
+      this.MyView = Jskeleton.View.extend({
         render: function() {
           $(this.el).html('some content');
         },
@@ -584,7 +584,7 @@ describe('region', function() {
         el: '#region'
       });
 
-      this.MyView = Backbone.View.extend({
+      this.MyView = Jskeleton.View.extend({
         render: function() {
           $(this.el).html('some content');
         },
@@ -624,8 +624,8 @@ describe('region', function() {
         el: '#region'
       });
 
-      this.MyView = Backbone.Marionette.ItemView.extend({
-        template: _.template('<div></div>'),
+      this.MyView = Jskeleton.ItemView.extend({
+        template: '<div></div>',
         open : function() {}
       });
 
@@ -655,7 +655,7 @@ describe('region', function() {
         el: '#region'
       });
 
-      this.MyView = Backbone.Marionette.View.extend({
+      this.MyView = Jskeleton.View.extend({
         render: function() {
           $(this.el).html('some content');
         }
@@ -686,7 +686,7 @@ describe('region', function() {
       });
 
       this.setFixtures('<div id="region"></div>');
-      this.MyView = Backbone.View.extend({
+      this.MyView = Jskeleton.View.extend({
         render: function() {
           $(this.el).html('some content');
         },
@@ -716,7 +716,7 @@ describe('region', function() {
         el: '#region'
       });
 
-      this.MyView = Backbone.View.extend({
+      this.MyView = Jskeleton.View.extend({
         render: function() {
           $(this.el).html('some content');
         },
@@ -789,7 +789,7 @@ describe('region', function() {
         el: '<div></div>'
       });
 
-      this.MyView = Backbone.View.extend({
+      this.MyView = Jskeleton.View.extend({
         render: function() {
           $(this.el).html('some content');
         }
@@ -840,7 +840,7 @@ describe('region', function() {
 
   describe('when initializing a region with an existing view', function() {
     beforeEach(function() {
-      this.View = Backbone.View.extend({
+      this.View = Jskeleton.View.extend({
         onShow: function() {}
       });
 
@@ -868,7 +868,7 @@ describe('region', function() {
     beforeEach(function() {
       this.setFixtures('<div id="foo">bar</div>');
 
-      this.View = Backbone.View.extend({
+      this.View = Jskeleton.View.extend({
         onShow: function() {}
       });
 
@@ -924,7 +924,7 @@ describe('region', function() {
     beforeEach(function() {
       this.setFixtures('<div id="region"></div><div id="region2"></div>');
 
-      this.myApp = new Backbone.Marionette.Application();
+      this.myApp = new Jskeleton.Application();
       this.myApp.addRegions({
         MyRegion: '#region',
         anotherRegion: '#region2'
@@ -947,7 +947,7 @@ describe('region', function() {
 
   describe('when getting a region', function() {
     beforeEach(function() {
-      this.MyApp = new Backbone.Marionette.Application();
+      this.MyApp = new Jskeleton.Application();
       this.MyApp.addRegions({
         MyRegion: '#region',
         anotherRegion: '#region2'
@@ -1005,8 +1005,8 @@ describe('region', function() {
       this.region.on('before:empty', this.beforeEmptySpy);
       this.region.on('empty', this.emptySpy);
 
-      this.View = Backbone.Marionette.View.extend({
-        template: _.template('')
+      this.View = Jskeleton.View.extend({
+        template: ''
       });
 
       this.view = new this.View();
