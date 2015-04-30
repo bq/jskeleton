@@ -2,15 +2,15 @@ describe('collection/composite view sorting', function() {
   'use strict';
 
   beforeEach(function() {
-    this.ChildView = Marionette.ItemView.extend({
+    this.ChildView = Jskeleton.ItemView.extend({
       template: _.template('<%= foo %>')
     });
 
-    this.CollectionView = Marionette.CollectionView.extend({
+    this.CollectionView = Jskeleton.CollectionView.extend({
       childView: this.ChildView
     });
 
-    this.CompositeView = Marionette.CompositeView.extend({
+    this.CompositeView = Jskeleton.CompositeView.extend({
       childView: this.ChildView,
       template: _.template('<div id="container"></div>')
     });

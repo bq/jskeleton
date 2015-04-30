@@ -10,7 +10,7 @@ describe('renderer', function() {
     beforeEach(function() {
       this.setFixtures('<script type="text/template" id="renderer-template"><div>renderer</div></script>');
       this.templateSelector = '#renderer-template';
-      this.result = Marionette.Renderer.render(this.templateSelector).trim();
+      this.result = Marionette.Renderer.render(this.templateSelector);
     });
 
     it('should retrieve the template from the cache', function() {
