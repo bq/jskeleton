@@ -1,13 +1,13 @@
 describe('destroying views', function() {
   'use strict';
 
-  describe('when destroying a Marionette.View multiple times', function() {
+  describe('when destroying a Jskeleton.View multiple times', function() {
     beforeEach(function() {
       this.onDestroyStub = this.sinon.spy(function() {
         return this.isRendered;
       });
 
-      this.view = new Marionette.View();
+      this.view = new Jskeleton.View();
       this.view.onDestroy = this.onDestroyStub;
 
       this.view.destroy();
@@ -23,11 +23,11 @@ describe('destroying views', function() {
     });
   });
 
-  describe('when destroying a Marionette.ItemView multiple times', function() {
+  describe('when destroying a Jskeleton.ItemView multiple times', function() {
     beforeEach(function() {
       this.onBeforeDestroyStub = this.sinon.stub();
 
-      this.itemView = new Marionette.ItemView();
+      this.itemView = new Jskeleton.ItemView();
       this.itemView.onBeforeDestroy = this.onBeforeDestroyStub;
 
       this.itemView.destroy();
@@ -43,9 +43,9 @@ describe('destroying views', function() {
     });
   });
 
-  describe('when rendering a Marionette.ItemView that was previously destroyed', function() {
+  describe('when rendering a Jskeleton.ItemView that was previously destroyed', function() {
     beforeEach(function() {
-      this.itemView = new Marionette.ItemView();
+      this.itemView = new Jskeleton.ItemView();
       this.itemView.destroy();
     });
 
@@ -55,11 +55,11 @@ describe('destroying views', function() {
     });
   });
 
-  describe('when destroying a Marionette.CollectionView multiple times', function() {
+  describe('when destroying a Jskeleton.CollectionView multiple times', function() {
     beforeEach(function() {
       this.onDestroyStub = this.sinon.stub();
 
-      this.collectionView = new Marionette.CollectionView();
+      this.collectionView = new Jskeleton.CollectionView();
       this.collectionView.onDestroy = this.onDestroyStub;
 
       this.collectionView.destroy();
@@ -75,9 +75,9 @@ describe('destroying views', function() {
     });
   });
 
-  describe('when rendering a Marionette.CollectionView that was previously destroyed', function() {
+  describe('when rendering a Jskeleton.CollectionView that was previously destroyed', function() {
     beforeEach(function() {
-      this.collectionView = new Marionette.CollectionView();
+      this.collectionView = new Jskeleton.CollectionView();
       this.collectionView.destroy();
     });
 
@@ -87,11 +87,11 @@ describe('destroying views', function() {
     });
   });
 
-  describe('when destroying a Marionette.CompositeView multiple times', function() {
+  describe('when destroying a Jskeleton.CompositeView multiple times', function() {
     beforeEach(function() {
       this.onDestroyStub = this.sinon.stub();
 
-      this.compositeView = new Marionette.CompositeView();
+      this.compositeView = new Jskeleton.CompositeView();
       this.compositeView.onDestroy = this.onDestroyStub;
 
       this.compositeView.destroy();
@@ -107,9 +107,9 @@ describe('destroying views', function() {
     });
   });
 
-  describe('when rendering a Marionette.CompositeView that was previously destroyed', function() {
+  describe('when rendering a Jskeleton.CompositeView that was previously destroyed', function() {
     beforeEach(function() {
-      this.compositeView = new Marionette.CompositeView();
+      this.compositeView = new Jskeleton.CompositeView();
       this.compositeView.destroy();
     });
 
