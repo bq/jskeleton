@@ -7,7 +7,7 @@ describe('layoutView', function() {
       return '<span class=".craft"></span><h1 id="#a-fun-game"></h1>';
     };
 
-    this.LayoutView = Backbone.Marionette.LayoutView.extend({
+    this.LayoutView = Jskeleton.LayoutView.extend({
       template: this.layoutViewManagerTemplateFn,
       regions: {
         regionOne: '#regionOne',
@@ -72,7 +72,7 @@ describe('layoutView', function() {
   describe('on instantiation with no regions defined', function() {
     beforeEach(function() {
       var suite = this;
-      this.NoRegions = Marionette.LayoutView.extend({});
+      this.NoRegions = Jskeleton.LayoutView.extend({});
       this.init = function() {
         suite.layoutViewManager = new suite.NoRegions();
       };
@@ -137,7 +137,7 @@ describe('layoutView', function() {
   describe('when regions are defined as a function', function() {
     beforeEach(function() {
       var suite = this;
-      this.LayoutView = Marionette.LayoutView.extend({
+      this.LayoutView = Jskeleton.LayoutView.extend({
         template: '#foo',
         regions: function(opts) {
           suite.options = opts;
@@ -221,7 +221,7 @@ describe('layoutView', function() {
       this.regionOne = this.layoutViewManager.regionOne;
       this.regionTwo = this.layoutViewManager.regionTwo;
 
-      var View = Marionette.ItemView.extend({
+      var View = Jskeleton.ItemView.extend({
         template: false,
         destroy: function() {
           this.hadParent = this.$el.closest('#parent').length > 0;
@@ -406,13 +406,13 @@ describe('layoutView', function() {
     });
   });
 
-  describe('has a valid inheritance chain back to Marionette.View', function() {
+  describe('has a valid inheritance chain back to Jskeleton.View', function() {
     beforeEach(function() {
-      this.constructor = this.sinon.spy(Marionette, 'View');
-      this.layoutView = new Marionette.LayoutView();
+      this.constructor = this.sinon.spy(Jskeleton, 'View');
+      this.layoutView = new Jskeleton.LayoutView();
     });
 
-    it('calls the parent Marionette.Views constructor function on instantiation', function() {
+    it('calls the parent Jskeleton.Views constructor function on instantiation', function() {
       expect(this.constructor).to.have.been.called;
     });
   });
@@ -441,12 +441,12 @@ describe('layoutView', function() {
         }
       };
 
-      this.layoutView = new Backbone.Marionette.LayoutView({
+      this.layoutView = new Jskeleton.LayoutView({
         template: this.template,
         regions: this.regionOptions
       });
 
-      this.layoutView2 = new Backbone.Marionette.LayoutView({
+      this.layoutView2 = new Jskeleton.LayoutView({
         template: this.template,
         regions: function() {
           return suite.regionOptions;
@@ -471,7 +471,7 @@ describe('layoutView', function() {
 
   describe('when defining region selectors using @ui. syntax', function() {
     beforeEach(function() {
-      var UILayoutView = Backbone.Marionette.LayoutView.extend({
+      var UILayoutView = Jskeleton.LayoutView.extend({
         template: this.template,
         regions: {
           war: '@ui.war',
@@ -509,7 +509,7 @@ describe('layoutView', function() {
     beforeEach(function() {
       var suite = this;
       this.spy     = this.sinon.spy();
-      this.layout  = new (Marionette.LayoutView.extend({
+      this.layout  = new (Jskeleton.LayoutView.extend({
         getRegionManager: function() {
           suite.spy.apply(this, arguments);
           return new Marionette.RegionManager();
@@ -533,17 +533,17 @@ describe('layoutView', function() {
       this.spy = this.sinon.spy();
       this.spy2 = this.sinon.spy();
 
-      this.ItemView = Marionette.ItemView.extend({
+      this.ItemView = Jskeleton.ItemView.extend({
         template: _.template('<yes><my><lord></lord></my></yes>'),
         onDomRefresh: this.spy2
       });
 
-      this.LucasArts = Marionette.CollectionView.extend({
+      this.LucasArts = Jskeleton.CollectionView.extend({
         onDomRefresh: this.spy,
         childView: this.ItemView
       });
 
-      this.Layout = Marionette.LayoutView.extend({
+      this.Layout = Jskeleton.LayoutView.extend({
         template: _.template('<sam class="and-max"></sam>'),
         regions: {
           'sam': '.and-max'
@@ -590,7 +590,7 @@ describe('layoutView', function() {
             '</div>' +
           '</div>';
         this.setFixtures(fixture);
-        this.LayoutView = Backbone.Marionette.LayoutView.extend({
+        this.LayoutView = Jskeleton.LayoutView.extend({
           el: '.region-hash-no-template-spec .some-layout-view',
           template: false,
           regions: {
@@ -619,7 +619,7 @@ describe('layoutView', function() {
       this.beforeRegionRemoveSpy = this.sinon.spy();
       this.removeRegionSpy = this.sinon.spy();
 
-      this.Layout = Marionette.LayoutView.extend({
+      this.Layout = Jskeleton.LayoutView.extend({
         template: false,
         onBeforeAddRegion: this.beforeAddRegionSpy,
         onAddRegion: this.addRegionSpy,
