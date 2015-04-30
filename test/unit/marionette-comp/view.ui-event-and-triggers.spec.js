@@ -8,7 +8,7 @@ describe('view ui event trigger configuration', function() {
       this.notBarHandlerStub    = this.sinon.stub();
       this.fooBarBazHandlerStub = this.sinon.stub();
 
-      this.templateFn = _.template('<div id="foo"></div><div id="bar"></div><div id="baz"></div>');
+      this.templateFn = '<div id="foo"></div><div id="bar"></div><div id="baz"></div>';
 
       this.uiHash = {
         foo: '#foo',
@@ -29,7 +29,7 @@ describe('view ui event trigger configuration', function() {
 
     describe('as objects', function() {
       beforeEach(function() {
-        this.View = Marionette.ItemView.extend({
+        this.View = Jskeleton.ItemView.extend({
           template : this.templateFn,
           ui       : this.uiHash,
           triggers : this.triggersHash,
@@ -62,7 +62,7 @@ describe('view ui event trigger configuration', function() {
 
     describe('as functions', function() {
       beforeEach(function() {
-        this.View = Marionette.ItemView.extend({
+        this.View = Jskeleton.ItemView.extend({
           template : this.templateFn,
           ui       : this.sinon.stub().returns(this.uiHash),
           triggers : this.sinon.stub().returns(this.triggersHash),
