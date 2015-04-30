@@ -5,7 +5,7 @@ describe('composite view - on before render', function() {
     this.onBeforeRenderStub = this.sinon.stub();
     this.renderTemplateStub = this.sinon.stub();
 
-    this.CompositeView = Marionette.CompositeView.extend({
+    this.CompositeView = Jskeleton.CompositeView.extend({
       onBeforeRender: this.onBeforeRenderStub,
       _renderTemplate: this.renderTemplateStub
     });
