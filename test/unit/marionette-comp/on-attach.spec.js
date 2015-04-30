@@ -9,7 +9,7 @@ describe('onAttach', function() {
     this.region = new Marionette.Region({el: this.el});
 
     // A view we can use as nested child views
-    this.BasicView = Marionette.ItemView.extend({
+    this.BasicView = Jskeleton.ItemView.extend({
       template: false,
       onAttach: function() {},
       onBeforeAttach: function() {}
@@ -172,7 +172,7 @@ describe('onAttach', function() {
     beforeEach(function() {
 
       // A LayoutView class that we can use for all of our tests
-      this.LayoutView = Marionette.LayoutView.extend({
+      this.LayoutView = Jskeleton.LayoutView.extend({
         template: _.template('<main></main><footer></footer>'),
         regions: {
           main: 'main',
@@ -185,7 +185,7 @@ describe('onAttach', function() {
 
     describe('When showing a View in a Region', function() {
       beforeEach(function() {
-        this.MyView = Marionette.ItemView.extend({
+        this.MyView = Jskeleton.ItemView.extend({
           template: _.template(''),
           onBeforeAttach: this.sinon.stub(),
           onAttach: this.sinon.stub()
@@ -348,7 +348,7 @@ describe('onAttach', function() {
         this.sinon.spy(this.headerView, 'onBeforeAttach');
         this.sinon.spy(this.headerView, 'onAttach');
 
-        this.MainView = Marionette.LayoutView.extend({
+        this.MainView = Jskeleton.LayoutView.extend({
           template: _.template('<header></header>'),
           onAttach: this.sinon.stub(),
           onBeforeAttach: this.sinon.stub(),
@@ -397,7 +397,7 @@ describe('onAttach', function() {
         this.sinon.spy(this.headerView, 'onBeforeAttach');
         this.sinon.spy(this.headerView, 'onAttach');
 
-        this.MainView = Marionette.LayoutView.extend({
+        this.MainView = Jskeleton.LayoutView.extend({
           template: _.template('<header></header>'),
           onAttach: this.sinon.stub(),
           onBeforeAttach: this.sinon.stub(),
@@ -487,7 +487,7 @@ describe('onAttach', function() {
       this.setFixtures('<div class="layout-view"></div>');
 
       // A LayoutView class that we can use for all of our tests
-      this.LayoutView = Marionette.LayoutView.extend({
+      this.LayoutView = Jskeleton.LayoutView.extend({
         el: '.layout-view',
         template: _.template('<main></main><footer></footer>'),
         regions: {
@@ -501,7 +501,7 @@ describe('onAttach', function() {
 
     describe('When showing a View in a Region', function() {
       beforeEach(function() {
-        this.MyView = Marionette.ItemView.extend({
+        this.MyView = Jskeleton.ItemView.extend({
           el: '.layout-view',
           template: _.template(''),
           onBeforeAttach: this.sinon.stub(),
@@ -567,7 +567,7 @@ describe('onAttach', function() {
         this.sinon.spy(this.headerView, 'onBeforeAttach');
         this.sinon.spy(this.headerView, 'onAttach');
 
-        this.MainView = Marionette.LayoutView.extend({
+        this.MainView = Jskeleton.LayoutView.extend({
           template: _.template('<header></header>'),
           onAttach: this.sinon.stub(),
           onBeforeAttach: this.sinon.stub(),
@@ -616,7 +616,7 @@ describe('onAttach', function() {
         this.sinon.spy(this.headerView, 'onBeforeAttach');
         this.sinon.spy(this.headerView, 'onAttach');
 
-        this.MainView = Marionette.LayoutView.extend({
+        this.MainView = Jskeleton.LayoutView.extend({
           template: _.template('<header></header>'),
           onAttach: this.sinon.stub(),
           onBeforeAttach: this.sinon.stub(),
@@ -665,7 +665,7 @@ describe('onAttach', function() {
         this.sinon.spy(this.headerView, 'onBeforeAttach');
         this.sinon.spy(this.headerView, 'onAttach');
 
-        this.MainView = Marionette.LayoutView.extend({
+        this.MainView = Jskeleton.LayoutView.extend({
           template: _.template('<header></header>'),
           onAttach: this.sinon.stub(),
           onBeforeAttach: this.sinon.stub(),
