@@ -6,23 +6,27 @@
     if (typeof define === 'function' && define.amd) {
         define(['jquery',
             'underscore',
+            'backbone',
             'backbone.marionette'
-        ], function($, _, Marionette) {
-            return factory.call(root, root, $, _, Marionette);
+        ], function($, _, Backbone, Marionette) {
+            return factory.call(root, root, $, _, Backbone, Marionette);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         var $ = require('jquery'),
             _ = require('underscore'),
-            Marionette = require('backbone.marionette'),
-            Jskeleton = factory(root, $, _, Marionette);
+            Backbone = require('backbone');
 
-        root.Jskeleton = Jskeleton;
+        Backbone.$ = $;
+
+        var Marionette = require('backbone.marionette'),
+            Jskeleton = factory(root, $, _, Backbone, Marionette);
+
         module.exports = Jskeleton;
     } else if (root !== undefined) {
-        root.Jskeleton = factory.call(root, root, root.$, root._, root.Marionette);
+        root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
     }
 
-})(window, function(root, $, _, Marionette) {
+})(this, function(root, $, _, Backbone, Marionette) {
     'use strict';
 
     /* jshint unused: false */
@@ -30,6 +34,48 @@
 
     var Jskeleton = root.Jskeleton || {};
 
+     'use strict';
+     /*globals Marionette, Jskeleton, _ */
+     /* jshint unused: false */
+    
+    
+     // utility method for parsing @component. syntax strings
+     // into associated object
+     Marionette.normalizeComponentName = function(eventString) {
+         var name = /@component\.[a-zA-Z_$0-9]*/g.exec(String(eventString))[0].slice(11);
+    
+         return name;
+     };
+    
+     // utility method for parsing event syntax strings to retrieve the event type string
+     Marionette.normailzeEventType = function(eventString) {
+         var eventType = /(\w)+\s*/g.exec(String(eventString))[0].trim();
+    
+         return eventType;
+     };
+    
+     // utility method for extract @component. syntax strings
+     // into associated object
+     Marionette.extractComponentEvents = function(events) {
+         return _.reduce(events, function(memo, val, eventName) {
+             if (eventName.match(/@component\.[a-zA-Z_$0-9]*/g)) {
+                 memo[eventName] = val;
+             }
+             return memo;
+         }, {});
+     };
+    
+     // allows for the use of the @component. syntax within
+     // a given key for triggers and events
+     // swaps the @component with the associated component object.
+     // Returns a new, parsed components event hash, and mutate the object events hash.
+     Marionette.normalizeComponentKeys = function(events, components) {
+         return _.reduce(events, function(memo, val, key) {
+             var normalizedKey = Marionette.normalizeComponentString(key, components);
+             memo[normalizedKey] = val;
+             return memo;
+         }, {});
+     };
      'use strict';
      /*globals Marionette, Jskeleton, _ */
      /* jshint unused: false */
@@ -49,6 +95,10 @@
                  message: 'Cannot render the template since its false, null or undefined.'
              });
          }
+    
+         template = typeof template === 'function' ? template(data) : template;
+    
+         template = typeof template === 'string' ? template : String(template);
     
          var compiler = Jskeleton.htmlBars.compiler,
              DOMHelper = Jskeleton.htmlBars.DOMHelper,
@@ -135,7 +185,14 @@
                  throw new Error('Tienes que definir un nombre de clase');
              }
     
+             //omit component factory name
              componentData = _.omit(params, 'name');
+    
+             //inject component dependencies
+             componentData = _.extend(componentData, {
+                 channel: env.enviroment._channel,
+                 _app: env.enviroment._app
+             });
     
              component = Jskeleton.factory.new(componentName, componentData);
     
@@ -189,36 +246,21 @@
     /*globals Marionette, Jskeleton, _, Backbone */
     /* jshint unused: false */
     
-    /**
-     * Application object factory
-     * @exports factory
-     * @namespace
-     * @memberof app
-     */
+    
+    //Application object factory
     var factory = {};
     
-    /**
-     * Default available factory objects
-     * @private
-     * @type {Object}
-     */
+    
+    //Default available factory objects
     factory.prototypes = {
         Model: Backbone.Model,
         Collection: Backbone.Collection
     };
     
-    /**
-     * Available singletons objects
-     * @private
-     * @type {Object}
-     */
+    //Available singletons objects
     factory.singletons = {};
     
-    /**
-     * Adds an object to the factory
-     * @param {String} key Name of the object to reference
-     * @param {Object} obj
-     */
+    //Adds an object class to the factory
     factory.add = function(key, obj) {
         if (this.prototypes[key]) {
             throw new Error('AlreadyDefinedFactoryObject - ' + key);
@@ -226,12 +268,9 @@
         this.prototypes[key] = obj;
     };
     
-    /**
-     * Creates a new object
-     * @param  {String} obj         Name of the object to create
-     * @param  {Object} [options]   Constructor params
-     * @return {Object}             A new instance of the object reference
-     */
+    
+    //Creates a new object.
+    //Can recieve an object class or a string object factory key.
     factory.new = function(obj, options) {
         options = options || {};
     
@@ -250,12 +289,8 @@
         return new FactoryObject(options);
     };
     
-    /**
-     * Creates a new object o retrieves the created one
-     * @param  {String} obj         Name of the object to create
-     * @param  {Object} [options]   Constructor params
-     * @return {Object}               A new instance of the object reference
-     */
+    
+    //Creates a new singleton object o retrieves the created one
     factory.singleton = function(obj, options) {
         options = options || {};
     
@@ -266,11 +301,8 @@
         return this.singletons[obj];
     };
     
-    /**
-     * Retrieves an Object reference
-     * @param  {String} obj Name of the object to get reference
-     * @return {Object}     Reference to the original object in the factory
-     */
+    
+    //Retrieves an Object reference
     factory.get = function(obj) {
         if (!this.prototypes[obj]) {
             throw new Error('UndefinedFactoryObject - ' + obj);
@@ -278,17 +310,13 @@
         return this.prototypes[obj];
     };
     
-    /**
-     * Gets all object added to the factory
-     * @return {Array} A lis of all objects added to the factory
-     */
+    //Gets all objects added to the factory
     factory.getAll = function() {
         return this.prototypes;
     };
     
     
     Jskeleton.factory = factory;
-    
     'use strict';
     
     /*globals Jskeleton, Backbone, _ */
@@ -324,29 +352,39 @@
             return text;
         },
         route: function(routeString, options, callback) {
-            var routeRegex,
-                handlerName = options.handlerName && typeof options.handlerName === 'string' ? options.handlerName : this._getHandlerNameFromRoute(routeString),
-                argsNames = this._getRouteParamsNames(routeString),
-                name = options.name;
+            options = options || {};
     
-            if (!_.isRegExp(routeString)) {
-                routeRegex = this._routeToRegExp(routeString);
-            }
+            //register route with the jskeleton implementation for view-controller and app-workflow
+            if (options.viewControllerHandler === true) {
+                var routeRegex,
+                    handlerName = options.handlerName && typeof options.handlerName === 'string' ? options.handlerName : this._getHandlerNameFromRoute(routeString),
+                    argsNames = this._getRouteParamsNames(routeString),
+                    name = options.name;
     
-            if (!callback) {
-                callback = this[name];
-            }
-    
-            var router = this;
-    
-            Backbone.history.route(routeRegex, function(fragment) {
-                var args = router._extractParameters(routeRegex, fragment, argsNames);
-                if (router.execute(callback, args, handlerName) !== false) {
-                    router.trigger.apply(router, ['route:' + name].concat(args));
-                    router.trigger('route', name, args);
-                    Backbone.history.trigger('route', router, name, args);
+                if (!_.isRegExp(routeString)) {
+                    routeRegex = this._routeToRegExp(routeString);
                 }
-            });
+    
+                if (!callback) {
+                    callback = this[name];
+                }
+    
+                var router = this;
+    
+                Backbone.history.route(routeRegex, function(fragment) {
+                    var args = router._extractParametersAsObject(routeRegex, fragment, argsNames);
+                    if (router.execute(callback, args, handlerName) !== false) {
+                        router.trigger.apply(router, ['route:' + name].concat(args));
+                        router.trigger('route', name, args);
+                        Backbone.history.trigger('route', router, name, args);
+                    }
+                });
+    
+            } else {
+                //register a route with the original Backbone.Router.route implementation
+                Backbone.Router.prototype.route.apply(this, arguments);
+            }
+    
             return this;
         },
         //method to replace a route string with the specified params
@@ -383,9 +421,8 @@
             }
         },
         //Execute a route handler with the provided parameters.
-        //Override Backbone.Router._extractParameters method to
         //return parameters as object
-        _extractParameters: function(route, fragment, argsNames) {
+        _extractParametersAsObject: function(route, fragment, argsNames) {
             var params = route.exec(fragment).slice(1),
                 paramsObject = {};
     
@@ -497,17 +534,19 @@
             Marionette.Application.prototype.constructor.apply(this, arguments);
         },
         //Call to the specified view-controller method for render a app state
-        invokeViewControllerRender: function(controllerView, args, handlerName) {
-            var hook = this.getHook();
-            this.triggerMethod('onNavigate', controllerView, hook);
+        invokeViewControllerRender: function(routeObject, args, handlerName) {
+            var hook = this.getHook(),
+                viewController = routeObject._viewController = this._getViewControllerInstance(routeObject);
+    
+            this.triggerMethod('onNavigate', viewController, hook);
             hook.processBefore();
     
-            if (typeof controllerView[handlerName] !== 'function') {
+            if (typeof viewController[handlerName] !== 'function') {
                 throw new Error('El metodo ' + handlerName + ' del view controller no existe');
             }
     
-            controllerView[handlerName].call(controllerView, args, this.service);
-            this._showControllerView(controllerView);
+            viewController[handlerName].call(viewController, args, this.service);
+            this._showControllerView(viewController);
             hook.processAfter();
         },
         _showControllerView: function(controllerView) {
@@ -533,41 +572,51 @@
             var self = this;
             this._viewControllers = [];
             if (this.routes) {
-                _.each(this.routes, function(routeOptions, routeName) {
-                    routeOptions = routeOptions || {};
+                _.each(this.routes, function(routeObject, routeName) {
+                    routeObject = routeObject || {};
                     //get view controller instance (it could be a view controller class asigned to the route or a default view controller if no class is specified)
-                    var viewController = self._getViewController(routeOptions);
+                    //get view controller extended class with d.i
+                    routeObject._ViewController = self._extendViewControllerClass(routeObject);
+    
+                    routeObject._viewControllerOptions = _.extend({
+                        app: self,
+                        channel: self.privateChannel,
+                        service: self.service,
+                        region: self.region
+                    }, routeObject.viewControllerOptions);
+    
                     //add the route handler to Jskeleton.Router
-                    self._addAppRoute(routeName, routeOptions, viewController);
+                    self._addAppRoute(routeName, routeObject);
                     //add the event handler to the app globalChannel
-                    self._addAppEventListener(routeName, routeOptions, viewController);
+                    self._addAppEventListener(routeName, routeObject);
                 });
             }
         },
         //
-        _addAppRoute: function(routeString, routeOptions, viewController) {
+        _addAppRoute: function(routeString, routeObject) {
             var self = this;
     
             this.router.route(routeString, {
-                triggerEvent: routeOptions.triggerEvent,
-                handlerName: routeOptions.handlerName || this._getViewControllerHandlerName(routeString)
+                viewControllerHandler: true,
+                triggerEvent: routeObject.triggerEvent,
+                handlerName: routeObject.handlerName || this._getViewControllerHandlerName(routeString)
             }, function(args, handlerName) {
-                self.invokeViewControllerRender(viewController, args, handlerName);
+                self.invokeViewControllerRender(routeObject, args, handlerName);
             });
         },
         //Add listen to a global event changing the url with the event parameters and calling to the view-controller
-        _addAppEventListener: function(routeString, routeOptions, viewController) {
-            if (routeOptions.eventListener) {
+        _addAppEventListener: function(routeString, routeObject) {
+            if (routeObject.eventListener) {
                 var self = this,
-                    handlerName = routeOptions.handlerName || this._getViewControllerHandlerName(routeString);
+                    handlerName = routeObject.handlerName || this._getViewControllerHandlerName(routeString);
     
-                this.listenTo(this.globalChannel, routeOptions.eventListener, function(args) {
-                    if (!routeOptions.navigate) {
+                this.listenTo(this.globalChannel, routeObject.eventListener, function(args) {
+                    if (!routeObject.navigate) {
                         //update the url
-                        self._navigateTo.call(self, routeString, routeOptions, args);
+                        self._navigateTo.call(self, routeString, routeObject, args);
                     }
     
-                    self.invokeViewControllerRender(viewController, args, handlerName);
+                    self.invokeViewControllerRender(routeObject, args, handlerName);
                 });
             }
         },
@@ -590,36 +639,103 @@
     
             return handlerName;
         },
-        //Get a view controller instance (if no view controller is specified, a default view controller class is instantiated)
-        _getViewController: function(options) {
-            var self = this,
-                template = options.template,
-                viewControllerOptions = _.extend({
-                    app: this,
-                    channel: this.privateChannel,
-                    service: this.service,
-                    region: this.region
-                }, options.viewControllerOptions),
-                ViewControllerClass = options.viewControllerClass || this.getDefaultviewController(),
-                viewController;
+        //Extend view controller class for inyect template dependency
+        _extendViewControllerClass: function(options) {
+    
+            var template = options.template,
+                ViewControllerClass = options.viewControllerClass || this.getDefaultviewController();
     
             if (!template) {
                 throw new Error('Tienes que definir un template');
             }
     
-            ViewControllerClass = this.extendViewController(ViewControllerClass, template);
-    
-            viewController = this.factory(ViewControllerClass, viewControllerOptions);
-    
-            this._viewControllers.push(viewController);
-    
-            return viewController;
-        },
-        //Extend view controller class for inyect template dependency
-        extendViewController: function(ViewControllerClass, template) {
             return ViewControllerClass.extend({
                 template: template
             });
+    
+        },
+        _removeViewController: function(routeObject, viewController) {
+            if (routeObject._viewController === viewController) {
+                routeObject._viewController = undefined;
+            }
+        },
+        //Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).
+        //Ensure that don't extist a view-controller and if exist that it's not destroyed
+        _getViewControllerInstance: function(routeObject) {
+            var self = this,
+                viewController = routeObject._viewController,
+                ViewControllerClass = routeObject._ViewController,
+                viewControllerOptions = routeObject._viewControllerOptions || {};
+    
+            if (!viewController || viewController.isDestroyed === true) {
+                viewController = this.factory(ViewControllerClass, viewControllerOptions);
+                this.listenTo(viewController, 'destroy', this._removeViewController.bind(this, routeObject, viewController));
+            }
+            // this._viewControllers.push(viewController);
+    
+            return viewController;
+        },
+        _proxyEvents: function(options) {
+            var events = options.events || this.events || {};
+    
+            this._proxyTriggerEvents(events.triggers);
+            this._proxyListenEvents(events.listen);
+        },
+        _proxyTriggerEvents: function(triggerArray) {
+            var self = this;
+            if (triggerArray && typeof triggerArray === 'object') {
+                _.each(triggerArray, function(eventName) {
+                    self.listenTo(self.privateChannel, eventName, function() {
+                        var args;
+    
+                        if (eventName === 'all') {
+                            eventName = arguments[0];
+                            //casting arguments array-like object to array with excluding the eventName argument
+                            args = [eventName].concat(Array.prototype.slice.call(arguments, 1));
+                        } else {
+                            //casting arguments array-like object to array
+                            args = Array.prototype.slice.call(arguments);
+                        }
+    
+                        //trigger the event throw the globalChannel
+                        self.globalChannel.trigger.apply(self.globalChannel, [eventName].concat(args));
+                    });
+                });
+    
+            }
+        },
+        _proxyListenEvents: function(listenObject) {
+            var self = this;
+            if (listenObject && typeof listenObject === 'object') {
+                _.each(listenObject, function(eventName) {
+                    self.listenTo(self.globalChannel, eventName, function() {
+                        var args;
+    
+                        if (eventName === 'all') {
+                            eventName = arguments[0];
+                            //casting arguments array-like object to array with excluding the eventName argument
+                            args = [eventName].concat(Array.prototype.slice.call(arguments, 1));
+                        } else {
+                            //casting arguments array-like object to array
+                            args = Array.prototype.slice.call(arguments);
+                        }
+    
+                        //trigger the event throw the globalChannel
+                        self.privateChannel.trigger.apply(self.privateChannel, [eventName].concat(args));
+                    });
+                });
+            }
+        },
+        start: function(options) {
+            options = options || {};
+    
+            this._initCallbacks.run(options, this);
+    
+            //Add routes listeners to the Jskeleton.router
+            this._initRoutes(options);
+    
+            //Add app proxy events
+            this._proxyEvents(options);
         },
         //Get default application view-controller class if no controller is specified
         getDefaultviewController: function() {
@@ -673,13 +789,11 @@
         //Method to start the application, start the childapplications and start listening routes/events
         start: function(options) {
             this.triggerMethod('before:start', options);
-            this._initCallbacks.run(options, this);
             //init child apps
             this._initChildApplications(options);
-            //Add routes listeners to the Jskeleton.router
-            this._initRoutes(options);
-            //Add app events listeneres to the global channel
-            // this._initAppEventsListeners(options);
+    
+            Jskeleton.BaseApplication.prototype.start.apply(this, arguments);
+    
             //Start the Jskeleton router
             this.startRouter();
             this.triggerMethod('start', options);
@@ -696,7 +810,9 @@
         _initializeRegions: function() {
             //ensure initial root DOM reference is available
             this._ensureEl();
-            this._initRegionManager();
+    
+            Marionette.Application.prototype._initializeRegions.apply(this, arguments);
+    
             // Create root region on root DOM reference
             this._createRootRegion();
             // Create a layout for the application if a layoutView its defined
@@ -824,10 +940,7 @@
         start: function(options) {
             this.triggerMethod('before:start', options);
     
-            this._initCallbacks.run(options, this);
-            //Add routes listeners to the Jskeleton.router
-            this._initRoutes(options);
-            //Add app events listeneres to the global channel
+            Jskeleton.BaseApplication.prototype.start.apply(this, arguments);
             // this._initAppEventsListeners(options);
     
             this.triggerMethod('start', options);
@@ -837,7 +950,7 @@
             //ensure initial root region is available
             this._ensureMainRegion();
     
-            this._initRegionManager();
+            Marionette.Application.prototype._initializeRegions.apply(this, arguments);
     
             // Create a layout for the application if a layoutView its defined
             // this._createLayoutApp();
@@ -849,21 +962,107 @@
             }
         }
     });
+    'use strict';
+    
+    /*globals Marionette, Jskeleton*/
+    
+    /* jshint unused: false */
+    
+    Jskeleton.View = Marionette.View.extend({
+        constructor: function(options) {
+            options = options || {};
+    
+            this.channel = options.channel || this;
+            this._app = options.app;
+    
+            Marionette.View.apply(this, arguments);
+    
+        }
+    });
+    'use strict';
+    
+    /*globals Marionette, Jskeleton*/
+    
+    /* jshint unused: false */
+    
+    Jskeleton.ItemView = Marionette.ItemView.extend({
+        constructor: function(options) {
+            Jskeleton.View.apply(this, arguments);
+        }
+    });
+    'use strict';
+    
+    /*globals Marionette, Jskeleton */
+    
+    /* jshint unused: false */
+    
+    Jskeleton.LayoutView = Marionette.LayoutView.extend({
+    
+        constructor: function(options) {
+            options = options || {};
+    
+            this._firstRender = true;
+            this._initializeRegions(options);
+    
+            Jskeleton.ItemView.call(this, options);
+        }
+    });
+    'use strict';
+    
+    /*globals Marionette, Jskeleton, _*/
+    
+    /* jshint unused: false */
+    
+    Jskeleton.CollectionView = Marionette.CollectionView.extend({
+        constructor: function(options) {
+    
+            this.once('render', this._initialEvents);
+    
+            this._initChildViewStorage();
+    
+            Jskeleton.View.apply(this, arguments);
+    
+            this.on('show', this._onShowCalled);
+    
+            this.initRenderBuffer();
+        },
+        //override Marionette method to inject dependencies (as application channel, application reference ...) into child views
+        buildChildView: function(child, ChildViewClass, childViewOptions) {
+            var options = _.extend({
+                model: child,
+                channel: this.channel,
+                _app: this._app
+            }, childViewOptions);
+    
+    
+            return new ChildViewClass(options);
+        }
+    });
+    'use strict';
+    
+    /*globals Marionette, Jskeleton*/
+    
+    /* jshint unused: false */
+    
+    Jskeleton.CompositeView = Marionette.CompositeView.extend({
+        constructor: function(options) {
+            Jskeleton.CollectionView.prototype.constructor.apply(this, arguments);
+        }
+    });
         'use strict';
     
         /*globals Jskeleton, Marionette, _ */
     
-        Jskeleton.ViewController = Marionette.LayoutView.extend({
+        Jskeleton.ViewController = Jskeleton.LayoutView.extend({
             constructor: function(options) { //inyectar app, channel, region
                 options = options || {};
                 this._ensureOptions(options);
                 this._app = options.app;
-                this.channel = options.channel;
                 this.region = options.region;
                 this.service = options.service;
                 this.context = {};
                 this.components = {};
-                Marionette.LayoutView.prototype.constructor.apply(this, arguments);
+                Jskeleton.LayoutView.prototype.constructor.apply(this, arguments);
             },
             _ensureOptions: function(options) {
                 if (!options.app) {
@@ -876,6 +1075,7 @@
                     throw new Error('El view-controller necesita tener una region específica');
                 }
             },
+            //expose app enviroment, view-controller context and marionette.templateHelpers to the view-controller template
             mixinTemplateHelpers: function(target) {
                 target = target || {};
                 var templateHelpers = this.getOption('templateHelpers');
@@ -897,15 +1097,88 @@
                 return templateContext;
             },
             addComponent: function(name, instance) {
-                this.components.name = instance;
+                this.components[name] = this.components[name] || [];
+                this.components[name].push(instance);
             },
-            destroy: function() {
-                _.each(this.components, function(component) {
-                    if (_.isFunction(component.destroy)) {
-                        component.destroy();
+            _destroyComponents: function() {
+                var component;
+                _.each(this.components, function(componentArray) {
+                    for (var i = 0; i < componentArray.length; i++) {
+                        component = componentArray[i];
+    
+                        if (_.isFunction(component.destroy)) {
+                            component.destroy();
+                        }
                     }
                 });
+            },
+            _delegateDOMEvents: function(eventsArg) {
+                var events = Marionette._getValue(eventsArg || this.events, this),
+                    componentEvents = Marionette.extractComponentEvents(events);
     
+                events = _.omit(events, _.keys(componentEvents));
+    
+                this._componentEvents = componentEvents;
+    
+    
+                return Marionette.View.prototype._delegateDOMEvents.call(this, events);
+            },
+            _delegateComponentEvent: function(component, event, handlerName) {
+                var handler = this[handlerName];
+    
+                if (!handler || typeof handler !== 'function') {
+                    throw new Error('Tienes que definir un método valido como handler del evento de la vista');
+                }
+    
+                if (component && component.isDestroyed !== true) {
+                    this.listenTo(component, event, handler);
+                }
+            },
+            _undelegateComponentEvent: function(component, event, handler) {
+                this.off(event, handler);
+            },
+            unbindComponents: function() {
+                var self = this,
+                    components = this.components;
+    
+                _.each(this._componentEvents, function(method, eventName) {
+                    var componentName = Marionette.normalizeComponentName(eventName),
+                        eventType = Marionette.normailzeEventType(eventName),
+                        componentArray = components[componentName];
+    
+                    _.each(componentArray, function(component) {
+    
+                        self._undelegateComponentEvent(component, eventType, method);
+    
+                    });
+                });
+            },
+            bindComponents: function() {
+                var self = this,
+                    components = this.components;
+    
+                _.each(this._componentEvents, function(method, eventName) {
+                    var componentName = Marionette.normalizeComponentName(eventName),
+                        eventType = Marionette.normailzeEventType(eventName),
+                        componentArray = components[componentName];
+    
+                    _.each(componentArray, function(component) {
+    
+                        self._delegateComponentEvent(component, eventType, method);
+    
+                    });
+                });
+            },
+            render: function() {
+                Jskeleton.LayoutView.prototype.render.apply(this, arguments);
+    
+                this.unbindComponents();
+                this.bindComponents();
+    
+                return this;
+            },
+            destroy: function() {
+                this._destroyComponents();
                 return Marionette.LayoutView.prototype.destroy.apply(this, arguments);
             }
         });

@@ -2,7 +2,7 @@
 
     /*globals Jskeleton, Marionette, _ */
 
-    Jskeleton.ViewController = Marionette.LayoutView.extend({
+    Jskeleton.ViewController = Jskeleton.LayoutView.extend({
         constructor: function(options) { //inyectar app, channel, region
             options = options || {};
             this._ensureOptions(options);
@@ -46,15 +46,88 @@
             return templateContext;
         },
         addComponent: function(name, instance) {
-            this.components.name = instance;
+            this.components[name] = this.components[name] || [];
+            this.components[name].push(instance);
         },
-        destroy: function() {
-            _.each(this.components, function(component) {
-                if (_.isFunction(component.destroy)) {
-                    component.destroy();
+        _destroyComponents: function() {
+            var component;
+            _.each(this.components, function(componentArray) {
+                for (var i = 0; i < componentArray.length; i++) {
+                    component = componentArray[i];
+
+                    if (_.isFunction(component.destroy)) {
+                        component.destroy();
+                    }
                 }
             });
+        },
+        _delegateDOMEvents: function(eventsArg) {
+            var events = Marionette._getValue(eventsArg || this.events, this),
+                componentEvents = Marionette.extractComponentEvents(events);
 
+            events = _.omit(events, _.keys(componentEvents));
+
+            this._componentEvents = componentEvents;
+
+
+            return Marionette.View.prototype._delegateDOMEvents.call(this, events);
+        },
+        _delegateComponentEvent: function(component, event, handlerName) {
+            var handler = this[handlerName];
+
+            if (!handler || typeof handler !== 'function') {
+                throw new Error('Tienes que definir un método valido como handler del evento de la vista');
+            }
+
+            if (component && component.isDestroyed !== true) {
+                this.listenTo(component, event, handler);
+            }
+        },
+        _undelegateComponentEvent: function(component, event, handler) {
+            this.off(event, handler);
+        },
+        unbindComponents: function() {
+            var self = this,
+                components = this.components;
+
+            _.each(this._componentEvents, function(method, eventName) {
+                var componentName = Marionette.normalizeComponentName(eventName),
+                    eventType = Marionette.normailzeEventType(eventName),
+                    componentArray = components[componentName];
+
+                _.each(componentArray, function(component) {
+
+                    self._undelegateComponentEvent(component, eventType, method);
+
+                });
+            });
+        },
+        bindComponents: function() {
+            var self = this,
+                components = this.components;
+
+            _.each(this._componentEvents, function(method, eventName) {
+                var componentName = Marionette.normalizeComponentName(eventName),
+                    eventType = Marionette.normailzeEventType(eventName),
+                    componentArray = components[componentName];
+
+                _.each(componentArray, function(component) {
+
+                    self._delegateComponentEvent(component, eventType, method);
+
+                });
+            });
+        },
+        render: function() {
+            Jskeleton.LayoutView.prototype.render.apply(this, arguments);
+
+            this.unbindComponents();
+            this.bindComponents();
+
+            return this;
+        },
+        destroy: function() {
+            this._destroyComponents();
             return Marionette.LayoutView.prototype.destroy.apply(this, arguments);
         }
     });

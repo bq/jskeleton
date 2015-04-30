@@ -34,6 +34,7 @@
 
     var Jskeleton = root.Jskeleton || {};
 
+    //  @include ../core/utils.js
     //  @include ../core/renderer.js
     //  @include ../helpers/html-bars.js
     //  @include ../helpers/component.js

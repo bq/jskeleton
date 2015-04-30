@@ -7,14 +7,16 @@
         define(['jquery',
             'underscore',
             'backbone',
-            'backbone.marionette'
+            'backbone.marionette',
+            'backbone.radio'
         ], function($, _, Backbone, Marionette) {
             return factory.call(root, root, $, _, Backbone, Marionette);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         var $ = require('jquery'),
             _ = require('underscore'),
-            Backbone = require('backbone');
+            Backbone = require('backbone'),
+            radio = require('backbone.radio');
 
         Backbone.$ = $;
 
@@ -31,7 +33,6 @@
     /*globals require,requireModule */
     /* jshint unused: false */
 
-    //  @include ../../lib/backbone.radio/backbone.radio.js
     //  @include ../../lib/htmlbars/loader.js
     //  @include ../../lib/htmlbars/dom-helper.amd.js
     //  @include ../../lib/htmlbars/htmlbars-compiler.amd.js
@@ -46,6 +47,7 @@
         render: requireModule('htmlbars-runtime').render
     };
 
+    //  @include ../core/utils.js
     //  @include ../core/renderer.js
     //  @include ../helpers/html-bars.js
     //  @include ../helpers/component.js
