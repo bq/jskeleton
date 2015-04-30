@@ -18,6 +18,10 @@
          });
      }
 
+     template = typeof template === 'function' ? template(data) : template;
+
+     template = typeof template === 'string' ? template : String(template);
+
      var compiler = Jskeleton.htmlBars.compiler,
          DOMHelper = Jskeleton.htmlBars.DOMHelper,
          hooks = Jskeleton.htmlBars.hooks,

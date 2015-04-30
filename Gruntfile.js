@@ -335,7 +335,8 @@ module.exports = function(grunt) {
         }
 
         grunt.task.run([
-            'mochaTest'
+            'mochaTest',
+            'jshint:test'
         ]);
     });
 
