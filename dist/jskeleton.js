@@ -11788,48 +11788,6 @@
      /* jshint unused: false */
     
     
-     // utility method for parsing @component. syntax strings
-     // into associated object
-     Marionette.normalizeComponentName = function(eventString) {
-         var name = /@component\.[a-zA-Z_$0-9]*/g.exec(String(eventString))[0].slice(11);
-    
-         return name;
-     };
-    
-     // utility method for parsing event syntax strings to retrieve the event type string
-     Marionette.normailzeEventType = function(eventString) {
-         var eventType = /(\w)+\s*/g.exec(String(eventString))[0].trim();
-    
-         return eventType;
-     };
-    
-     // utility method for extract @component. syntax strings
-     // into associated object
-     Marionette.extractComponentEvents = function(events) {
-         return _.reduce(events, function(memo, val, eventName) {
-             if (eventName.match(/@component\.[a-zA-Z_$0-9]*/g)) {
-                 memo[eventName] = val;
-             }
-             return memo;
-         }, {});
-     };
-    
-     // allows for the use of the @component. syntax within
-     // a given key for triggers and events
-     // swaps the @component with the associated component object.
-     // Returns a new, parsed components event hash, and mutate the object events hash.
-     Marionette.normalizeComponentKeys = function(events, components) {
-         return _.reduce(events, function(memo, val, key) {
-             var normalizedKey = Marionette.normalizeComponentString(key, components);
-             memo[normalizedKey] = val;
-             return memo;
-         }, {});
-     };
-     'use strict';
-     /*globals Marionette, Jskeleton, _ */
-     /* jshint unused: false */
-    
-    
      Marionette.Renderer.render = function(template, data) {
          data = data || {};
     
@@ -11838,7 +11796,7 @@
          // data.serializedData; //Marionette model/collection serializedData
          // data.context; //View-controller context
     
-         if (!template) {
+         if (!template && template !== '') {
              throw new Marionette.Error({
                  name: 'TemplateNotFoundError',
                  message: 'Cannot render the template since its false, null or undefined.'
@@ -11953,6 +11911,64 @@
     
              return component.render().$el.get(0);
          });
+    'use strict';
+    /*globals Jskeleton */
+    /* jshint unused: false */
+    
+    var utils = {};
+    
+    //replace string chars (instead using encodeUrl)
+    utils.replaceSpecialChars = function(text) {
+        if (typeof text === 'string') {
+    
+            var specialChars = 'ãàáäâèéëêìíïîòóöôùúüûÑñÇç \'',
+                chars = 'aaaaaeeeeiiiioooouuuunncc--';
+    
+            for (var i = 0; i < specialChars.length; i++) {
+                text = text.replace(new RegExp(specialChars.charAt(i), 'g'), chars.charAt(i));
+            }
+        }
+        return text;
+    };
+    
+    utils.normalizeComponentName = function(eventString) {
+        var name = /@component\.[a-zA-Z_$0-9]*/g.exec(String(eventString))[0].slice(11);
+    
+        return name;
+    };
+    
+    // utility method for parsing event syntax strings to retrieve the event type string
+    utils.normailzeEventType = function(eventString) {
+        var eventType = /(\w)+\s*/g.exec(String(eventString))[0].trim();
+    
+        return eventType;
+    };
+    
+    // utility method for extract @component. syntax strings
+    // into associated object
+    utils.extractComponentEvents = function(events) {
+        return _.reduce(events, function(memo, val, eventName) {
+            if (eventName.match(/@component\.[a-zA-Z_$0-9]*/g)) {
+                memo[eventName] = val;
+            }
+            return memo;
+        }, {});
+    };
+    
+    // allows for the use of the @component. syntax within
+    // a given key for triggers and events
+    // swaps the @component with the associated component object.
+    // Returns a new, parsed components event hash, and mutate the object events hash.
+    utils.normalizeComponentKeys = function(events, components) {
+        return _.reduce(events, function(memo, val, key) {
+            var normalizedKey = Marionette.normalizeComponentString(key, components);
+            memo[normalizedKey] = val;
+            return memo;
+        }, {});
+    };
+    
+    Jskeleton.utils = utils;
+    
     'use strict';
     /*globals Jskeleton,_ */
     /* jshint unused: false */
@@ -12072,11 +12088,18 @@
     
     /* jshint unused: false */
     
+    
     var paramsNames = /:\w(\_|\w|\d)*/g;
+    
+    //optionalParam = /\((.*?)\)/g,
+    //namedParam = /(\(\?)?:\w+/g,
+    //splatParam = /\*\w+/;
+    //escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
     
     //## Router
     Jskeleton.Router = Backbone.Router.extend({
         routes: {},
+    
         initialize: function() {
             this.listenTo(this, 'route', function() {
                 var route = arguments[0];
@@ -12086,20 +12109,7 @@
                 console.log(route);
             });
         },
-        //replace string chars (instead using encodeUrl)
-        replaceSpecialChars: function(text) {
-            if (typeof text === 'string') {
     
-                var specialChars = 'ãàáäâèéëêìíïîòóöôùúüûÑñÇç \'',
-                    chars = 'aaaaaeeeeiiiioooouuuunncc--';
-    
-                for (var i = 0; i < specialChars.length; i++) {
-                    text = text.replace(new RegExp(specialChars.charAt(i), 'g'), chars.charAt(i));
-                }
-            }
-    
-            return text;
-        },
         route: function(routeString, options, callback) {
             options = options || {};
     
@@ -12136,31 +12146,43 @@
     
             return this;
         },
+    
         //method to replace a route string with the specified params
         _replaceRouteString: function(routeString, params) {
-            var self = this;
+            var self = this,
+                splatPattern;
+    
             _.each(params, function(value, key) {
                 routeString = routeString.replace(/:(\w)+/, function(x) {
                     //remove : character
                     x = x.substr(1, x.length - 1);
-                    return params[x] ? self.replaceSpecialChars(String(params[x])) : ''; //todo
+                    return params[x] ? Jskeleton.utils.replaceSpecialChars(String(params[x])) : '';
                 });
+    
+                // find splats
+                splatPattern = new RegExp("\\*" + key);
+                routeString = routeString.replace(splatPattern, value);
             });
     
             //replace uncomplete conditionals ex. (:id) and coinditional parenthesis ()
             return routeString.replace(/\(([^\):])*:([^\):])*\)/g, '').replace(/\(|\)/g, '');
         },
+    
         //Cast url string to a default camel case name (commonly to call view-controller method)
         //ex: '/show/details -> onShowDetails'
         _getHandlerNameFromRoute: function(routeString) {
-            var endPos = routeString.indexOf(':') === -1 ? routeString.length : routeString.indexOf(':');
-            var replacedString = routeString.substr(0, endPos).replace(/\/(\w|\d)?/g, function(x) {
+            var endPosParams = routeString.indexOf(':') === -1 ? routeString.length : routeString.indexOf(':'),
+                endPosOptionals = routeString.indexOf('(/') === -1 ? routeString.length : routeString.indexOf('(/'),
+                endPosSplats = routeString.indexOf('*') === -1 ? routeString.length : routeString.indexOf('*');
+    
+            var replacedString = routeString.substr(0, Math.min(endPosParams, endPosOptionals, endPosSplats)).replace(/\/(\w|\d)?/g, function(x) {
                     return x.replace(/\//g, '').toUpperCase();
                 }),
                 handlerName = 'on' + replacedString.charAt(0).toUpperCase() + replacedString.slice(1);
     
             return handlerName;
         },
+    
         //Execute a route handler with the provided parameters.
         //Override Backbone.Router.exectue method to provide the
         //view controller handlerName based on routeString.
@@ -12169,6 +12191,7 @@
                 callback.call(this, args, handlerName);
             }
         },
+    
         //Execute a route handler with the provided parameters.
         //return parameters as object
         _extractParametersAsObject: function(route, fragment, argsNames) {
@@ -12189,6 +12212,7 @@
     
             return paramsObject;
         },
+    
         //Extracts route params names as array.
         _getRouteParamsNames: function(routeString) {
             var name = paramsNames.exec(routeString),
@@ -12201,6 +12225,7 @@
     
             return names;
         },
+    
         // Router initialization.
         // Bypass all anchor links except those with data-bypass attribute
         // Starts router history. All routes should be already added
@@ -12212,10 +12237,13 @@
             // log.debug('router.location.hash', window.location.hash.replace('#/', '/'));
             // Backbone.history.navigate(window.location.hash.replace('#/', '/'), true);
         },
+    
         start: function() {
             this.init();
         }
     }, {
+    
+        // Get singleton instance bject
         getSingleton: function() {
     
             var instance = null;
@@ -12230,10 +12258,13 @@
             Jskeleton.router = getInstance();
             return Jskeleton.router;
         },
+    
+        // Initialize Backbone.history.start
         start: function(app) {
             app.router.init();
         }
     });
+    
     'use strict';
     /*globals Marionette, Jskeleton, _ */
     /* jshint unused: false */
@@ -12795,9 +12826,10 @@
     
     Jskeleton.CompositeView = Marionette.CompositeView.extend({
         constructor: function(options) {
-            Jskeleton.CollectionView.prototype.constructor.apply(this, arguments);
+            Jskeleton.CollectionView.apply(this,arguments);
         }
     });
+    
         'use strict';
     
         /*globals Jskeleton, Marionette, _ */
@@ -12863,7 +12895,7 @@
             },
             _delegateDOMEvents: function(eventsArg) {
                 var events = Marionette._getValue(eventsArg || this.events, this),
-                    componentEvents = Marionette.extractComponentEvents(events);
+                    componentEvents = Jskeleton.utils.extractComponentEvents(events);
     
                 events = _.omit(events, _.keys(componentEvents));
     
@@ -12891,8 +12923,8 @@
                     components = this.components;
     
                 _.each(this._componentEvents, function(method, eventName) {
-                    var componentName = Marionette.normalizeComponentName(eventName),
-                        eventType = Marionette.normailzeEventType(eventName),
+                    var componentName = Jskeleton.utils.normalizeComponentName(eventName),
+                        eventType = Jskeleton.utils.normailzeEventType(eventName),
                         componentArray = components[componentName];
     
                     _.each(componentArray, function(component) {
@@ -12907,8 +12939,8 @@
                     components = this.components;
     
                 _.each(this._componentEvents, function(method, eventName) {
-                    var componentName = Marionette.normalizeComponentName(eventName),
-                        eventType = Marionette.normailzeEventType(eventName),
+                    var componentName = Jskeleton.utils.normalizeComponentName(eventName),
+                        eventType = Jskeleton.utils.normailzeEventType(eventName),
                         componentArray = components[componentName];
     
                     _.each(componentArray, function(component) {
@@ -12931,6 +12963,7 @@
                 return Marionette.LayoutView.prototype.destroy.apply(this, arguments);
             }
         });
+    
 
 
     return Jskeleton;
