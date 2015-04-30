@@ -4,11 +4,18 @@
 
 /* jshint unused: false */
 
+
 var paramsNames = /:\w(\_|\w|\d)*/g;
+
+//optionalParam = /\((.*?)\)/g,
+//namedParam = /(\(\?)?:\w+/g,
+//splatParam = /\*\w+/;
+//escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
 //## Router
 Jskeleton.Router = Backbone.Router.extend({
     routes: {},
+
     initialize: function() {
         this.listenTo(this, 'route', function() {
             var route = arguments[0];
@@ -18,6 +25,7 @@ Jskeleton.Router = Backbone.Router.extend({
             console.log(route);
         });
     },
+
     //replace string chars (instead using encodeUrl)
     replaceSpecialChars: function(text) {
         if (typeof text === 'string') {
@@ -32,6 +40,7 @@ Jskeleton.Router = Backbone.Router.extend({
 
         return text;
     },
+
     route: function(routeString, options, callback) {
         options = options || {};
 
@@ -68,31 +77,43 @@ Jskeleton.Router = Backbone.Router.extend({
 
         return this;
     },
+
     //method to replace a route string with the specified params
     _replaceRouteString: function(routeString, params) {
-        var self = this;
+        var self = this,
+            splatPattern;
+
         _.each(params, function(value, key) {
             routeString = routeString.replace(/:(\w)+/, function(x) {
                 //remove : character
                 x = x.substr(1, x.length - 1);
-                return params[x] ? self.replaceSpecialChars(String(params[x])) : ''; //todo
+                return params[x] ? self.replaceSpecialChars(String(params[x])) : '';
             });
+
+            // find splats
+            splatPattern = new RegExp("\\*" + key);
+            routeString = routeString.replace(splatPattern, value);
         });
 
         //replace uncomplete conditionals ex. (:id) and coinditional parenthesis ()
         return routeString.replace(/\(([^\):])*:([^\):])*\)/g, '').replace(/\(|\)/g, '');
     },
+
     //Cast url string to a default camel case name (commonly to call view-controller method)
     //ex: '/show/details -> onShowDetails'
     _getHandlerNameFromRoute: function(routeString) {
-        var endPos = routeString.indexOf(':') === -1 ? routeString.length : routeString.indexOf(':');
-        var replacedString = routeString.substr(0, endPos).replace(/\/(\w|\d)?/g, function(x) {
+        var endPosParams = routeString.indexOf(':') === -1 ? routeString.length : routeString.indexOf(':'),
+            endPosOptionals = routeString.indexOf('(/') === -1 ? routeString.length : routeString.indexOf('(/'),
+            endPosSplats = routeString.indexOf('*') === -1 ? routeString.length : routeString.indexOf('*');
+
+        var replacedString = routeString.substr(0, Math.min(endPosParams, endPosOptionals, endPosSplats)).replace(/\/(\w|\d)?/g, function(x) {
                 return x.replace(/\//g, '').toUpperCase();
             }),
             handlerName = 'on' + replacedString.charAt(0).toUpperCase() + replacedString.slice(1);
 
         return handlerName;
     },
+
     //Execute a route handler with the provided parameters.
     //Override Backbone.Router.exectue method to provide the
     //view controller handlerName based on routeString.
@@ -101,6 +122,7 @@ Jskeleton.Router = Backbone.Router.extend({
             callback.call(this, args, handlerName);
         }
     },
+
     //Execute a route handler with the provided parameters.
     //return parameters as object
     _extractParametersAsObject: function(route, fragment, argsNames) {
@@ -121,6 +143,7 @@ Jskeleton.Router = Backbone.Router.extend({
 
         return paramsObject;
     },
+
     //Extracts route params names as array.
     _getRouteParamsNames: function(routeString) {
         var name = paramsNames.exec(routeString),
@@ -133,6 +156,7 @@ Jskeleton.Router = Backbone.Router.extend({
 
         return names;
     },
+
     // Router initialization.
     // Bypass all anchor links except those with data-bypass attribute
     // Starts router history. All routes should be already added
@@ -144,10 +168,13 @@ Jskeleton.Router = Backbone.Router.extend({
         // log.debug('router.location.hash', window.location.hash.replace('#/', '/'));
         // Backbone.history.navigate(window.location.hash.replace('#/', '/'), true);
     },
+
     start: function() {
         this.init();
     }
 }, {
+
+    // Get singleton instance bject
     getSingleton: function() {
 
         var instance = null;
@@ -162,6 +189,8 @@ Jskeleton.Router = Backbone.Router.extend({
         Jskeleton.router = getInstance();
         return Jskeleton.router;
     },
+
+    // Initialize Backbone.history.start
     start: function(app) {
         app.router.init();
     }
