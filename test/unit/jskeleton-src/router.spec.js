@@ -16,7 +16,6 @@ describe('Router', function() {
 
     it('has all properties and methods', function() {
         expect(Jskeleton.Router.prototype).to.include.keys(
-            'replaceSpecialChars',
             'constructor',
             'routes',
             'initialize',

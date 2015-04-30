@@ -26,21 +26,6 @@ Jskeleton.Router = Backbone.Router.extend({
         });
     },
 
-    //replace string chars (instead using encodeUrl)
-    replaceSpecialChars: function(text) {
-        if (typeof text === 'string') {
-
-            var specialChars = 'ãàáäâèéëêìíïîòóöôùúüûÑñÇç \'',
-                chars = 'aaaaaeeeeiiiioooouuuunncc--';
-
-            for (var i = 0; i < specialChars.length; i++) {
-                text = text.replace(new RegExp(specialChars.charAt(i), 'g'), chars.charAt(i));
-            }
-        }
-
-        return text;
-    },
-
     route: function(routeString, options, callback) {
         options = options || {};
 
@@ -87,7 +72,7 @@ Jskeleton.Router = Backbone.Router.extend({
             routeString = routeString.replace(/:(\w)+/, function(x) {
                 //remove : character
                 x = x.substr(1, x.length - 1);
-                return params[x] ? self.replaceSpecialChars(String(params[x])) : '';
+                return params[x] ? Jskeleton.utils.replaceSpecialChars(String(params[x])) : '';
             });
 
             // find splats

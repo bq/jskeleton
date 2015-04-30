@@ -63,7 +63,7 @@
         },
         _delegateDOMEvents: function(eventsArg) {
             var events = Marionette._getValue(eventsArg || this.events, this),
-                componentEvents = Marionette.extractComponentEvents(events);
+                componentEvents = Jskeleton.utils.extractComponentEvents(events);
 
             events = _.omit(events, _.keys(componentEvents));
 
@@ -91,8 +91,8 @@
                 components = this.components;
 
             _.each(this._componentEvents, function(method, eventName) {
-                var componentName = Marionette.normalizeComponentName(eventName),
-                    eventType = Marionette.normailzeEventType(eventName),
+                var componentName = Jskeleton.utils.normalizeComponentName(eventName),
+                    eventType = Jskeleton.utils.normailzeEventType(eventName),
                     componentArray = components[componentName];
 
                 _.each(componentArray, function(component) {
@@ -107,8 +107,8 @@
                 components = this.components;
 
             _.each(this._componentEvents, function(method, eventName) {
-                var componentName = Marionette.normalizeComponentName(eventName),
-                    eventType = Marionette.normailzeEventType(eventName),
+                var componentName = Jskeleton.utils.normalizeComponentName(eventName),
+                    eventType = Jskeleton.utils.normailzeEventType(eventName),
                     componentArray = components[componentName];
 
                 _.each(componentArray, function(component) {
