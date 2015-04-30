@@ -9,7 +9,7 @@ describe('layoutView - dynamic regions', function() {
 
   describe('when adding regions with a function', function() {
     beforeEach(function() {
-      this.app = new Marionette.Application();
+      this.app = new Jskeleton.Application();
 
       this.fooSelector = '#foo-region';
       this.barSelector = '#bar-region';
@@ -55,7 +55,7 @@ describe('layoutView - dynamic regions', function() {
 
   describe('when adding a region to a layoutView, after it has been rendered', function() {
     beforeEach(function() {
-      this.MyLayoutView = Marionette.LayoutView.extend({
+      this.MyLayoutView = Jskeleton.LayoutView.extend({
         onAddRegion: function() {},
         onBeforeAddRegion: function() {}
       });
@@ -104,7 +104,7 @@ describe('layoutView - dynamic regions', function() {
 
   describe('when adding a region to a layoutView, before it has been rendered', function() {
     beforeEach(function() {
-      this.layoutView = new Marionette.LayoutView({
+      this.layoutView = new Jskeleton.LayoutView({
         template: this.template
       });
 
@@ -131,7 +131,7 @@ describe('layoutView - dynamic regions', function() {
 
   describe('when adding a region to a layoutView that does not have any regions defined, and re-rendering the layoutView', function() {
     beforeEach(function() {
-      this.layoutView = new Marionette.LayoutView({
+      this.layoutView = new Jskeleton.LayoutView({
         template: this.template
       });
 
@@ -165,7 +165,7 @@ describe('layoutView - dynamic regions', function() {
 
   describe('when adding a region to a layoutView that already has regions defined, and re-rendering the layoutView', function() {
     beforeEach(function() {
-      this.layoutView = new Marionette.LayoutView({
+      this.layoutView = new Jskeleton.LayoutView({
         regions: {
           bar: '#bar'
         },
@@ -197,7 +197,7 @@ describe('layoutView - dynamic regions', function() {
 
   describe('when removing a region from a layoutView', function() {
     beforeEach(function() {
-      this.LayoutView = Marionette.LayoutView.extend({
+      this.LayoutView = Jskeleton.LayoutView.extend({
         template: this.template,
         regions: {
           foo: '#foo'
@@ -249,7 +249,7 @@ describe('layoutView - dynamic regions', function() {
 
   describe('when removing a region and then re-rendering the layoutView', function() {
     beforeEach(function() {
-      this.LayoutView = Marionette.LayoutView.extend({
+      this.LayoutView = Jskeleton.LayoutView.extend({
         template: this.template,
         regions: {
           foo: '#foo'
@@ -276,7 +276,7 @@ describe('layoutView - dynamic regions', function() {
   describe('when adding a region to a layoutView then destroying the layoutView', function() {
     beforeEach(function() {
       this.emptyHandler = this.sinon.stub();
-      this.layoutView = new Marionette.LayoutView({
+      this.layoutView = new Jskeleton.LayoutView({
         template: this.template
       });
 
