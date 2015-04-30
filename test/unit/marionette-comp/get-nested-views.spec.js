@@ -1,11 +1,11 @@
 describe('getNestedView', function() {
   beforeEach(function() {
-    this.template = _.template('<div class="main"></div><div class="subheader"></div>');
+    this.template = '<div class="main"></div><div class="subheader"></div>';
   });
 
   describe('Starting with an ItemView', function() {
     beforeEach(function() {
-      this.itemView = new Marionette.ItemView({
+      this.itemView = new Jskeleton.ItemView({
         template: false
       });
     });
@@ -19,7 +19,7 @@ describe('getNestedView', function() {
 
   describe('Starting with a LayoutView with no regions', function() {
     beforeEach(function() {
-      this.layoutView = new Marionette.LayoutView({
+      this.layoutView = new Jskeleton.LayoutView({
         template: this.template
       });
     });
@@ -33,7 +33,7 @@ describe('getNestedView', function() {
 
   describe('Starting with a layoutView with regions', function() {
     beforeEach(function() {
-      this.Layout = Marionette.LayoutView.extend({
+      this.Layout = Jskeleton.LayoutView.extend({
         template: this.template,
 
         regions: {
@@ -47,7 +47,7 @@ describe('getNestedView', function() {
       this.layoutView.render();
 
       // A suitable base item view to use as a child
-      this.BaseView = Marionette.ItemView.extend({
+      this.BaseView = Jskeleton.ItemView.extend({
         template: false
       });
     });
@@ -124,7 +124,7 @@ describe('getNestedView', function() {
 
     describe('a LayoutView with an empty CollectionView as a child', function() {
       beforeEach(function() {
-        this.childOne = new Marionette.CollectionView();
+        this.childOne = new Jskeleton.CollectionView();
         this.layoutView.getRegion('main').show(this.childOne);
       });
 
@@ -138,9 +138,9 @@ describe('getNestedView', function() {
 
     describe('a LayoutView with a CollectionView with children', function() {
       beforeEach(function() {
-        this.childOne = new Marionette.CollectionView({
+        this.childOne = new Jskeleton.CollectionView({
           collection: new Backbone.Collection([{}, {}, {}]),
-          childView: Marionette.ItemView.extend({template: false})
+          childView: Jskeleton.ItemView.extend({template: false})
         });
 
         this.layoutView.getRegion('main').show(this.childOne);
@@ -162,7 +162,7 @@ describe('getNestedView', function() {
 
     describe('a LayoutView with a CollectionView of LayoutViews, one of them having children of its own', function() {
       beforeEach(function() {
-        this.childOne = new Marionette.CollectionView({
+        this.childOne = new Jskeleton.CollectionView({
           collection: new Backbone.Collection([{}, {}]),
           childView: this.Layout
         });

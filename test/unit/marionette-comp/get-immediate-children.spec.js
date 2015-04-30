@@ -67,7 +67,7 @@ describe('_getImmediateChildren', function() {
     describe('when there are empty regions', function() {
       beforeEach(function() {
         this.layoutView = new Jskeleton.LayoutView({
-          template: _.template('<main></main><footer></footer>'),
+          template: '<main></main><footer></footer>',
           regions: {
             main: '.main',
             footer: '.footer'
@@ -85,7 +85,7 @@ describe('_getImmediateChildren', function() {
     describe('when there are non-empty regions', function() {
       beforeEach(function() {
         this.layoutView = new Jskeleton.LayoutView({
-          template: _.template('<main></main><footer></footer>'),
+          template: '<main></main><footer></footer>',
           regions: {
             main: 'main',
             footer: 'footer'
