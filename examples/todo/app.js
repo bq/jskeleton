@@ -1,18 +1,30 @@
 var DetailBookView = Jskeleton.ItemView.extend({
-    initialize: function() {
-        this.listenTo(this.channel, 'book:detail:hightlight', function() {
-
-
-        });
-    },
+    initialize: function() {},
     template: '<strong> Título del libro: </strong> <span class="title">{{title}}</span>' +
         '<strong> Autor del libro: </strong><span class="author">{{author}}</span>' +
-        '<strong> Identificador del libro: </strong><span class="id">{{id}}</span> <button class="view-details"> Ver detalles </button>',
+        '<strong> Identificador del libro: </strong><span class="id">{{id}}</span> <button class="view-action"> Comprar </button> <button class="view-back"> Volver al listado </button>',
     events: {
-        'click .view-details': 'onDetailsClicked'
+        'click .view-action': 'onActionClicked',
+        'click .view-back': 'onBackClicked'
     },
-    onDetailsClicked: function() {
-        console.log('clicked on: ', this.model.get('id'));
+    onActionClicked: function() {
+        this.trigger('buy', this.model.get('title'));
+    },
+    onBackClicked: function() {
+        this.channel.trigger('book:list');
+    }
+});
+
+Jskeleton.factory.add('DetailBookView', DetailBookView);
+
+var ItemBookView = Jskeleton.ItemView.extend({
+    template: '<strong> Título del libro: </strong> <span class="title">{{title}}</span>' +
+        '<strong> Autor del libro: </strong><span class="author">{{author}}</span>' +
+        '<strong> Identificador del libro: </strong><span class="id">{{id}}</span> <button class="view-action"> Ver detalles </button>',
+    events: {
+        'click .view-action': 'onActionClicked'
+    },
+    onActionClicked: function() {
         this.channel.trigger('book:details', {
             id: this.model.get('id'),
             title: this.model.get('title'),
@@ -21,15 +33,20 @@ var DetailBookView = Jskeleton.ItemView.extend({
     }
 });
 
-Jskeleton.factory.add('DetailBookView', DetailBookView);
 
 var BookCollectionView = Jskeleton.CollectionView.extend({
-    childView: DetailBookView
+    childView: ItemBookView
 });
 
 Jskeleton.factory.add('BookCollectionView', BookCollectionView);
 
 var BookDetailsViewController = Jskeleton.ViewController.extend({
+    events: {
+        'buy @component.DetailBookView': 'onLink'
+    },
+    onLink: function(title) {
+        console.log('Libro comprado: ', title);
+    },
     onBookShow: function(params, service) {
         this.context.bookModel = new Backbone.Model({
             title: params.title,
@@ -76,8 +93,9 @@ var BookCatalogue = Jskeleton.ChildApplication.extend({
     },
     events: {
         triggers: [
-            'book:details'
-        ],
+            'book:details',
+            'book:list'
+        ]
         // listen: [
         // 'all'
         // ]

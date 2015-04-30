@@ -1,4 +1,5 @@
-/* globals require, Backbone */
+/* globals require */
+
 var chai = require('chai');
 var sinon = require('sinon');
 var sinonChai = require('sinon-chai');
@@ -13,36 +14,37 @@ global.expect = chai.expect;
 global.sinon = sinon;
 
 if (!global.document || !global.window) {
-  var jsdom = require('jsdom').jsdom;
+    var jsdom = require('jsdom').jsdom;
 
-  global.document = jsdom('<html><head><script></script></head><body></body></html>', null, {
-    FetchExternalResources   : ['script'],
-    ProcessExternalResources : ['script'],
-    MutationEvents           : '2.0',
-    QuerySelector            : false
-  });
+    global.document = jsdom('<html><head><script></script></head><body></body></html>', null, {
+        FetchExternalResources: ['script'],
+        ProcessExternalResources: ['script'],
+        MutationEvents: '2.0',
+        QuerySelector: false
+    });
 
-  global.window = document.createWindow();
-  global.navigator = global.window.navigator;
+    global.window = document.createWindow();
+    global.navigator = global.window.navigator;
 
-  global.window.Node.prototype.contains = function (node) {
-    'use strict';
-    return this.compareDocumentPosition(node) && 16;
-  };
+    global.window.Node.prototype.contains = function(node) {
+        'use strict';
+        return this.compareDocumentPosition(node) && 16;
+    };
 }
 
 global.$ = global.jQuery = require('jquery');
 global._ = require('underscore');
 global.Backbone = require('backbone');
 global.Backbone.$ = global.$;
-global.Marionette = Backbone.Marionette = require('backbone.marionette');
+global.Radio = require('backbone.radio');
+global.Marionette = require('backbone.marionette');
 global.slice = Array.prototype.slice;
 
 //var htmlbarsDomHelper = require('../../../node_modules/htmlbars/dist/cjs/dom-helper.js');
 //var htmlbarsCompiler =  require('../../../node_modules/htmlbars/dist/cjs/htmlbars-compiler.js');
 //var htmlbarsRuntime =   require('../../../node_modules/htmlbars/dist/cjs/htmlbars-runtime.js');
 
-global.BackboneRadio =  require('../../../lib/backbone.radio/backbone.radio.js');
+global.BackboneRadio = require('../../../lib/backbone.radio/backbone.radio.js');
 
 
 
@@ -51,14 +53,14 @@ global.BackboneRadio =  require('../../../lib/backbone.radio/backbone.radio.js')
     compiler: htmlbarsCompiler,
     DOMHelper: htmlbarsDomHelper.default,
     /*hooks: htmlbarsRuntime.hooks,*/
-   /* render: htmlbarsRuntime.render
+/* render: htmlbarsRuntime.render
 };*/
 
 
-if(!process.env || process.env.SOURCES !== 'MARIONETTE'){
+if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     //Marionette.Deferred = global.Backbone.$.Deferred;
     global.Jskeleton = {};
-    global.Jskeleton = require('../../../dist/Jskeleton.js');
+    global.Jskeleton = require('../../../dist/jskeleton.js');
     requireHelper('/core/renderer.js');
     requireHelper('/helpers/html-bars.js');
     requireHelper('/helpers/component.js');
@@ -76,5 +78,3 @@ if(!process.env || process.env.SOURCES !== 'MARIONETTE'){
     requireHelper('/core/view-controller.js');
     requireHelper('/core/layout-view.js');
 }
-
-
