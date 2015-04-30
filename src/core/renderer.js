@@ -11,7 +11,7 @@
      // data.serializedData; //Marionette model/collection serializedData
      // data.context; //View-controller context
 
-     if (!template) {
+     if (!template && template !== '') {
          throw new Marionette.Error({
              name: 'TemplateNotFoundError',
              message: 'Cannot render the template since its false, null or undefined.'
