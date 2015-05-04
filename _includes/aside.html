@@ -1,0 +1,20 @@
+<aside class="site-aside col-a-12 col-c-3">
+    <h1 class="invisible">Components</h1>
+
+    {% if site.components %}
+
+        <ul class="aside-nav">
+
+        {% for component in site.components %}
+            {% if component.title %}
+                <li class="aside-nav__item {% if page.title == component.title %} active {% endif %}">
+                    <a class="component-link" href="{{ component.url | prepend: site.baseurl }}">{{ component.title }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+
+        </ul>
+
+    {% endif %}
+
+</aside>

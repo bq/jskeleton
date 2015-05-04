@@ -19,6 +19,9 @@
         "Álvaro Brito <alvaro.brito@bq.com> <alvarobr85@gmail.com>",
         "Óscar Ferrándiz <oscar.ferrandiz@bq.com> <oferrandiz@gmail.com>"
     ],
+    "dependencies": {
+        "jskeleton": "git@github.com:bq/jskeleton.git"
+    },
     "devDependencies": {
         "grunt-bump": "^0.3.0",
         "grunt-contrib-clean": "^0.6.0",

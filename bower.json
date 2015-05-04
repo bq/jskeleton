@@ -26,7 +26,7 @@
         "Óscar Ferrándiz <oscar.ferrandiz@bq.com> <oferrandiz@gmail.com>"
     ],
     "dependencies": {
-        "jquery": "2.1.1"
+        "jskeleton": "git@github.com:bq/jskeleton.git"
     },
     "keywords": [
         "jskeleton",

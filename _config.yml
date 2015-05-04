@@ -1,0 +1,42 @@
+
+# Site settings
+title: Penguin
+email: front-end@bq.com
+description: Penguin is a lightweight and extensible front-end framework built with Sass for kickstarting any web project.
+baseurl: ""
+url: "https://penguin.docs.bqws.io"
+
+
+# Social user names
+twitter_username: bqreaders
+github_username:  bq
+
+
+# Custom collections
+collections:
+  components:
+    output: true
+    permalink: /components/:path/
+
+
+# Build settings
+markdown: kramdown
+
+
+# Sass configuration
+sass:
+  sass_dir: assets/css
+  style: compressed
+
+
+# Plugins
+whitelist: []
+gems:      [susy, breakpoint]
+
+
+# Include files
+include: ['_pages']
+
+
+# Exclude files
+exclude: [travis-runner.sh, bower.json, editorconfig, Gemfile, Gemfile.lock, ./**/*.scss]
