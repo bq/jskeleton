@@ -131,7 +131,7 @@ var AppMain = Jskeleton.Application.extend({
     },
     applications: {
         'bookCatalogue': {
-            appClass: BookCatalogue,
+            applicationClass: BookCatalogue,
             region: 'contentRegion'
         }
     }
