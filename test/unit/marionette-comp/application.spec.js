@@ -111,7 +111,7 @@ describe('Jskeleton Main Application', function() {
             var childAppOpts = {};
             var ChildApp = Jskeleton.ChildApplication.extend(childAppOpts);
 
-            var Layout = Marionette.LayoutView.extend({
+            var Layout = Jskeleton.LayoutView.extend({
                 regions: {
                     headerRegion: '.header',
                     contentRegion: '.content',
