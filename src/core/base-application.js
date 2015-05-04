@@ -5,7 +5,7 @@
 /* jshint unused: false */
 
 //## BaseApplication
-//  BaseApplication Class that other Jskeleton.Applications can extend from.
+//  BaseApplication Class that other `Jskeleton.Applications` can extend from.
 //  It contains common application behavior as router/events initialization, application channels set up, common get methods...
 Jskeleton.BaseApplication = Marionette.Application.extend({
     //Default global webapp channel for communicate with other apps
@@ -22,11 +22,12 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     },
     //Call to the specified view-controller method for render a app state
     invokeViewControllerRender: function(routeObject, args, handlerName) {
-        var hook = this.getHook(),
-            viewController = routeObject._viewController = this._getViewControllerInstance(routeObject);
+        // var hook = this.getHook(),
+        //Get the view controller instance
+        var viewController = routeObject._viewController = this._getViewControllerInstance(routeObject);
 
-        this.triggerMethod('onNavigate', viewController, hook);
-        hook.processBefore();
+        this.triggerMethod('onNavigate', viewController);
+        // hook.processBefore();
 
         if (typeof viewController[handlerName] !== 'function') {
             throw new Error('El metodo ' + handlerName + ' del view controller no existe');
@@ -34,8 +35,9 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         viewController[handlerName].call(viewController, args, this.service);
         this._showControllerView(viewController);
-        hook.processAfter();
+        // hook.processAfter();
     },
+    //Show the controller view instance in the application region
     _showControllerView: function(controllerView) {
         if (this.mainRegion && this.mainRegion.currentView !== controllerView) {
             this.mainRegion.show(controllerView);
@@ -50,7 +52,8 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         return new Class(options);
     },
     //Internal method to create an application private channel and set the global channel
-    _initChannel: function() { //backbone.radio
+    _initChannel: function() {
+        //backbone.radio
         this.globalChannel = this.globalChannel ? Backbone.Radio.channel(this.globalChannel) : Backbone.Radio.channel('global');
         this.privateChannel = this.privateChannel ? Backbone.Radio.channel(this.privateChannel) : Backbone.Radio.channel(this.aid);
     },
@@ -61,10 +64,10 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         if (this.routes) {
             _.each(this.routes, function(routeObject, routeName) {
                 routeObject = routeObject || {};
-                //get view controller instance (it could be a view controller class asigned to the route or a default view controller if no class is specified)
-                //get view controller extended class with d.i
+                //get view controller class object (it could be a view controller class asigned to the route or a default view controller if no class is specified)
                 routeObject._ViewController = self._extendViewControllerClass(routeObject);
 
+                //extend view controller class with d.i
                 routeObject._viewControllerOptions = _.extend({
                     app: self,
                     channel: self.privateChannel,
@@ -116,6 +119,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
             trigger: triggerValue
         });
     },
+    //Internal method to retrieve the name of the view-controller method to call before render the view
     _getViewControllerHandlerName: function(routeString) {
         var handlerName = this.routes[routeString].handlerName || this.router._getHandlerNameFromRoute(routeString);
 
@@ -158,23 +162,27 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
             viewController = this.factory(ViewControllerClass, viewControllerOptions);
             this.listenTo(viewController, 'destroy', this._removeViewController.bind(this, routeObject, viewController));
         }
-        // this._viewControllers.push(viewController);
 
         return viewController;
     },
+    //Attach application events to the global channel (triggers and listeners)
     _proxyEvents: function(options) {
         var events = options.events || this.events || {};
 
         this._proxyTriggerEvents(events.triggers);
         this._proxyListenEvents(events.listen);
     },
+    //Attach trigger events:
+    //Propagate internal events (application channel) into the global channel
     _proxyTriggerEvents: function(triggerArray) {
         var self = this;
+        //Check if triggers are defined
         if (triggerArray && typeof triggerArray === 'object') {
             _.each(triggerArray, function(eventName) {
+                //Listen to the event in the private channel
                 self.listenTo(self.privateChannel, eventName, function() {
                     var args;
-
+                    //if the event type is 'all', the first argument is the name of the event
                     if (eventName === 'all') {
                         eventName = arguments[0];
                         //casting arguments array-like object to array with excluding the eventName argument
@@ -191,13 +199,17 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         }
     },
+    //Attach Global events to the private channel:
+    //Propagate external events (global channel) into the private channel
     _proxyListenEvents: function(listenObject) {
         var self = this;
         if (listenObject && typeof listenObject === 'object') {
             _.each(listenObject, function(eventName) {
+                //Listen to that event in the global channel
                 self.listenTo(self.globalChannel, eventName, function() {
                     var args;
 
+                    //if the event is 'all' the first argument is the name of the event
                     if (eventName === 'all') {
                         eventName = arguments[0];
                         //casting arguments array-like object to array with excluding the eventName argument

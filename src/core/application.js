@@ -7,10 +7,10 @@
 
 //## Application
 //  Application class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
-//  It initializes regions, events, routes, channels and child apps.
+//  It initializes `regions, events, routes, channels and child applications`.
 //  It has a global channel to communicate with others apps and a private channel to communicate with it's components,
 //  A Jskeleton webapp can contain many Jskeleton.Applications.
-//  A Jskeleton.Application can define multiple child applications (Jskeleton.ChildApplication).
+//  A `Jskeleton.Application` can define multiple child applications (`Jskeleton.ChildApplication`).
 Jskeleton.Application = Jskeleton.BaseApplication.extend({
     //Default dom reference (usefull for the first webapp root region)
     defaultEl: 'body',
@@ -20,7 +20,7 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
 
         this.rootEl = options.rootEl || this.rootEl || this.defaultEl;
 
-        //Jskeleton.BaseApplication constructor
+        //`Jskeleton.BaseApplication` constructor
         Jskeleton.BaseApplication.prototype.constructor.apply(this, arguments);
 
         this.applications = options.applications || this.applications || {};
@@ -30,7 +30,7 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
         return this;
 
     },
-    //Method to start the application, start the childapplications and start listening routes/events
+    //Method to start the application, start the `ChildApplications` and start listening routes/events
     start: function(options) {
         this.triggerMethod('before:start', options);
         //init child apps
@@ -38,7 +38,7 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
 
         Jskeleton.BaseApplication.prototype.start.apply(this, arguments);
 
-        //Start the Jskeleton router
+        //Start the `Jskeleton.Router`
         this.startRouter();
         this.triggerMethod('start', options);
     },
@@ -46,7 +46,7 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     startChildApp: function(childApp, options) {
         childApp.start(options);
     },
-    //Method to start listening the backbone.router (called by a Main app)
+    //Method to start listening the `Backbone.Router` (called by a Main Application)
     startRouter: function() {
         this.router.start();
     },
@@ -100,9 +100,9 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     //Expose layout regions to the application namespace
     _addLayoutRegions: function() {
         var self = this;
-        if (this._layout.regionManager.length > 0) { //mirar lo del length de regions
+        if (this._layout.regionManager.length > 0) {
             _.each(this._layout.regionManager._regions, function(region, regionName) {
-                self[regionName] = region; //TOOD: mirar compartir instancias del region manager del layout
+                self[regionName] = region;
             });
         }
     },
@@ -127,6 +127,7 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
             var instanceOptions = _.omit(appOptions, 'appClass', 'startWithParent'),
                 instance = this.factory(appClass, instanceOptions);
             this._childApps[appName] = instance;
+            //Start child application
             this.startChildApp(instance, instanceOptions.startOptions);
         }
     },
@@ -138,7 +139,8 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
             region = this._layout.regionManager.get(appOptions.region || this.defaultRegion);
         }
 
-        if (!region) { //the region must exists
+        //the region must exists
+        if (!region) {
             throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
         }
 

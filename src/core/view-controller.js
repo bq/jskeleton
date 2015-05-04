@@ -2,8 +2,11 @@
 
     /*globals Jskeleton, Marionette, _ */
 
+    //## ViewController
+    // The view controller object is an hybrid of View/Controller. It is responsible for render an application
+    // state, build up the application context and render the application components.
     Jskeleton.ViewController = Jskeleton.LayoutView.extend({
-        constructor: function(options) { //inyectar app, channel, region
+        constructor: function(options) {
             options = options || {};
             this._ensureOptions(options);
             this._app = options.app;
@@ -24,7 +27,7 @@
                 throw new Error('El view-controller necesita tener una region específica');
             }
         },
-        //expose app enviroment, view-controller context and marionette.templateHelpers to the view-controller template
+        //expose application enviroment, ViewController context and `Marionette.templateHelpers` to the view-controller template
         mixinTemplateHelpers: function(target) {
             target = target || {};
             var templateHelpers = this.getOption('templateHelpers');
@@ -61,6 +64,7 @@
                 }
             });
         },
+        //Override Marionette._delegateDOMEvents to add Components listeners
         _delegateDOMEvents: function(eventsArg) {
             var events = Marionette._getValue(eventsArg || this.events, this),
                 componentEvents = Jskeleton.utils.extractComponentEvents(events);
@@ -72,6 +76,7 @@
 
             return Marionette.View.prototype._delegateDOMEvents.call(this, events);
         },
+        //Bind event to the specified component using listenTo method
         _delegateComponentEvent: function(component, event, handlerName) {
             var handler = this[handlerName];
 
@@ -83,6 +88,7 @@
                 this.listenTo(component, event, handler);
             }
         },
+        //Bind off event to the specified component using off method
         _undelegateComponentEvent: function(component, event, handler) {
             this.off(event, handler);
         },
@@ -102,19 +108,21 @@
                 });
             });
         },
+        //Attach events to the controller-view components to listenTo those events with `@component.ComponentName` event notation
         bindComponents: function() {
             var self = this,
                 components = this.components;
 
             _.each(this._componentEvents, function(method, eventName) {
+                //Get component name from event hash `@component.ComponentName`
                 var componentName = Jskeleton.utils.normalizeComponentName(eventName),
+                    //Get event name from event hash `click @component.ComponentName`
                     eventType = Jskeleton.utils.normailzeEventType(eventName),
+                    //Get the component instance by component name
                     componentArray = components[componentName];
 
                 _.each(componentArray, function(component) {
-
                     self._delegateComponentEvent(component, eventType, method);
-
                 });
             });
         },
