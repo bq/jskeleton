@@ -1,0 +1,86 @@
+@if $utils-classes == true {
+
+    /*------------------------------------*\
+        #UTILS-PENGUIN
+    \*------------------------------------*/
+
+    // Note: Helper classes
+
+
+    // Floats
+    .clearfix {
+        @include clearfix;
+    }
+
+    .center-block {
+        @include center-block;
+    }
+
+    .pull-right {
+        float: right !important;
+    }
+
+    .pull-left {
+        float: left !important;
+    }
+
+
+    // Hide for screen readers and browsers
+    .hide {
+        display: none !important;
+    }
+
+    // Visible for screen readers and browsers
+    .show {
+        display: block !important;
+    }
+
+    // Hide for browserws while still making it readable by screen readers
+    .invisible {
+        border: 0;
+        clip: rect(0 0 0 0);
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        padding: 0;
+        position: absolute;
+        width: 1px;
+    }
+
+
+    // Aligments
+    .align-left {
+        text-align: left !important;
+    }
+
+    .align-right {
+        text-align: right !important;
+    }
+
+    .align-justify {
+        text-align: justify !important;
+    }
+
+    .align-center {
+        text-align: center !important;
+    }
+
+
+    // Format
+    .bold {
+        font-weight: bold !important;
+    }
+
+    .normal {
+        font-weight: normal !important;
+    }
+
+    .cursive {
+        font-style: italic !important;
+    }
+
+    .underline {
+        text-decoration: underline !important;
+    }
+
+}

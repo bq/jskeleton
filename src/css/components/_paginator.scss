@@ -1,0 +1,79 @@
+// paginator bar
+@mixin paginator--bar {
+    display: table;
+    width: 100%;
+    position: relative;
+
+    .paginator__item {
+        display: table-cell;
+        vertical-align: middle;
+        text-align: center;
+    }
+
+        .paginator__link {
+            display: block;
+        }
+
+}
+
+// paginator inline
+@mixin paginator--inline {
+    word-spacing: em(-5);
+
+    .paginator__item {
+        display: inline-block;
+        word-spacing: normal;
+    }
+
+}
+
+
+@if $styles-paginator == true {
+
+    /*------------------------------------*\
+        #PAGINATOR-PENGUIN
+    \*------------------------------------*/
+
+    .paginator {}
+
+        .paginator__item {
+            position: relative;
+        }
+
+            .paginator__link {
+                text-decoration: none;
+                line-height: normal;
+                display: inline-block;
+
+                .paginator__item--selected & {
+                    cursor: not-allowed;
+                    cursor: default;
+                }
+
+            }
+
+    @if $styles-paginator-bar == true {
+
+        /**
+         * paginator bar
+         */
+
+        .paginator--bar {
+            @include paginator--bar;
+        }
+
+    }
+
+    @if $styles-paginator-inline == true {
+
+        /**
+         * paginator inline
+         */
+
+        .paginator--inline {
+            @include paginator--inline;
+        }
+
+    }
+
+}

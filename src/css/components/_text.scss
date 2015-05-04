@@ -1,0 +1,63 @@
+// Support for within text class
+@mixin within-text($size, $base: $text-size-base) {
+    font-size: em($size);
+    .text & {
+        font-size: em($size, $base);
+    }
+}
+
+@if $styles-text == true {
+
+    /*------------------------------------*\
+        #TEXT-PENGUIN
+    \*------------------------------------*/
+
+    .h1, .text h1 {
+        font-size: em($h1-size);
+    }
+
+    .h2, .text h2 {
+        font-size: em($h2-size);
+    }
+
+    .h3, .text h3 {
+        font-size: em($h3-size);
+    }
+
+    .h4, .text h4 {
+        font-size: em($h4-size);
+    }
+
+    .h5, .text h5 {
+        font-size: em($h5-size);
+    }
+
+    .h6, .text h6 {
+        font-size: em($h6-size);
+    }
+
+    .text {
+
+        ul, ol, dl {
+            font-size: initial;
+        }
+
+        li, dt, dd, p {
+            font-size: em($text-size-base);
+        }
+
+    }
+
+    .text-small {
+        @include within-text($text-size-small);
+    }
+
+    .text-medium {
+        @include within-text($text-size-medium);
+    }
+
+    .text-large {
+        @include within-text($text-size-large);
+    }
+
+}

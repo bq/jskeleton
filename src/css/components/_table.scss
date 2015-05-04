@@ -1,0 +1,67 @@
+@mixin cells {
+    td,
+    th {
+        @content;
+    }
+}
+
+// table stacked
+@mixin table--stacked {
+
+        thead {
+          display: none;
+        }
+
+        tbody {
+
+            td {
+                text-align: right;
+
+                &:before {
+                    content: attr(data-header);
+                    float: left;
+                    font-weight: bold;
+                }
+
+            }
+        }
+
+        tr {
+          display: block;
+        }
+
+            td {
+                display: block;
+            }
+
+}
+
+
+@if $styles-table == true {
+
+    /*------------------------------------*\
+        #TABLE-PENGUIN
+    \*------------------------------------*/
+
+    .table {
+        cursor: default;
+        width: 100%;
+
+        tr:nth-child(odd) {}
+        tr:nth-child(even) {}
+
+    }
+
+    @if $styles-table-stacked == true {
+
+        /**
+         * table stacked
+         */
+
+        .table--stacked  {
+            @include table--stacked;
+        }
+
+    }
+
+}

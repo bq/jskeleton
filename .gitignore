@@ -1,9 +1,5 @@
 node_modules
-.tmp
 bower_components
-npm-debug.log
-dist
-docs
-metrics
+.DS_Store
 .idea
-.log
+.sass-cache

@@ -1,0 +1,41 @@
+{
+    "name": "bq/jskeleton",
+    "version": "0.1",
+    "description": "Jskeleton is an awesome javascript framework to build large scale applications.",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:bq/jskeleton.git"
+    },
+    "ignore": [
+        ".gitignore",
+        ".sass-cache",
+        ".travis.yml",
+        ".editorconfig",
+        "node_modules",
+        "bower_components"
+    ],
+    "license": "MIT",
+    "homepage": "https://jskeleton.docs.bqws.io",
+    "authors": [
+        "front-end bq <front-end@bq.com>",
+        "Daniel García <daniel.garcia@bq.com> <danielon28@gmail.com>",
+        "Jorge Serrano <jorge.serrano@bq.com>",
+        "Yonathan Rodriguez <yonathan.rodriguez@bq.com>",
+        "Pedro Garrido <pedro.garrido@bq.com>",
+        "Álvaro Brito <alvaro.brito@bq.com> <alvarobr85@gmail.com>",
+        "Óscar Ferrándiz <oscar.ferrandiz@bq.com> <oferrandiz@gmail.com>"
+    ],
+    "dependencies": {
+        "jquery": "2.1.1"
+    },
+    "keywords": [
+        "jskeleton",
+        "jquery",
+        "javascript",
+        "framework",
+        "spa",
+        "html5",
+        "marionette",
+        "backbone"
+    ]
+}
