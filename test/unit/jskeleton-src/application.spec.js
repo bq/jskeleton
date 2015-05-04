@@ -2,7 +2,7 @@
 
 /* jshint unused: false */
 
-describe.only('Application object', function() {
+describe('Application object', function() {
 
     var sandbox = sinon.sandbox.create();
 
