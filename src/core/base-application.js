@@ -228,6 +228,8 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     start: function(options) {
         options = options || {};
 
+        this._started = true;
+
         this._initCallbacks.run(options, this);
 
         //Add routes listeners to the Jskeleton.router
@@ -235,6 +237,19 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         //Add app proxy events
         this._proxyEvents(options);
+    },
+    stop: function(options) {
+        this.stopListening();
+    },
+    destroy: function(options) {
+        this.removeRegions();
+    },
+    //Remove all regions from the application
+    removeRegions: function() {
+        // var self = this;
+        // this._regionManager.each(function(region) {
+        //     self.removeRegion(region);
+        // });
     },
     //Get default application view-controller class if no controller is specified
     getDefaultviewController: function() {

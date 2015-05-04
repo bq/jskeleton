@@ -20,6 +20,8 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
 
         this.rootEl = options.rootEl || this.rootEl || this.defaultEl;
 
+        this._region = options.region || this.defaultRegion;
+
         //`Jskeleton.BaseApplication` constructor
         Jskeleton.BaseApplication.prototype.constructor.apply(this, arguments);
 
@@ -73,9 +75,16 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     },
     //Add the root region to the main application
     _createRootRegion: function() {
-        this.addRegions({
-            root: this.rootEl
-        });
+
+        if (this._region instanceof Marionette.Region) {
+            //TODO
+        } else {
+            var rootRegion = {};
+
+            rootRegion[this._region] = this.rootEl;
+
+            this.addRegions(rootRegion);
+        }
     },
     //Create a layout for the Application to have more regions
     //Adds the layout regions to the application object as properties
@@ -118,30 +127,38 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     },
     //Start child application with it's dependencies injected
     _initChildApp: function(appName, appOptions) {
-        var appClass = appOptions.appClass,
+        var appClass = appOptions.applicationClass,
             startWithParent = appOptions.startWithParent !== undefined ? appOptions.startWithParent : true;
 
         appOptions.region = this._getChildAppRegion(appOptions);
 
+        var instanceOptions = _.omit(appOptions, 'applicationClass', 'startWithParent'),
+            instance = this.factory(appClass, instanceOptions);
+        this._childApps[appName] = instance;
+
+        //Start child application
         if (startWithParent === true) {
-            var instanceOptions = _.omit(appOptions, 'appClass', 'startWithParent'),
-                instance = this.factory(appClass, instanceOptions);
-            this._childApps[appName] = instance;
-            //Start child application
             this.startChildApp(instance, instanceOptions.startOptions);
         }
     },
     //Get the region where a child application will be rendered when process a route or an event
     _getChildAppRegion: function(appOptions) {
-        var region;
+        var region,
+            regionName = appOptions.region || this.defaultRegion;
 
+        //retrieve the region from the application layout
         if (this._layout && this._layout.regionManager) {
-            region = this._layout.regionManager.get(appOptions.region || this.defaultRegion);
+            region = this._layout.regionManager.get(regionName);
+        }
+
+        //retrieve the region from the application region manager
+        if (!region) {
+            region = this._regionManager.get(regionName);
         }
 
         //the region must exists
         if (!region) {
-            throw new Error('Tienes que crear en la aplicación (main) la region especificada a través de un layout');
+            throw new Error('The region must exists in the Parent application.');
         }
 
         return region;
