@@ -1,122 +1,240 @@
+'use strict';
 /*globals require,define,describe,it, Jskeleton, before */
 /* jshint unused: false */
-describe('In view-controller ', function() {
-    'use strict';
-
+describe.only('In view-controller ', function() {
     var sandbox,
+        stubNewFactory,
         ViewController,
-        viewController;
+        viewController,
+        viewControllerOptions,
+        createViewController,
+        mainRegion;
 
-    before(function(){
+    before(function() {
         sandbox = sinon.sandbox.create();
 
+        stubNewFactory = sandbox.stub(Jskeleton.factory, 'new');
+
         ViewController = Jskeleton.ViewController;
+
+        createViewController = function(options) {
+            return new ViewController(options);
+        };
+
+        mainRegion = new Backbone.Marionette.Region({
+            el: 'body'
+        });
+
+        viewControllerOptions = {
+            app: {},
+            channel: {},
+            region: {}
+        };
     });
 
-
-    afterEach(function(){
-        sandbox.restore();
-    });
-
-    it('it exists and extends an object', function(){
+    it('it exists and extends an object', function() {
         expect(ViewController).to.be.a('function');
         expect(ViewController.prototype).to.be.an('object');
     });
 
-    it('it has all namespace properties', function(){
+    it('it has all namespace properties', function() {
         expect(ViewController.prototype).to.include.keys(
             'constructor',
             '_ensureOptions',
             'mixinTemplateHelpers',
             'addComponent',
-            'destroy'
-            );
+            'destroy',
+            '_destroyComponents',
+            '_delegateComponentEvent',
+            '_undelegateComponentEvent',
+            'unbindComponents',
+            'bindComponents',
+            'render'
+        );
     });
 
-    describe('When we create a new view-controller', function(){
-        var viewControllerOptions,
-            badControllerOptions,
-            createViewController;
+    it('we can create a new view-controller object', function() {
+        expect(createViewController.bind(this, viewControllerOptions)).to.not.throw(Error);
+        expect(createViewController(viewControllerOptions)).to.be.an('object');
+    });
 
-        before(function(){
-            createViewController = function(options){
-                return new ViewController(options);
-            };
+    it('throws errors if we try to create a new view-controller with any option missing', function() {
+        expect(createViewController).to.throw(Error);
 
-            viewControllerOptions = {
-                app: {},
-                channel: {},
-                region: {}
-            };
+        expect(createViewController.bind(this, {
+            app: {},
+            channel: {}
+        })).to.throw(Error);
+
+        expect(createViewController.bind(this, {
+            app: {},
+            region: {}
+        })).to.throw(Error);
+
+        expect(createViewController.bind(this, {
+            region: {},
+            channel: {}
+        })).to.throw(Error);
+
+    });
+
+    describe('When we have a view-controller object', function() {
+        var ViewComponent,
+            viewComponent,
+            OtherViewComponent,
+            otherViewComponent,
+            viewController,
+            viewComponentSpyEvent,
+            otherViewComponentSpyEvent,
+            viewControllerSpyEvent;
+
+        beforeEach(function() {
+
+            ViewComponent = Jskeleton.ItemView.extend({
+                template: '<strong id="view-action"> Test Title </strong>',
+                events: {
+                    'click #view-action': 'onActionClicked',
+                },
+                onActionClicked: function(event) {
+                    this.trigger('buy', event);
+                }
+            });
+
+            OtherViewComponent = Jskeleton.ItemView.extend({
+                template: '<strong id="other-view-action"> Other Test Title </strong>',
+                events: {
+                    'keypress #other-view-action': 'onActionKeypress',
+                },
+                onActionKeypress: function(event) {
+                    this.trigger('sell', event);
+                }
+            });
+
+            ViewController = Jskeleton.ViewController.extend({
+                events: {
+                    'buy @component.viewComponent': 'onLink',
+                    'sell @component.otherViewComponent': 'onLink'
+                },
+                template: 'viewComponent: {{@component name="viewComponent"}}' +
+                    'otherViewComponent: {{@component name="otherViewComponent"}}',
+                onLink: function(event) {},
+            });
+
+            viewComponentSpyEvent = sinon.spy(ViewComponent.prototype,
+                'onActionClicked');
+
+            viewComponent = new ViewComponent();
+
+            stubNewFactory.withArgs('viewComponent').returns(viewComponent);
+
+            otherViewComponentSpyEvent = sinon.spy(OtherViewComponent.prototype,
+                'onActionKeypress');
+
+            otherViewComponent = new OtherViewComponent();
+
+            stubNewFactory.withArgs('otherViewComponent').returns(otherViewComponent);
+
+            viewController = createViewController(viewControllerOptions);
+
+            viewControllerSpyEvent = sinon.spy(viewController, 'onLink');
+
         });
 
-        it('we can create a new view-controller object', function(){
-            expect(createViewController.bind(this, viewControllerOptions)).to.not.throw(Error);
-            expect(createViewController(viewControllerOptions)).to.be.an('object');
+        it('we can add components', function() {
+            expect(viewController.components).to.be.an('object');
+
+            viewController.addComponent('ViewComponent', viewComponent);
+            expect(Object.keys(viewController.components)).to.have.length.above(0);
+
+            viewController.addComponent('OtherViewComponent', otherViewComponent);
+            expect(Object.keys(viewController.components)).to.have.length.above(1);
         });
 
-        it('throws errors if any option is missing', function(){
-            expect(createViewController).to.throw(Error);
+        describe('When we render it in a region', function() {
+            var componentListeners;
 
-            badControllerOptions = {
-                app: {},
-                channel: {}
-            };
-            expect(createViewController.bind(this, badControllerOptions)).to.throw(Error);
-        });
+            beforeEach(function() {
+                mainRegion.show(viewController);
+            });
 
-        describe('When we have a view-controller object', function(){
-            var modelComponent,
-                ViewComponent,
-                viewComponent,
-                viewController;
+            it('it is rendered', function() {
+                expect(viewController.isRendered).to.be.true;
+            });
 
-            before(function(){
-                modelComponent = new Backbone.Model({
-                    title: 'Component HtmlBars'
+            it('all its components are rendered', function() {
+                expect(viewComponent.isRendered).to.be.true;
+                expect(otherViewComponent.isRendered).to.be.true;
+            });
+
+            it('has all component events attached to it', function() {
+                componentListeners = [];
+
+                _.each(viewController._listeningTo, function(listener) {
+                    componentListeners.push(listener._listenId);
                 });
 
-                ViewComponent = Backbone.Marionette.ItemView.extend({
-                    template: '<strong> Test Title: </strong> <span class="title">{{title}}</span>',
-                    model: modelComponent,
-                    onRender: function(){
-                    }
+                _.each(viewController.components, function(classComponents) {
+                    _.each(classComponents, function(component) {
+                        expect(_.contains(componentListeners, component._listenId))
+                            .to.be.true;
+                    });
                 });
+            });
+
+            it('events run properly', function() {
+                $('#view-action').click();
+                $('#other-view-action').keypress();
+
+                expect(viewComponentSpyEvent.calledOnce).to.be.equal(true);
+                expect(otherViewComponentSpyEvent.calledOnce).to.be.equal(true);
+                expect(viewControllerSpyEvent.calledTwice).to.be.equal(true);
+            });
+
+            it('refreshing the view components they are resetted', function() {
+                var AnotherViewComponent = Jskeleton.ItemView.extend({
+                    template: '<strong id="another-view-action"> another Test Title </strong>',
+                });
+
+                var anotherViewComponent = new AnotherViewComponent();
+
+                stubNewFactory.withArgs('anotherViewComponent').returns(anotherViewComponent);
+
+                viewController.template = 'refresh viewComponent: {{@component name="viewComponent"}}, ' +
+                    'otherViewComponent: {{@component name="anotherViewComponent"}}';
 
                 viewComponent = new ViewComponent();
 
-                viewController = createViewController(viewControllerOptions);
-            });
+                stubNewFactory.withArgs('viewComponent').returns(viewComponent);
 
-            it('we can add components', function(){
-                expect(viewController.components).to.be.an('object');
+                viewController.render();
 
-                viewController.addComponent('modelComponent', modelComponent);
-                expect(Object.keys(viewController.components)).to.have.length.above(0);
+                expect(otherViewComponent.isDestroyed).to.be.true;
 
-                viewController.addComponent('viewComponent', viewComponent);
-                //expect(Object.keys(viewController.components)).to.have.length.above(1);
-            });
+                var renderedViewsCounter = 0;
 
-            describe('When we render it in a region', function(){
-                it('it is rendered', function(){
-
+                _.each(viewController.components, function(classComponents) {
+                    _.each(classComponents, function(component) {
+                        if (component && component.isRendered) {
+                            renderedViewsCounter += 1;
+                        }
+                    });
                 });
 
-                it('all its components are rendered', function(){
+                expect(renderedViewsCounter).to.be.equal(2);
 
-                });
             });
 
-            it('it can be destroyed', function(){
+            it('it can be destroyed', function() {
+                expect(viewController.isDestroyed).to.be.false;
+
                 viewController.destroy();
-                //expect(viewController.isRendered).to.be.falsy
-                //console.log(viewController.isRendered);
-                //-->each: components
+                expect(viewController.isDestroyed).to.be.true;
+
+                _.each(viewController.components, function(componentArray) {
+                    expect(componentArray[0]).to.be.undefined;
+                });
             });
-
         });
-
     });
 
 

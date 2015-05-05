@@ -54,11 +54,12 @@
         },
         _destroyComponents: function() {
             var component;
+
             _.each(this.components, function(componentArray) {
                 for (var i = 0; i < componentArray.length; i++) {
                     component = componentArray[i];
 
-                    if (_.isFunction(component.destroy)) {
+                    if (component && _.isFunction(component.destroy)) {
                         component.destroy();
                     }
 
