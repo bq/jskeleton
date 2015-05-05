@@ -1,5 +1,7 @@
 # JSkeleton
 
+[![Build Status](https://travis-ci.org/bq/jskeleton.svg)](https://travis-ci.org/bq/jskeleton)
+
 Framework for building webapps based in Backbone-Marionette
 
 # TOC
