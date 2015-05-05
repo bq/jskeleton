@@ -61,6 +61,8 @@
                     if (_.isFunction(component.destroy)) {
                         component.destroy();
                     }
+
+                    delete componentArray[i];
                 }
             });
         },
@@ -127,6 +129,8 @@
             });
         },
         render: function() {
+            this._destroyComponents();
+
             Jskeleton.LayoutView.prototype.render.apply(this, arguments);
 
             this.unbindComponents();
