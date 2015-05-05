@@ -1,7 +1,7 @@
 'use strict';
 /*globals require,define,describe,it, Jskeleton, before */
 /* jshint unused: false */
-describe.only('In view-controller ', function() {
+describe('In view-controller ', function() {
     var sandbox,
         stubNewFactory,
         ViewController,
@@ -190,7 +190,7 @@ describe.only('In view-controller ', function() {
                 expect(viewControllerSpyEvent.calledTwice).to.be.equal(true);
             });
 
-            it('refreshing the view components they are resetted', function() {
+            it('refreshing the components they are resetted', function() {
                 var AnotherViewComponent = Jskeleton.ItemView.extend({
                     template: '<strong id="another-view-action"> another Test Title </strong>',
                 });
