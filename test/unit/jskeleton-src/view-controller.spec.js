@@ -2,43 +2,36 @@
 /*globals require,define,describe,it, Jskeleton, before */
 /* jshint unused: false */
 describe('In view-controller ', function() {
-    var sandbox,
-        stubNewFactory,
-        ViewController,
-        viewController,
-        viewControllerOptions,
-        createViewController,
-        mainRegion;
+    var sandbox = sinon.sandbox.create();
 
     before(function() {
-        sandbox = sinon.sandbox.create();
 
-        stubNewFactory = sandbox.stub(Jskeleton.factory, 'new');
+        this.stubNewFactory = sandbox.stub(Jskeleton.factory, 'new');
 
-        ViewController = Jskeleton.ViewController;
+        this.ViewController = Jskeleton.ViewController;
 
-        createViewController = function(options) {
-            return new ViewController(options);
+        this.createViewController = function(options) {
+            return new this.ViewController(options);
         };
 
-        mainRegion = new Backbone.Marionette.Region({
+        this.mainRegion = new Backbone.Marionette.Region({
             el: 'body'
         });
 
-        viewControllerOptions = {
-            app: {},
-            channel: {},
-            region: {}
+        this.viewControllerOptions = {
+            app: 'app',
+            channel: 'channel',
+            region: 'region'
         };
     });
 
     it('it exists and extends an object', function() {
-        expect(ViewController).to.be.a('function');
-        expect(ViewController.prototype).to.be.an('object');
+        expect(this.ViewController).to.be.a('function');
+        expect(this.ViewController.prototype).to.be.an('object');
     });
 
     it('it has all namespace properties', function() {
-        expect(ViewController.prototype).to.include.keys(
+        expect(this.ViewController.prototype).to.include.keys(
             'constructor',
             '_ensureOptions',
             'mixinTemplateHelpers',
@@ -54,43 +47,35 @@ describe('In view-controller ', function() {
     });
 
     it('we can create a new view-controller object', function() {
-        expect(createViewController.bind(this, viewControllerOptions)).to.not.throw(Error);
-        expect(createViewController(viewControllerOptions)).to.be.an('object');
+        expect(this.createViewController.bind(this, this.viewControllerOptions)).to.not.throw(Error);
+        expect(this.createViewController(this.viewControllerOptions)).to.be.instanceof(this.ViewController);
     });
 
     it('throws errors if we try to create a new view-controller with any option missing', function() {
-        expect(createViewController).to.throw(Error);
+        expect(this.createViewController).to.throw(Error);
 
-        expect(createViewController.bind(this, {
-            app: {},
-            channel: {}
+        expect(this.createViewController.bind(this, {
+            app: 'app',
+            channel: 'channel'
         })).to.throw(Error);
 
-        expect(createViewController.bind(this, {
-            app: {},
-            region: {}
+        expect(this.createViewController.bind(this, {
+            app: 'app',
+            region: 'region'
         })).to.throw(Error);
 
-        expect(createViewController.bind(this, {
-            region: {},
-            channel: {}
+        expect(this.createViewController.bind(this, {
+            region: 'region',
+            channel: 'channel'
         })).to.throw(Error);
 
     });
 
     describe('When we have a view-controller object', function() {
-        var ViewComponent,
-            viewComponent,
-            OtherViewComponent,
-            otherViewComponent,
-            viewController,
-            viewComponentSpyEvent,
-            otherViewComponentSpyEvent,
-            viewControllerSpyEvent;
 
         beforeEach(function() {
 
-            ViewComponent = Jskeleton.ItemView.extend({
+            this.ViewComponent = Jskeleton.ItemView.extend({
                 template: '<strong id="view-action"> Test Title </strong>',
                 events: {
                     'click #view-action': 'onActionClicked',
@@ -100,7 +85,7 @@ describe('In view-controller ', function() {
                 }
             });
 
-            OtherViewComponent = Jskeleton.ItemView.extend({
+            this.OtherViewComponent = Jskeleton.ItemView.extend({
                 template: '<strong id="other-view-action"> Other Test Title </strong>',
                 events: {
                     'keypress #other-view-action': 'onActionKeypress',
@@ -110,7 +95,7 @@ describe('In view-controller ', function() {
                 }
             });
 
-            ViewController = Jskeleton.ViewController.extend({
+            this.ViewController = Jskeleton.ViewController.extend({
                 events: {
                     'buy @component.viewComponent': 'onLink',
                     'sell @component.otherViewComponent': 'onLink'
@@ -120,62 +105,62 @@ describe('In view-controller ', function() {
                 onLink: function(event) {},
             });
 
-            viewComponentSpyEvent = sinon.spy(ViewComponent.prototype,
+            this.viewComponentSpyEvent = sinon.spy(this.ViewComponent.prototype,
                 'onActionClicked');
 
-            viewComponent = new ViewComponent();
+            this.viewComponent = new this.ViewComponent();
 
-            stubNewFactory.withArgs('viewComponent').returns(viewComponent);
+            this.stubNewFactory.withArgs('viewComponent').returns(this.viewComponent);
 
-            otherViewComponentSpyEvent = sinon.spy(OtherViewComponent.prototype,
+            this.otherViewComponentSpyEvent = sinon.spy(this.OtherViewComponent.prototype,
                 'onActionKeypress');
 
-            otherViewComponent = new OtherViewComponent();
+            this.otherViewComponent = new this.OtherViewComponent();
 
-            stubNewFactory.withArgs('otherViewComponent').returns(otherViewComponent);
+            this.stubNewFactory.withArgs('otherViewComponent').returns(this.otherViewComponent);
 
-            viewController = createViewController(viewControllerOptions);
+            this.viewController = this.createViewController(this.viewControllerOptions);
 
-            viewControllerSpyEvent = sinon.spy(viewController, 'onLink');
+            this.viewControllerSpyEvent = sinon.spy(this.viewController, 'onLink');
 
         });
 
         it('we can add components', function() {
-            expect(viewController.components).to.be.an('object');
+            expect(this.viewController.components).to.be.an('object');
 
-            viewController.addComponent('ViewComponent', viewComponent);
-            expect(Object.keys(viewController.components)).to.have.length.above(0);
+            this.viewController.addComponent('ViewComponent', this.viewComponent);
+            expect(Object.keys(this.viewController.components)).to.have.length.above(0);
 
-            viewController.addComponent('OtherViewComponent', otherViewComponent);
-            expect(Object.keys(viewController.components)).to.have.length.above(1);
+            this.viewController.addComponent('OtherViewComponent', this.otherViewComponent);
+            expect(Object.keys(this.viewController.components)).to.have.length.above(1);
         });
 
-        describe('When we render it in a region', function() {
-            var componentListeners;
+        describe(', rendering it in a region', function() {
 
             beforeEach(function() {
-                mainRegion.show(viewController);
+                this.mainRegion.show(this.viewController);
             });
 
             it('it is rendered', function() {
-                expect(viewController.isRendered).to.be.true;
+                expect(this.viewController.isRendered).to.be.true;
             });
 
             it('all its components are rendered', function() {
-                expect(viewComponent.isRendered).to.be.true;
-                expect(otherViewComponent.isRendered).to.be.true;
+                expect(this.viewComponent.isRendered).to.be.true;
+                expect(this.otherViewComponent.isRendered).to.be.true;
             });
 
             it('has all component events attached to it', function() {
-                componentListeners = [];
+                var self = this;
+                self.componentListeners = [];
 
-                _.each(viewController._listeningTo, function(listener) {
-                    componentListeners.push(listener._listenId);
+                _.each(this.viewController._listeningTo, function(listener) {
+                    self.componentListeners.push(listener._listenId);
                 });
 
-                _.each(viewController.components, function(classComponents) {
+                _.each(this.viewController.components, function(classComponents) {
                     _.each(classComponents, function(component) {
-                        expect(_.contains(componentListeners, component._listenId))
+                        expect(_.contains(self.componentListeners, component._listenId))
                             .to.be.true;
                     });
                 });
@@ -185,57 +170,78 @@ describe('In view-controller ', function() {
                 $('#view-action').click();
                 $('#other-view-action').keypress();
 
-                expect(viewComponentSpyEvent.calledOnce).to.be.equal(true);
-                expect(otherViewComponentSpyEvent.calledOnce).to.be.equal(true);
-                expect(viewControllerSpyEvent.calledTwice).to.be.equal(true);
+                expect(this.viewComponentSpyEvent.calledOnce).to.be.equal(true);
+                expect(this.otherViewComponentSpyEvent.calledOnce).to.be.equal(true);
+                expect(this.viewControllerSpyEvent.calledTwice).to.be.equal(true);
             });
 
-            it('refreshing the components they are resetted', function() {
-                var AnotherViewComponent = Jskeleton.ItemView.extend({
-                    template: '<strong id="another-view-action"> another Test Title </strong>',
+            describe(', if destroy the instance', function(){
+                beforeEach(function(){
+                    this.viewController.destroy();
                 });
 
-                var anotherViewComponent = new AnotherViewComponent();
+                it('the controller should be destroyed', function(){
+                    expect(this.viewController.isDestroyed).to.be.true;
+                });
 
-                stubNewFactory.withArgs('anotherViewComponent').returns(anotherViewComponent);
-
-                viewController.template = 'refresh viewComponent: {{@component name="viewComponent"}}, ' +
-                    'otherViewComponent: {{@component name="anotherViewComponent"}}';
-
-                viewComponent = new ViewComponent();
-
-                stubNewFactory.withArgs('viewComponent').returns(viewComponent);
-
-                viewController.render();
-
-                expect(otherViewComponent.isDestroyed).to.be.true;
-
-                var renderedViewsCounter = 0;
-
-                _.each(viewController.components, function(classComponents) {
-                    _.each(classComponents, function(component) {
-                        if (component && component.isRendered) {
-                            renderedViewsCounter += 1;
-                        }
+                it('all its components should be unbinded', function(){
+                    _.each(this.viewController.components, function(componentArray) {
+                        _.each(componentArray, function(component) {
+                            expect(component).to.be.undefined;
+                        });
                     });
                 });
-
-                expect(renderedViewsCounter).to.be.equal(2);
-
             });
 
-            it('it can be destroyed', function() {
-                expect(viewController.isDestroyed).to.be.false;
+            describe(', if we refresh view-controller', function() {
 
-                viewController.destroy();
-                expect(viewController.isDestroyed).to.be.true;
+                beforeEach(function() {
+                    this.AnotherViewComponent = Jskeleton.ItemView.extend({
+                        template: '<strong id="another-view-action"> another Test Title </strong>',
+                    });
 
-                _.each(viewController.components, function(componentArray) {
-                    expect(componentArray[0]).to.be.undefined;
+                    this.anotherViewComponent = new this.AnotherViewComponent();
+
+                    this.stubNewFactory.withArgs('anotherViewComponent').returns(this.anotherViewComponent);
+
+                    this.viewController.template = 'refresh viewComponent: {{@component name="viewComponent"}}, ' +
+                        'anotherViewComponent: {{@component name="anotherViewComponent"}}';
+
+                    this.viewComponent = new this.ViewComponent();
+
+                    this.stubNewFactory.withArgs('viewComponent').returns(this.viewComponent);
+
+                    this.viewController.render();
+                });
+
+                it('components are resetted', function() {
+                    var self = this;
+
+                    expect(this.otherViewComponent.isDestroyed).to.be.true;
+
+                    self.renderedViewsCounter = 0;
+
+                    _.each(this.viewController.components, function(classComponents) {
+                        _.each(classComponents, function(component) {
+                            if (component && component.isRendered) {
+                                self.renderedViewsCounter += 1;
+                            }
+                        });
+                    });
+
+                    expect(this.renderedViewsCounter).to.be.equal(2);
+                });
+
+                it('events are delegated properly', function() {
+                    $('#view-action').click();
+                    expect(this.viewComponentSpyEvent.calledOnce).to.be.true;
+                    expect(this.viewControllerSpyEvent.calledOnce).to.be.true;
+
+                    $('#other-view-action').keypress();
+                    expect(this.viewControllerSpyEvent.calledOnce).to.be.true;
+                    expect(this.otherViewComponentSpyEvent.calledOnce).to.be.false;
                 });
             });
         });
     });
-
-
 });
