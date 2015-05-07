@@ -1,6 +1,6 @@
 /*globals require,define,describe,it, Jskeleton, before, beforeEach, after, afterEach */
 /* jshint unused: false */
-describe('In Component module', function () {
+describe('In Component module', function() {
 
     var sandbox = sinon.sandbox.create(),
         stubNewFactory,
@@ -12,14 +12,14 @@ describe('In Component module', function () {
         MainApp,
         testApp;
 
-    beforeEach(function () {
+    beforeEach(function() {
 
         ModelComponent = Backbone.Model.extend({
             title: '',
             author: ''
         });
 
-        modelTest =new ModelComponent({
+        modelTest = new ModelComponent({
             title: 'Title Component HtmlBars',
             author: 'Author Component HtmlBars'
         });
@@ -45,25 +45,25 @@ describe('In Component module', function () {
                 'click @ui.returnButton': 'onActionReturn',
                 'click @ui.backButton': 'onActionBack'
             },
-            onRender: function () {},
-            onActionBuy: function () {},
+            onRender: function() {},
+            onActionBuy: function() {},
 
-            onActionReturn: function () {
+            onActionReturn: function() {
                 this.trigger('return');
             },
 
-            onActionBack: function () {
+            onActionBack: function() {
                 this.channel.trigger('come:back');
             }
         });
 
-        stubNewFactory = sandbox.stub(Jskeleton.factory, 'new', function () {
+        stubNewFactory = sandbox.stub(Jskeleton.factory, 'new', function() {
             return new ViewComponent();
         }).withArgs('ViewComponent');
 
         ViewListComponent = ViewComponent.extend({
             template: '<div class="book-list"><span>Book list:</span></div>',
-            onRender: function () {}
+            onRender: function() {}
         });
 
         ViewControllerComponent = Jskeleton.ViewController.extend({
@@ -73,7 +73,7 @@ describe('In Component module', function () {
             events: {
                 'return @component.ViewComponent': 'onEventComponent'
             },
-            onEventComponent: function () {}
+            onEventComponent: function() {}
         });
 
         var ChildApp = Jskeleton.ChildApplication.extend({
@@ -91,7 +91,7 @@ describe('In Component module', function () {
             }
         });
 
-       var LayoutComponent = Jskeleton.LayoutView.extend({
+        var LayoutComponent = Jskeleton.LayoutView.extend({
             regions: {
                 content: ".content"
             }
@@ -112,17 +112,17 @@ describe('In Component module', function () {
 
     });
 
-    afterEach(function () {
+    afterEach(function() {
         sandbox.restore();
     });
 
-    describe('when define a new component,', function () {
+    describe('when define a new component,', function() {
         var renderSpy,
             eventComponentSpy,
             eventViewControllerSpy,
             eventChannelSpy;
 
-        beforeEach(function () {
+        beforeEach(function() {
             renderSpy = sinon.spy(ViewComponent.prototype, 'onRender');
             eventComponentSpy = sinon.spy(ViewComponent.prototype, 'onActionBuy');
             eventViewControllerSpy = sinon.spy(ViewControllerComponent.prototype, 'onEventComponent');
@@ -132,39 +132,39 @@ describe('In Component module', function () {
             testApp.start();
         });
 
-        afterEach(function () {
+        afterEach(function() {
             testApp.destroy();
         });
 
-        it('it is rendered', function () {
+        it('it is rendered', function() {
             expect(renderSpy.calledOnce).to.be.equal(true);
         });
 
-        it('its model is rendered', function () {
-            expect(testApp.$rootEl.find('.title').length).to.be.above(0);
-            expect(testApp.$rootEl.find('.title')[0].innerHTML).to.be.equal(modelTest.get('title'));
+        it('its model is rendered', function() {
+            expect(testApp.$el.find('.title').length).to.be.above(0);
+            expect(testApp.$el.find('.title')[0].innerHTML).to.be.equal(modelTest.get('title'));
 
-            expect(testApp.$rootEl.find('.author').length).to.be.above(0);
-            expect(testApp.$rootEl.find('.author')[0].innerHTML).to.be.equal(modelTest.get('author'));
+            expect(testApp.$el.find('.author').length).to.be.above(0);
+            expect(testApp.$el.find('.author')[0].innerHTML).to.be.equal(modelTest.get('author'));
         });
 
-        describe('it can throw events', function () {
+        describe('it can throw events', function() {
             var button;
 
-            it('that affects to own view', function () {
-                button = testApp.$rootEl.find('.buy-action');
+            it('that affects to own view', function() {
+                button = testApp.$el.find('.buy-action');
                 button.click();
                 expect(eventComponentSpy.calledOnce).to.be.equal(true);
             });
 
-            it('to its Controller View', function () {
-                button = testApp.$rootEl.find('.return-action');
+            it('to its Controller View', function() {
+                button = testApp.$el.find('.return-action');
                 button.click();
                 expect(eventViewControllerSpy.calledOnce).to.be.equal(true);
             });
 
-            it.skip('using its own channel', function () {
-                button = testApp.$rootEl.find('.back-action');
+            it.skip('using its own channel', function() {
+                button = testApp.$el.find('.back-action');
                 button.click();
                 expect(eventChannelSpy.calledOnce).to.be.equal(true);
             });

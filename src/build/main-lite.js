@@ -34,11 +34,6 @@
 
     var Jskeleton = root.Jskeleton || {};
 
-    //  @include ../core/renderer.js
-    //  @include ../helpers/html-bars.js
-    //  @include ../helpers/component.js
-    //  @include ../utils/hooks.js
-    //  @include ../utils/factory.js
     //  @include ../core/router.js
     //  @include ../core/service.js
     //  @include ../core/base-application.js
@@ -50,6 +45,11 @@
     //  @include ../core/collection-view.js
     //  @include ../core/composite-view.js
     //  @include ../core/view-controller.js
+    //  @include ../core/renderer.js
+    //  @include ../helpers/html-bars.js
+    //  @include ../helpers/component.js
+    //  @include ../utils/hooks.js
+    //  @include ../utils/factory.js
 
 
     return Jskeleton;
