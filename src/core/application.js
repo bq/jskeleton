@@ -12,20 +12,23 @@
 //  A Jskeleton webapp can contain many Jskeleton.Applications.
 //  A `Jskeleton.Application` can define multiple child applications (`Jskeleton.ChildApplication`).
 Jskeleton.Application = Jskeleton.BaseApplication.extend({
-    //Default dom reference (usefull for the first webapp root region)
+    //Default el dom reference if no `el` it's specified
     defaultEl: 'body',
-    defaultRegion: 'root',
+    //Main region name. Will be 'main' by default
+    mainRegionName: 'main',
     constructor: function(options) {
         options = options || {};
 
-        this.rootEl = options.rootEl || this.rootEl || this.defaultEl;
+        this.el = options.el || this.el || this.defaultEl;
 
-        this._region = options.region || this.defaultRegion;
+
+        this._region = options.region || this.mainRegionName;
 
         //`Jskeleton.BaseApplication` constructor
         Jskeleton.BaseApplication.prototype.constructor.apply(this, arguments);
 
         this.applications = options.applications || this.applications || {};
+
         //private object instances of applications
         this._childApps = {};
 
@@ -34,21 +37,22 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     },
     //Method to start the application, start the `ChildApplications` and start listening routes/events
     start: function(options) {
+        //trigger before:start event and call to onBeforeStart method if it's defined in the application object
         this.triggerMethod('before:start', options);
-        //init child apps
+        //initialize and start child applications defined in the application object
         this._initChildApplications(options);
 
         Jskeleton.BaseApplication.prototype.start.apply(this, arguments);
 
-        //Start the `Jskeleton.Router`
+        //Start the `Jskeleton.Router` to listen to Backbone.History and to listen to the global channel events
         this.startRouter();
+
+        //trigger start event and call to onStart method if it's defined in the application object
         this.triggerMethod('start', options);
     },
-    //Method to explicit start a child app instance
-    startChildApp: function(childApp, options) {
-        childApp.start(options);
-    },
-    //Method to start listening the `Backbone.Router` (called by a Main Application)
+    //Method to start listening the `Backbone.Router`
+    //Only a `Jskeleton.Application' can start a `Jskeleton.Router` instance.
+    //The Jskeleton.Router is created by the `Jskeleton.Application` objects and injected to the `Jskeleton.ChildApplication`.
     startRouter: function() {
         this.router.start();
     },
@@ -60,49 +64,62 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
         Marionette.Application.prototype._initializeRegions.apply(this, arguments);
 
         // Create root region on root DOM reference
-        this._createRootRegion();
+        this._createMainRegion();
         // Create a layout for the application if a layoutView its defined
         this._createApplicationLayout();
     },
     //Private method to ensure that the main application has a dom reference where create the root webapp region
     _ensureEl: function() {
-        if (!this.$rootEl) {
-            if (!this.rootEl) {
-                throw new Error('Tienes que definir una rootEl para la Main App');
+        if (!this.$el) {
+            if (!this.el) {
+                throw new Error('Tienes que definir una el para la Main App');
             }
-            this.$rootEl = $(this.rootEl);
+            this.$el = $(this.el);
         }
     },
     //Add the root region to the main application
-    _createRootRegion: function() {
+    _createMainRegion: function() {
 
         if (this._region instanceof Marionette.Region) {
             //TODO
         } else {
-            var rootRegion = {};
+            //create a new `Jskeleton.Region`
+            var mainRegion = {};
 
-            rootRegion[this._region] = this.rootEl;
+            mainRegion[this._region] = this.el;
 
-            this.addRegions(rootRegion);
+            this.addRegions(mainRegion);
         }
     },
-    //Create a layout for the Application to have more regions
-    //Adds the layout regions to the application object as properties
+    //Create a layout for the Application to have more regions availables.
+    //The application expose the layout regions to the application object as own properties.
     _createApplicationLayout: function() {
         //ensure layout object is defined
         if (this.layout && typeof this.layout === 'object') {
-            this.layoutTemplate = this.layout.template; //TODO: lanzar aserción
-            if (!this.layoutTemplate) {
-                throw new Error('Si defines un objeto layout tienes que definir un template');
-            }
+            //get defined layout template
+            this.layoutTemplate = this.layout.template;
+
 
             this.layoutClass = this.layout.layoutClass || this.getDefaultLayoutClass(); //TODO: mirar si poner layout por defecto ( seria necesario entonces poder poner regiones de forma explicita)
-            this.layoutClass = this.layoutClass.extend({
-                template: this.layoutTemplate
-            });
-            this._layout = this.factory(this.layoutClass, this.layout.options);
-            this.root.show(this._layout);
 
+            if (!this.layoutTemplate && this.layoutClass.template === undefined) {
+                throw new Error('You have to define a template for the application layout.');
+            }
+
+            if (this.layoutTemplate) {
+                //Extend the layout class to add the specified template
+                this.layoutClass = this.layoutClass.extend({
+                    template: this.layoutTemplate
+                });
+            }
+
+            //create the layout instance with the layout options declared in the application layout object
+            this._layout = this.factory(this.layoutClass, this.layout.options);
+
+            //Show the layout in the application main region
+            this[this.mainRegionName].show(this._layout);
+
+            //expose the layout regions to the application object
             this._addLayoutRegions();
         }
     },
@@ -118,22 +135,34 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     //Iterate over child applications to start each one
     _initChildApplications: function() {
         if (!this.isChildApp) {
+
             var self = this;
-            _.each(this.applications, function(value, key) {
-                self._initChildApp(key, value);
+
+            _.each(this.applications, function(appOptions, appName) {
+                self._initChildApplication(appName, appOptions);
             });
+
+            //trigger onApplicationsStart event when all the `Jskeleton.ChildApplication` are started and before the application router it's started
             this.triggerMethod('applications:start');
         }
     },
     //Start child application with it's dependencies injected
-    _initChildApp: function(appName, appOptions) {
-        var appClass = appOptions.applicationClass,
+    _initChildApplication: function(appName, appOptions) {
+        appOptions = appOptions || {};
+        //get application class definition (could be either a factory key string or an application class)
+        var appClass = appOptions.applicationClass, //DI: this.getClass(appOptions.applicationClass)
             startWithParent = appOptions.startWithParent !== undefined ? appOptions.startWithParent : true;
 
+        //Get the region where the `Jskeleton.ChildApplication` logic the `Jskeleton.ChildApplication` layout and the `Jskeleton.ChildApplication` view-controllers will be 'rendered'.
+        //It would be the main application region by default, but if a layout it's defined for the Application object, a different region must be defined.
         appOptions.region = this._getChildAppRegion(appOptions);
 
+        //Ommit instanciate config options
         var instanceOptions = _.omit(appOptions, 'applicationClass', 'startWithParent'),
-            instance = this.factory(appClass, instanceOptions);
+            //Instance the `Jskeleton.ChildApplication` class with the `Jskeleton.ChildApplication` options specified
+            instance = this.factory(appClass, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
+
+        //expose the child application instance
         this._childApps[appName] = instance;
 
         //Start child application
@@ -141,27 +170,31 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
             this.startChildApp(instance, instanceOptions.startOptions);
         }
     },
-    //Get the region where a child application will be rendered when process a route or an event
+    //Get the region where a `Jskeleton.ChildApplication` will be rendered when process a route or an event
     _getChildAppRegion: function(appOptions) {
         var region,
-            regionName = appOptions.region || this.defaultRegion;
+            regionName = appOptions.region || this.mainRegionName;
 
-        //retrieve the region from the application layout
+        //retrieve the region from the application layout (if it exists)
         if (this._layout && this._layout.regionManager) {
             region = this._layout.regionManager.get(regionName);
         }
 
-        //retrieve the region from the application region manager
+        //if the region isn`t in the application layout, retrieve the region from the application region manager defined as application region
         if (!region) {
             region = this._regionManager.get(regionName);
         }
 
         //the region must exists
         if (!region) {
-            throw new Error('The region must exists in the Parent application.');
+            throw new Error('The region must exists in the Application.');
         }
 
         return region;
+    },
+    //Method to explicit start a child app instance
+    startChildApp: function(childApp, options) {
+        childApp.start(options);
     },
     //Get child app instance by name
     getChildApp: function(appName) {
