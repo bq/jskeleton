@@ -60,8 +60,8 @@ describe('Application object', function() {
         });
 
         it('can has a root region with a default "body" el reference', function() {
-            expect(this.application.root).to.be.instanceof(Marionette.Region);
-            expect(this.application.root.el).to.be.equal(this.application.defaultEl);
+            expect(this.application.main).to.be.instanceof(Marionette.Region);
+            expect(this.application.main.el).to.be.equal(this.application.defaultEl);
         });
 
         it('can be started', function() {
@@ -84,7 +84,7 @@ describe('Application object', function() {
             $('body').append('<div class=".main"> </div>');
 
             this.Application = Jskeleton.Application.extend({
-                defaultRegion: 'main',
+                mainRegionName: 'customMain',
                 defaultEl: '.main'
             });
 
@@ -96,8 +96,8 @@ describe('Application object', function() {
         });
 
         it('can has a main region with a valid default el reference', function() {
-            expect(this.application.main).to.be.instanceof(Marionette.Region);
-            expect(this.application.main.el).to.be.equal('.main');
+            expect(this.application.customMain).to.be.instanceof(Marionette.Region);
+            expect(this.application.customMain.el).to.be.equal('.main');
         });
 
     });
