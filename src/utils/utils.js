@@ -26,7 +26,7 @@ utils.normalizeComponentName = function(eventString) {
 
 // utility method for parsing event syntax strings to retrieve the event type string
 utils.normailzeEventType = function(eventString) {
-    var eventType = /(\w)+\s*/g.exec(String(eventString))[0].trim();
+    var eventType = /(\S)*/g.exec(String(eventString))[0].trim();
 
     return eventType;
 };
