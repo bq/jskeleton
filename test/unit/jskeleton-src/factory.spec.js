@@ -31,7 +31,7 @@ describe('In Factory module', function() {
     describe('When register an object', function() {
 
         it('we can get it', function() {
-            expect(factory.get('myBackboneView')).to.be.equal(myBackboneView);
+            expect(factory.getClass('myBackboneView')).to.be.equal(myBackboneView);
         });
 
         it('we can instantiate', function() {
@@ -40,11 +40,11 @@ describe('In Factory module', function() {
             expect(factory.new('myBBModel')).to.be.an('object');
         });
 
-        it('list all objects', function() {
+        it('list all objects classes', function() {
             var objects = factory.getAll();
-            expect(objects.myBackboneView).to.be.an('function');
-            expect(objects.Model).to.be.an('function');
-            expect(objects.Collection).to.be.an('function');
+            expect(objects.myBackboneView.Class).to.be.an('function');
+            expect(objects.Model.Class).to.be.an('function');
+            expect(objects.Collection.Class).to.be.an('function');
             expect(_.size(objects)).to.be.equal(4);
         });
 

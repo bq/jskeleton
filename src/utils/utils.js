@@ -1,5 +1,5 @@
 'use strict';
-/*globals Jskeleton */
+/*globals Jskeleton, Backbone, _ */
 /* jshint unused: false */
 
 var utils = {};
@@ -54,4 +54,27 @@ utils.normalizeComponentKeys = function(events, components) {
     }, {});
 };
 
-Jskeleton.utils = utils;
+
+var BackboneExtend = Backbone.Model.extend;
+
+// Util function to correctly set up the prototype chain for subclasses.
+// Override the Backbone extend implementation to integrate with Jskeleton.factory
+// and with Jskeleton.Di Jskeleton.di
+utils.FactoryAdd = function(name, protoProps, staticProps) {
+    var Class = protoProps,
+        Parent = this;
+
+    if (_.isFunction(protoProps)) {
+        Jskeleton.factory.add(name, Class, Parent);
+    } else {
+        //get the inherited class using default Backbone extend method
+        Class = BackboneExtend.apply(this, Array.prototype.slice.call(arguments, 1));
+        //add the inherited class to the Jskeleton.factory
+        Jskeleton.factory.add(name, Class);
+
+        return Class;
+    }
+
+};
+
+Jskeleton.Utils = utils;

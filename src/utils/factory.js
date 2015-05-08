@@ -9,19 +9,31 @@ var factory = {};
 
 //Default available factory objects
 factory.prototypes = {
-    Model: Backbone.Model,
-    Collection: Backbone.Collection
+    Model: {
+        Class: Backbone.Model
+    },
+    Collection: {
+        Class: Backbone.Collection
+    }
 };
 
 //Available singletons objects
 factory.singletons = {};
 
 //Adds an object class to the factory
-factory.add = function(key, obj) {
+factory.add = function(key, ObjClass, ParentClass) {
+
     if (this.prototypes[key]) {
         throw new Error('AlreadyDefinedFactoryObject - ' + key);
     }
-    this.prototypes[key] = obj;
+
+    this.prototypes[key] = {
+        Class: ObjClass
+    };
+
+    if (ParentClass) {
+        this.prototypes[key].Parent = ParentClass;
+    }
 };
 
 
@@ -38,12 +50,16 @@ factory.new = function(obj, options) {
         FactoryObject = this.prototypes[obj];
     }
 
+    //resolve dependencies
+
+
     if (!FactoryObject) {
         throw new Error('UndefinedFactoryObject - ' + obj);
     }
 
-    return new FactoryObject(options);
+    return FactoryObject.Class ? new FactoryObject.Class(options) : new FactoryObject(options);
 };
+
 
 
 //Creates a new singleton object o retrieves the created one
@@ -60,10 +76,22 @@ factory.singleton = function(obj, options) {
 
 //Retrieves an Object reference
 factory.get = function(obj) {
+
     if (!this.prototypes[obj]) {
         throw new Error('UndefinedFactoryObject - ' + obj);
     }
+
     return this.prototypes[obj];
+};
+
+//Retrieves an Object reference
+factory.getClass = function(obj) {
+
+    if (!this.prototypes[obj]) {
+        throw new Error('UndefinedFactoryObject - ' + obj);
+    }
+
+    return this.prototypes[obj].Class;
 };
 
 //Gets all objects added to the factory
