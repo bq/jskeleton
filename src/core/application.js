@@ -17,6 +17,7 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     //Main region name. Will be 'main' by default
     mainRegionName: 'main',
     constructor: function(options) {
+
         options = options || {};
 
         this.el = options.el || this.el || this.defaultEl;
@@ -114,7 +115,7 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
             }
 
             //create the layout instance with the layout options declared in the application layout object
-            this._layout = this.factory(this.layoutClass, this.layout.options);
+            this._layout = this.factory(this.layoutClass, undefined, this.layout.options);
 
             //Show the layout in the application main region
             this[this.mainRegionName].show(this._layout);
@@ -160,7 +161,7 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
         //Ommit instanciate config options
         var instanceOptions = _.omit(appOptions, 'applicationClass', 'startWithParent'),
             //Instance the `Jskeleton.ChildApplication` class with the `Jskeleton.ChildApplication` options specified
-            instance = this.factory(appClass, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
+            instance = this.factory(appClass, {}, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
 
         //expose the child application instance
         this._childApps[appName] = instance;

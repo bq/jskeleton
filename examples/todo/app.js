@@ -1,4 +1,6 @@
-var DetailBookView = Jskeleton.ItemView.extend({
+'use strict';
+
+Jskeleton.ItemView.factory('DetailBookView', {
     initialize: function() {},
     template: '<strong> Título del libro: </strong> <span class="title">{{title}}</span>' +
         '<strong> Autor del libro: </strong><span class="author">{{author}}</span>' +
@@ -8,14 +10,12 @@ var DetailBookView = Jskeleton.ItemView.extend({
         'click .view-back': 'onBackClicked'
     },
     onActionClicked: function() {
-        this.trigger('buy', this.model.get('title'));
+        this.trigger('buy', this.model);
     },
     onBackClicked: function() {
         this.channel.trigger('book:list');
     }
 });
-
-Jskeleton.factory.add('DetailBookView', DetailBookView);
 
 var ItemBookView = Jskeleton.ItemView.extend({
     template: '<strong> Título del libro: </strong> <span class="title">{{title}}</span>' +
@@ -34,30 +34,31 @@ var ItemBookView = Jskeleton.ItemView.extend({
 });
 
 
-var BookCollectionView = Jskeleton.CollectionView.extend({
+var BookCollectionView = Jskeleton.CollectionView.factory('BookCollectionView', {
     childView: ItemBookView
 });
 
-Jskeleton.factory.add('BookCollectionView', BookCollectionView);
-
-var BookDetailsViewController = Jskeleton.ViewController.extend({
-    events: {
-        'buy @component.DetailBookView': 'onLink'
-    },
-    onLink: function(title) {
-        console.log('Libro comprado: ', title);
-    },
-    onBookShow: function(params, service) {
-        this.context.bookModel = new Backbone.Model({
-            title: params.title,
-            id: params.id,
-            author: params.author || 'desconocido'
-        });
-    }
+Jskeleton.ViewController.factory('DetalleDeLibro', function(ServicioDeCompras) {
+    return {
+        events: {
+            'buy @component.DetailBookView': 'onLink'
+        },
+        onLink: function(libro) {
+            ServicioDeCompras.buy(libro);
+        },
+        onBookShow: function(params, service) {
+            this.context.bookModel = new Backbone.Model({
+                title: params.title,
+                id: params.id,
+                author: params.author || 'desconocido'
+            });
+        }
+    };
 });
 
-var BookCollectionViewController = Jskeleton.ViewController.extend({
-    onBookList: function(params, service) {
+Jskeleton.ViewController.factory('ListadoDeLibros', {
+    onBookList: function() {
+
         this.context.bookCollection = new Backbone.Collection([{
             title: 'Juego de tronos',
             id: 165
@@ -71,24 +72,23 @@ var BookCollectionViewController = Jskeleton.ViewController.extend({
     }
 });
 
-var BookCatalogue = Jskeleton.ChildApplication.extend({
-    //ServiceClass: Service,
+Jskeleton.ChildApplication.factory('BookCatalogue', {
     routes: {
         'book/show/:title(/:id)': {
-            viewControllerClass: BookDetailsViewController,
+            viewControllerClass: 'DetalleDeLibro',
+            template: '<span> Detalle de libro: </span> {{@component name="DetailBookView" model=context.bookModel}}',
             // handlerName: 'onStateChange',
             // name: 'home:navigate',
             // triggerEvent: ''
             // viewControllerOptions: {
             //     model: MiModel
             // },
-            template: '<span> Detalle de libro: </span> {{@component name="DetailBookView" model=context.bookModel}}',
             eventListener: 'book:details'
         },
         'book/list': {
-            viewControllerClass: BookCollectionViewController,
-            template: '<span> Listado de libros: </span> {{@component name="BookCollectionView" collection=context.bookCollection}}',
-            eventListener: 'book:list'
+            viewControllerClass: 'ListadoDeLibros',
+            eventListener: 'book:list',
+            template: '<span> Listado de libros: </span> {{@component name="BookCollectionView" collection=context.bookCollection}}'
         }
     },
     events: {
@@ -102,6 +102,14 @@ var BookCatalogue = Jskeleton.ChildApplication.extend({
     }
 });
 
+Jskeleton.Service.factory('ServicioDeCompras', {
+    initialize: function() {
+        console.log('Soy my servicio');
+    },
+    buy: function(book) {
+        console.log('Libro comprado: ', book.get('title'));
+    }
+});
 
 var Layout = Jskeleton.LayoutView.extend({
     regions: {
@@ -131,7 +139,7 @@ var AppMain = Jskeleton.Application.extend({
     },
     applications: {
         'bookCatalogue': {
-            applicationClass: BookCatalogue,
+            applicationClass: 'BookCatalogue',
             region: 'contentRegion'
         }
     }
@@ -139,8 +147,8 @@ var AppMain = Jskeleton.Application.extend({
 
 var app = new AppMain();
 
-app.router.route("*notFound", "page", function() {
-    console.log("404 error", arguments);
-});
+// app.router.route("*notFound", "page", function() {
+//     console.log("404 error", arguments);
+// });
 
 app.start();

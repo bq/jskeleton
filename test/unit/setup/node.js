@@ -73,6 +73,7 @@ if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     requireHelper('/core/application.js');
     requireHelper('/core/child-application.js');
     requireHelper('/core/view.js');
+    requireHelper('/core/di.js');
     requireHelper('/core/item-view.js');
     requireHelper('/core/collection-view.js');
     requireHelper('/core/composite-view.js');

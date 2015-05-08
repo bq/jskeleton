@@ -53,6 +53,7 @@
     //  @include ../utils/utils.js
     //  @include ../utils/hooks.js
     //  @include ../utils/factory.js
+    //  @include ../core/di.js
     //  @include ../core/router.js
     //  @include ../core/service.js
     //  @include ../core/base-application.js
@@ -65,6 +66,7 @@
     //  @include ../core/composite-view.js
     //  @include ../core/view-controller.js
 
+    Jskeleton.di = new Jskeleton.Di();
 
     return Jskeleton;
 
