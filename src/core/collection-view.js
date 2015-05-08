@@ -28,4 +28,6 @@ Jskeleton.CollectionView = Marionette.CollectionView.extend({
 
         return new ChildViewClass(options);
     }
+}, {
+    factory: Jskeleton.Utils.FactoryAdd
 });

@@ -6,6 +6,8 @@
 
 Jskeleton.CompositeView = Marionette.CompositeView.extend({
     constructor: function(options) {
-        Jskeleton.CollectionView.apply(this,arguments);
+        Jskeleton.CollectionView.apply(this, arguments);
     }
+}, {
+    factory: Jskeleton.Utils.FactoryAdd
 });

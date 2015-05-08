@@ -14,4 +14,6 @@ Jskeleton.LayoutView = Marionette.LayoutView.extend({
 
         Jskeleton.ItemView.call(this, options);
     }
+}, {
+    factory: Jskeleton.Utils.FactoryAdd
 });

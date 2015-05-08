@@ -14,6 +14,7 @@
             this.service = options.service;
             this.context = {};
             this.components = {};
+            this.events = this.events || {};
             Jskeleton.LayoutView.prototype.constructor.apply(this, arguments);
         },
         _ensureOptions: function(options) {
@@ -70,7 +71,7 @@
         //Override Marionette._delegateDOMEvents to add Components listeners
         _delegateDOMEvents: function(eventsArg) {
             var events = Marionette._getValue(eventsArg || this.events, this),
-                componentEvents = Jskeleton.utils.extractComponentEvents(events);
+                componentEvents = Jskeleton.Utils.extractComponentEvents(events);
 
             events = _.omit(events, _.keys(componentEvents));
 
@@ -100,8 +101,8 @@
                 components = this.components;
 
             _.each(this._componentEvents, function(method, eventName) {
-                var componentName = Jskeleton.utils.normalizeComponentName(eventName),
-                    eventType = Jskeleton.utils.normailzeEventType(eventName),
+                var componentName = Jskeleton.Utils.normalizeComponentName(eventName),
+                    eventType = Jskeleton.Utils.normailzeEventType(eventName),
                     componentArray = components[componentName];
 
                 _.each(componentArray, function(component) {
@@ -118,9 +119,9 @@
 
             _.each(this._componentEvents, function(method, eventName) {
                 //Get component name from event hash `@component.ComponentName`
-                var componentName = Jskeleton.utils.normalizeComponentName(eventName),
+                var componentName = Jskeleton.Utils.normalizeComponentName(eventName),
                     //Get event name from event hash `click @component.ComponentName`
-                    eventType = Jskeleton.utils.normailzeEventType(eventName),
+                    eventType = Jskeleton.Utils.normailzeEventType(eventName),
                     //Get the component instance by component name
                     componentArray = components[componentName];
 

@@ -14,4 +14,6 @@ Jskeleton.View = Marionette.View.extend({
         Marionette.View.apply(this, arguments);
 
     }
+}, {
+    factory: Jskeleton.Utils.FactoryAdd
 });

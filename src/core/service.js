@@ -5,7 +5,7 @@
 /**
  * Reusable component as a Service
  */
-var Service = Marionette.Object.extend({
+Jskeleton.Service = Marionette.Object.extend({
     constructor: function(opts) {
         var options = opts || {},
             // Todo serviceOptions ?
@@ -20,6 +20,6 @@ var Service = Marionette.Object.extend({
         }
     }
 
+}, {
+    factory: Jskeleton.Utils.FactoryAdd
 });
-
-Jskeleton.Service = Service;

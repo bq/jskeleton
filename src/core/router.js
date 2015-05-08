@@ -22,7 +22,6 @@ Jskeleton.Router = Backbone.Router.extend({
             if (arguments[1] && arguments[1].length) {
                 route += ':' + arguments[1].join(':');
             }
-            console.log(route);
         });
     },
 
@@ -72,7 +71,7 @@ Jskeleton.Router = Backbone.Router.extend({
             routeString = routeString.replace(/:(\w)+/, function(x) {
                 //remove : character
                 x = x.substr(1, x.length - 1);
-                return params[x] ? Jskeleton.utils.replaceSpecialChars(String(params[x])) : '';
+                return params[x] ? Jskeleton.Utils.replaceSpecialChars(String(params[x])) : '';
             });
 
             // find splats
