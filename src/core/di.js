@@ -4,12 +4,10 @@
 
 /* jshint unused: false */
 
-//## Di
-//  Application class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
-//  It initializes `regions, events, routes, channels and child applications`.
-//  It has a global channel to communicate with others apps and a private channel to communicate with it's components,
-//  A Jskeleton webapp can contain many Jskeleton.Applications.
-//  A `Jskeleton.Application` can define multiple child applications (`Jskeleton.ChildApplication`).
+///## Di
+//  Dependency Injection (DI) is a software design pattern that deals with how "components" get hold of their dependencies.
+//  The Jskeleton Dependency Injection subsystem is called inside constructor classes and resolves the instance dependency before
+//  instantiation object. This subsystem creates an clousure invoking all dependencies inside.
 
 Jskeleton.Di = Marionette.Object.extend({
     globalDi: undefined,
