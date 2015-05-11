@@ -166,7 +166,76 @@ describe('Application object', function() {
             expect(this.startSpy.calledOnce).to.be.equal(true);
         });
 
+    });
+
+
+    describe('with an application layout', function() {
+
+        before(function() {
+            this.Layout = Jskeleton.LayoutView.extend({
+                template: '<div class="content"></div> <div class="content2"></div>',
+                render: function() {},
+                regions: {
+                    content: '.content',
+                    content2: '.content2'
+                }
+            });
+
+            this.customTemplate = '<div> <div class="content"></div> </div> <div class="content2"></div>';
+
+            this.Application = Jskeleton.Application.extend({
+                layout: this.Layout
+            });
+
+            this.layout = new this.Layout();
+
+            this.renderSpy = sandbox.spy(this.layout, 'render');
+
+            this.factoryStub = sandbox.stub(this.Application.prototype, 'factory');
+
+            this.factoryStub.withArgs(this.Layout).returns(this.layout);
+
+            this.application = new this.Application();
+
+            this.application.start();
+        });
+
+
+        it('have a layout instance of the specified Layout class', function() {
+            expect(this.application._layout).to.be.instanceof(this.Layout);
+        });
+
+        it('render the layout when the application is created', function() {
+            expect(this.renderSpy.calledOnce).to.be.equal(true);
+        });
+
+        it('has the layout regions as own properties', function() {
+            expect(this.layout).to.include.keys('content', 'content2');
+        });
+
+        it('the layout template can be override', function() {
+
+            this.ApplicationTemplate = Jskeleton.Application.extend({
+                layout: {
+                    layoutClass: this.Layout,
+                    template: this.customTemplate
+                }
+            });
+
+            this.factorySpy = sandbox.spy(this.ApplicationTemplate.prototype, 'factory');
+
+            this.app = new this.ApplicationTemplate();
+
+            this.app.start();
+
+            expect(this.factorySpy.calledWith(this.Layout, {
+                template: this.customTemplate
+            })).to.be.equal(true);
+
+        });
 
     });
+
+
 
 });
