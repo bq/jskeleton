@@ -11903,7 +11903,6 @@
     
              //inject component dependencies
              componentData = _.extend(componentData, {
-                 channel: env.enviroment._channel,
                  _app: env.enviroment._app
              });
     
@@ -12140,8 +12139,21 @@
         return this.prototypes;
     };
     
+    // empty factory prototypes
+    factory.empty = function(){
+        this.prototypes = {
+            Model: {
+                Class: Backbone.Model
+            },
+            Collection: {
+                Class: Backbone.Collection
+            }
+        };
+    };
+    
     
     Jskeleton.factory = factory;
+    
     'use strict';
     
     /*globals Marionette, Jskeleton,_ */
@@ -12571,26 +12583,20 @@
                 throw new Error('El metodo ' + handlerName + ' del view controller no existe');
             }
     
-            viewController[handlerName].call(viewController, args, this.service);
-            this._showControllerView(viewController);
-            // hook.processAfter();
+            this._showControllerView(viewController, handlerName, args);
         },
         //Show the controller view instance in the application region
-        _showControllerView: function(controllerView) {
-            if (this.mainRegion && this.mainRegion.currentView !== controllerView) {
-                this.mainRegion.show(controllerView);
+        _showControllerView: function(viewController, handlerName, args) {
+            if (this.mainRegion && this.mainRegion.currentView !== viewController) {
+                viewController.show(this.mainRegion, handlerName, args);
             } else {
-                controllerView.render();
+                viewController.render();
             }
         },
         //Factory method to instance objects from Class references or from factory key strings
         factory: function(Class, extendProperties, options) {
             options = options || {};
             options.parentApp = this;
-    
-            if (typeof Class === 'string') {
-                Class = Jskeleton.factory.get(Class);
-            }
     
             return this.di.create(Class, extendProperties, options);
         },
@@ -12613,7 +12619,6 @@
                     //extend view controller class with d.i
                     routeObject._viewControllerOptions = _.extend({
                         app: self,
-                        channel: self.privateChannel,
                         service: self.service,
                         region: self.region
                     }, routeObject.viewControllerOptions);
@@ -12673,32 +12678,7 @@
     
             return handlerName;
         },
-        //Extend view controller class for inyect template dependency
-        // _extendViewControllerClass: function(options) {
-    
-        //     var template = options.template,
-        //         ViewControllerClass = this._getViewControllerClass(options);
-    
-        //     if (!template) {
-        //         throw new Error('You have to define a template to the view-controller.');
-        //     }
-        //     //is a factory object
-        //     if (ViewControllerClass.Class) {
-        //         //extend the class inside stored in the factory object to add the template dependency.
-        //         ViewControllerClass.Class = ViewControllerClass.Class.extend({
-        //             template: template
-        //         });
-        //     } else {
-        //         //Add the template to the View-Controller class
-        //         ViewControllerClass = ViewControllerClass.extend({
-        //             template: template
-        //         });
-        //     }
-    
-        //     return ViewControllerClass;
-    
-        // },
-        // //Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).
+        // Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).
         //Ensure that don't extist a view-controller and if exist that it's not destroyed.
         //The view controller is instantiated using the `Jskeleton.Di` to resolve the view-controller dependencies.
         _getViewControllerInstance: function(routeObject) {
@@ -12709,14 +12689,13 @@
                 ViewControllerClass = routeObject._ViewController,
                 //get the view-controller options
                 viewControllerOptions = routeObject._viewControllerOptions || {},
-    
-                viewControllerExtendProperties = routeObject.template ? {
+                //get the view-controller template
+                viewControllerExtendTemplate = routeObject.template ? {
                     template: routeObject.template
                 } : undefined;
     
-    
             if (!viewController || viewController.isDestroyed === true) {
-                viewController = this.factory(ViewControllerClass, viewControllerExtendProperties, viewControllerOptions);
+                viewController = this.factory(ViewControllerClass, viewControllerExtendTemplate, viewControllerOptions);
                 this.listenTo(viewController, 'destroy', this._removeViewController.bind(this, routeObject, viewController));
             }
     
@@ -12942,27 +12921,20 @@
         //Create a layout for the Application to have more regions availables.
         //The application expose the layout regions to the application object as own properties.
         _createApplicationLayout: function() {
+    
             //ensure layout object is defined
-            if (this.layout && typeof this.layout === 'object') {
-                //get defined layout template
-                this.layoutTemplate = this.layout.template;
+            if (this.layout) {
+                //get layout class
+                var Layout = typeof this.layout === 'object' && this.layout.layoutClass ? this.layout.layoutClass : this.layout,
+                    //get layout options
+                    layoutOptions = typeof this.layout === 'object' && this.layout.layoutOptions ? this.layout.layoutOptions : {},
+                    //extend layout template
+                    layoutExtendTemplate = typeof this.layout === 'object' && this.layout.template ? {
+                        template: this.layout.template
+                    } : undefined;
     
-    
-                this.layoutClass = this.layout.layoutClass || this.getDefaultLayoutClass(); //TODO: mirar si poner layout por defecto ( seria necesario entonces poder poner regiones de forma explicita)
-    
-                if (!this.layoutTemplate && this.layoutClass.template === undefined) {
-                    throw new Error('You have to define a template for the application layout.');
-                }
-    
-                if (this.layoutTemplate) {
-                    //Extend the layout class to add the specified template
-                    this.layoutClass = this.layoutClass.extend({
-                        template: this.layoutTemplate
-                    });
-                }
-    
-                //create the layout instance with the layout options declared in the application layout object
-                this._layout = this.factory(this.layoutClass, undefined, this.layout.options);
+                //create the layout instance
+                this._layout = this.factory(Layout, layoutExtendTemplate, layoutOptions);
     
                 //Show the layout in the application main region
                 this[this.mainRegionName].show(this._layout);
@@ -12970,6 +12942,7 @@
                 //expose the layout regions to the application object
                 this._addLayoutRegions();
             }
+    
         },
         //Expose layout regions to the application namespace
         _addLayoutRegions: function() {
@@ -13116,7 +13089,6 @@
         constructor: function(options) {
             options = options || {};
     
-            this.channel = options.channel || this;
             this._app = options.app;
     
             Marionette.View.apply(this, arguments);
@@ -13243,6 +13215,8 @@
         // The view controller object is an hybrid of View/Controller. It is responsible for render an application
         // state, build up the application context and render the application components.
         Jskeleton.ViewController = Jskeleton.LayoutView.extend({
+            //re-render the view-controller when the render promise is completed
+            renderOnPromise: true,
             constructor: function(options) {
                 options = options || {};
                 this._ensureOptions(options);
@@ -13258,12 +13232,46 @@
                 if (!options.app) {
                     throw new Error('El view-controller necesita tener la referencia a su application');
                 }
-                if (!options.channel) {
-                    throw new Error('El view-controller necesita tener un canal');
-                }
-                if (!options.region) { // mirarlo
+    
+                if (!options.region) {
                     throw new Error('El view-controller necesita tener una region específica');
                 }
+            },
+            //Show the view-controller in a specified region.
+            //The method call a specified view-controller method to create a template context before render itself in the region.
+            //The template context is used by the view-controller components defined inside the template.
+            show: function(region, handlerName) {
+                var promise, that = this;
+    
+                this.context.isPromise = false;
+    
+                if (!region) {
+                    throw new Error('You must to define a region where the view-controller will be rendered.');
+                }
+    
+                //if the method exists, it is called by the view-controller before be render
+                if (this[handlerName] && typeof this[handlerName] === 'function') {
+                    promise = this[handlerName].apply(this, Array.prototype.slice.call(arguments, 2));
+                }
+    
+                //the result of the "render" method invocation is a promise and will be resolved later
+                if (promise && typeof promise.then === 'function') {
+                    promise.then(function() {
+                        //expose a isPromise flag to the template
+                        that.context.isPromise = false;
+    
+                        //if the `renderOnPromise` option is set to true, re-render the `Jskeleton.ViewController`
+                        if (that.renderOnPromise === true) {
+                            that.render();
+                        }
+                    });
+    
+                    //Set up the `Jskeleton.ViewController` context
+                    this.context.isPromise = true;
+                }
+    
+                region.show(this);
+    
             },
             //expose application enviroment, ViewController context and `Marionette.templateHelpers` to the view-controller template
             mixinTemplateHelpers: function(target) {
