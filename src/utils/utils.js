@@ -4,6 +4,9 @@
 
 var utils = {};
 
+// RegExp @component htmlBars
+utils.regExpComponent = /{{@component/ig;
+
 //replace string chars (instead using encodeUrl)
 utils.replaceSpecialChars = function(text) {
     if (typeof text === 'string') {

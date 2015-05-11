@@ -21,6 +21,8 @@
         var Marionette = require('backbone.marionette'),
             Jskeleton = factory(root, $, _, Backbone, Marionette);
 
+        var Handlebars = require('Handlebars');
+
         module.exports = Jskeleton;
     } else if (root !== undefined) {
         root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);

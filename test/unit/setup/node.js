@@ -44,8 +44,8 @@ global.slice = Array.prototype.slice;
 //var htmlbarsCompiler =  require('../../../node_modules/htmlbars/dist/cjs/htmlbars-compiler.js');
 //var htmlbarsRuntime =   require('../../../node_modules/htmlbars/dist/cjs/htmlbars-runtime.js');
 
-global.BackboneRadio = require('../../../lib/backbone.radio/backbone.radio.js');
-
+global.BackboneRadio = require('../../../bower_components/backbone.radio/src/backbone.radio.js');
+global.Handlebars = require('../../../bower_components/handlebars/handlebars.js');
 
 
 
