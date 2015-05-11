@@ -168,6 +168,18 @@ module.exports = function(grunt) {
                     'test/unit/jskeleton-src/*.spec.js',
                     'test/unit/marionette-comp/*.spec.js'
                 ]
+            },
+            src : {
+                options: {
+                    require: 'test/unit/setup/node.js',
+                    reporter: grunt.option('mocha-reporter') || 'nyan',
+                    clearRequireCache: true,
+                    mocha: require('mocha')
+                },
+                src: [
+                    'test/unit/setup/helpers.js',
+                    'test/unit/jskeleton-src/*.spec.js'
+                ]
             }
         },
         // Automatically inject Bower components into the HTML file
@@ -319,23 +331,19 @@ module.exports = function(grunt) {
     });
 
     grunt.registerTask('test', function(target) {
-        /* if (target !== 'watch') {
-            grunt.task.run([
-                'clean:server',
-                'concurrent:test'
-            ]);
-        }*/
-        if (target === 'framework') {
-            return grunt.task.run(['mochaTest']);
+
+
+        if (target === 'src') {
+            return grunt.task.run(['mochaTest:src']);
 
         }
         if (target === 'examples') {
-            return grunt.task.run(['mochaTest']);
+            return grunt.task.run(['mochaTest:tests']);
 
         }
-
+        // Default all
         grunt.task.run([
-            'mochaTest',
+            'mochaTest:tests',
             'jshint:test'
         ]);
     });
