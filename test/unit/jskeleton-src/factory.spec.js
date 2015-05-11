@@ -45,7 +45,7 @@ describe('In Factory module', function() {
             expect(objects.myBackboneView.Class).to.be.an('function');
             expect(objects.Model.Class).to.be.an('function');
             expect(objects.Collection.Class).to.be.an('function');
-            expect(_.size(objects)).to.be.equal(4);
+            expect(_.size(objects)).to.be.at.least(4);
         });
 
         describe('When create a singleton object', function() {
@@ -112,6 +112,25 @@ describe('In Factory module', function() {
             var myBackboneColecction = Backbone.Collection.extend({});
             expect(factory.add('myBackboneColecction', myBackboneColecction));
             expect(factory.new('myBackboneColecction')).to.be.an('object');
+        });
+    });
+
+    describe('When factory is emptied',function(){
+
+        beforeEach(function(){
+            factory.empty();
+            this.defaulState = {
+                Model: {
+                    Class: Backbone.Model
+                },
+                Collection: {
+                    Class: Backbone.Collection
+                }
+            };
+        });
+
+        it('should be factory.prototypes emptied as defaul state', function(){
+            expect(factory.prototypes).to.eql(this.defaulState);
         });
     });
 

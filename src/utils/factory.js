@@ -99,5 +99,17 @@ factory.getAll = function() {
     return this.prototypes;
 };
 
+// empty factory prototypes
+factory.empty = function(){
+    this.prototypes = {
+        Model: {
+            Class: Backbone.Model
+        },
+        Collection: {
+            Class: Backbone.Collection
+        }
+    };
+};
+
 
 Jskeleton.factory = factory;
