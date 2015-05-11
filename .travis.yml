@@ -13,8 +13,10 @@ before_install:
 install:
     - npm install
     - bower install
+	- bundle install
 script:
-    - grunt build
+    - bundle exec jekyll build
+    - bash ./travis-runner.sh
 branches:
   only:
-  - master
+  - doc
