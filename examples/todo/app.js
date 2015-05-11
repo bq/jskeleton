@@ -111,6 +111,8 @@ Jskeleton.ChildApplication.factory('BookCatalogue', {
         // ]
     }
 });
+
+
 Jskeleton.Service.factory('ServicioDeCompras', {
     initialize: function() {
         console.log('Soy my servicio');

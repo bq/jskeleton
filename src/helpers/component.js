@@ -25,7 +25,6 @@
 
          //inject component dependencies
          componentData = _.extend(componentData, {
-             channel: env.enviroment._channel,
              _app: env.enviroment._app
          });
 
