@@ -6,6 +6,8 @@
     // The view controller object is an hybrid of View/Controller. It is responsible for render an application
     // state, build up the application context and render the application components.
     Jskeleton.ViewController = Jskeleton.LayoutView.extend({
+        //re-render the view-controller when the render promise is completed
+        renderOnPromise: true,
         constructor: function(options) {
             options = options || {};
             this._ensureOptions(options);
@@ -21,12 +23,46 @@
             if (!options.app) {
                 throw new Error('El view-controller necesita tener la referencia a su application');
             }
-            if (!options.channel) {
-                throw new Error('El view-controller necesita tener un canal');
-            }
-            if (!options.region) { // mirarlo
+
+            if (!options.region) {
                 throw new Error('El view-controller necesita tener una region específica');
             }
+        },
+        //Show the view-controller in a specified region.
+        //The method call a specified view-controller method to create a template context before render itself in the region.
+        //The template context is used by the view-controller components defined inside the template.
+        show: function(region, handlerName) {
+            var promise, that = this;
+
+            this.context.isPromise = false;
+
+            if (!region) {
+                throw new Error('You must to define a region where the view-controller will be rendered.');
+            }
+
+            //if the method exists, it is called by the view-controller before be render
+            if (this[handlerName] && typeof this[handlerName] === 'function') {
+                promise = this[handlerName].apply(this, Array.prototype.slice.call(arguments, 2));
+            }
+
+            //the result of the "render" method invocation is a promise and will be resolved later
+            if (promise && typeof promise.then === 'function') {
+                promise.then(function() {
+                    //expose a isPromise flag to the template
+                    that.context.isPromise = false;
+
+                    //if the `renderOnPromise` option is set to true, re-render the `Jskeleton.ViewController`
+                    if (that.renderOnPromise === true) {
+                        that.render();
+                    }
+                });
+
+                //Set up the `Jskeleton.ViewController` context
+                this.context.isPromise = true;
+            }
+
+            region.show(this);
+
         },
         //expose application enviroment, ViewController context and `Marionette.templateHelpers` to the view-controller template
         mixinTemplateHelpers: function(target) {

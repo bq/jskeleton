@@ -55,18 +55,12 @@ describe('In view-controller ', function() {
         expect(this.createViewController).to.throw(Error);
 
         expect(this.createViewController.bind(this, {
-            app: 'app',
-            channel: 'channel'
+            app: 'app'
         })).to.throw(Error);
 
+
         expect(this.createViewController.bind(this, {
-            app: 'app',
             region: 'region'
-        })).to.throw(Error);
-
-        expect(this.createViewController.bind(this, {
-            region: 'region',
-            channel: 'channel'
         })).to.throw(Error);
 
     });
@@ -175,16 +169,16 @@ describe('In view-controller ', function() {
                 expect(this.viewControllerSpyEvent.calledTwice).to.be.equal(true);
             });
 
-            describe(', if destroy the instance', function(){
-                beforeEach(function(){
+            describe(', if destroy the instance', function() {
+                beforeEach(function() {
                     this.viewController.destroy();
                 });
 
-                it('the controller should be destroyed', function(){
+                it('the controller should be destroyed', function() {
                     expect(this.viewController.isDestroyed).to.be.true;
                 });
 
-                it('all its components should be unbinded', function(){
+                it('all its components should be unbinded', function() {
                     _.each(this.viewController.components, function(componentArray) {
                         _.each(componentArray, function(component) {
                             expect(component).to.be.undefined;

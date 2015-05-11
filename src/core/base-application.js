@@ -50,16 +50,14 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
             throw new Error('El metodo ' + handlerName + ' del view controller no existe');
         }
 
-        viewController[handlerName].call(viewController, args, this.service);
-        this._showControllerView(viewController);
-        // hook.processAfter();
+        this._showControllerView(viewController, handlerName, args);
     },
     //Show the controller view instance in the application region
-    _showControllerView: function(controllerView) {
-        if (this.mainRegion && this.mainRegion.currentView !== controllerView) {
-            this.mainRegion.show(controllerView);
+    _showControllerView: function(viewController, handlerName, args) {
+        if (this.mainRegion && this.mainRegion.currentView !== viewController) {
+            viewController.show(this.mainRegion, handlerName, args);
         } else {
-            controllerView.render();
+            viewController.render();
         }
     },
     //Factory method to instance objects from Class references or from factory key strings
@@ -88,7 +86,6 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
                 //extend view controller class with d.i
                 routeObject._viewControllerOptions = _.extend({
                     app: self,
-                    channel: self.privateChannel,
                     service: self.service,
                     region: self.region
                 }, routeObject.viewControllerOptions);
