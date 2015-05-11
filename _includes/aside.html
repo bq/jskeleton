@@ -1,14 +1,67 @@
 <aside class="site-aside col-a-12 col-c-3">
-    <h1 class="invisible">Components</h1>
 
-    {% if site.components %}
+<!--
+
+
+{% if aside %}
+<nav class="nav nav--stacked" role="navigation">
+    <h1 class="invisible">Navigation</h1>
+    <ul class="nav__menu">
+    {% for class in aside %}
+        {% if class.title %}
+        <li class="nav__menu__item dropdown dropdown--stacked {% if page.title == class.title %} nav__menu__item--selected {% endif %}">
+            <a  class="nav__menu__link" href="{{ class.url | prepend: site.baseurl }}">{{ class.title }}</a>
+            {% if page.title == class.title %}
+            <ul id="{{ forloop.index }}"  class="nav__submenu" role="menu" data-dropdown="">
+                {% for link_hash in page.submenu %}
+                <li class="nav__submenu__item">
+                    {% for link in link_hash %}
+                    <a href="{{ link[1] }}" class="nav__submenu__link">{{ link[0] }}</a>
+                    {% endfor %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </li>
+        {% endif %}
+    {% endfor %}
+    </ul>
+</nav>
+{% endif %}
+
+-->
+
+
+
+
+
+
+
+
+    <h1 class="invisible">Classes</h1>
+
+    {% if aside %}
 
         <ul class="aside-nav">
 
-        {% for component in site.components %}
-            {% if component.title %}
-                <li class="aside-nav__item {% if page.title == component.title %} active {% endif %}">
-                    <a class="component-link" href="{{ component.url | prepend: site.baseurl }}">{{ component.title }}</a>
+        {% for class in aside %}
+            {% if class.title %}
+                <li class="aside-nav__item {% if page.title == class.title %} active {% endif %}">
+                    <a class="class-link" href="{{ class.url | prepend: site.baseurl }}">{{ class.title }}</a>
+
+                    {% if page.title == class.title %}
+                    <ul>
+                        {% for link_hash in page.submenu %}
+                        <li class="aside-nav__item ">
+                            {% for link in link_hash %}
+                            <a class="class-link" href="{{ link[1] }}">{{ link[0] }}
+                            </a>
+                            {% endfor %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
                 </li>
             {% endif %}
         {% endfor %}

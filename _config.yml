@@ -1,10 +1,10 @@
 
 # Site settings
-title: Penguin
+title: JSkeleton
 email: front-end@bq.com
-description: Penguin is a lightweight and extensible front-end framework built with Sass for kickstarting any web project.
+description: Jskeleton is an awesome javascript framework to build large scale applications..
 baseurl: ""
-url: "https://penguin.docs.bqws.io"
+url: "https://jskeleton.io"
 
 
 # Social user names
@@ -14,10 +14,12 @@ github_username:  bq
 
 # Custom collections
 collections:
-  components:
+  guide:
     output: true
-    permalink: /components/:path/
-
+    permalink: /guide/:path/
+  classes:
+    output: true
+    permalink: /api-reference/:path/
 
 # Build settings
 markdown: kramdown

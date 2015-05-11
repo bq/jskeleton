@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>{% if page.title %}{{ page.title }} · {{ site.title }}{% else %}{{ site.title }}{% endif %}</title>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, target-densitydpi=160dpi, initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">
+  <!-- Styles -->
+  <link rel="stylesheet" title="penguin-theme" href="{{ '/bower_components/penguin-themes/themes/penguin-doc/dist/css/penguin-doc.css' | prepend: site.baseurl }}">
+  <link rel="stylesheet" href="{{ '/assets/css/main.css' | prepend: site.baseurl }}">
+  <link rel="stylesheet" media="all" href="{{ '/assets/css/annotated/docco.css' | prepend: site.baseurl }}" />
+</head>
+<body>
+  {% include header.html %}
+
+  {% include annotated.html %}
+
+  {% include footer.html %}
+</body>
+</html>

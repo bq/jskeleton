@@ -26,7 +26,8 @@
         "Óscar Ferrándiz <oscar.ferrandiz@bq.com> <oferrandiz@gmail.com>"
     ],
     "dependencies": {
-        "jskeleton": "git@github.com:bq/jskeleton.git"
+        "penguin": "*",
+        "penguin-themes": "*"
     },
     "keywords": [
         "jskeleton",

@@ -98,7 +98,7 @@
       color: #FFD873;
       cursor: default;
     }
-  
+
   }
 
   &:hover {
@@ -260,7 +260,7 @@
   }
 
   &.active {
-    .component-link {
+    .class-link {
       border-left: 2px solid $brand-color;
     }
   }
@@ -270,7 +270,7 @@
   }
 }
 
-.component-link {
+.class-link {
   display: block;
   padding: 8px 12px;
 }
@@ -574,7 +574,7 @@
 .input--custom,
 .input--example {
 
-  input, 
+  input,
   select {
     -webkit-appearance: none;
     -moz-appearance: none;
@@ -586,7 +586,7 @@
 
 .input--example {
 
-  input, 
+  input,
   select {
     background: none;
     border: none;
