@@ -17,7 +17,7 @@
      }
  });
 
- var ItemBookView = Jskeleton.ItemView.extend({
+ Jskeleton.ItemView.factory('ListItemViewBook', {
      template: '<strong> Título del libro: </strong> <span class="title">{{title}}</span>' +
          '<strong> Autor del libro: </strong><span class="author">{{author}}</span>' +
          '<strong> Identificador del libro: </strong><span class="id">{{id}}</span> <button class="view-action"> Ver detalles </button>',
@@ -25,17 +25,13 @@
          'click .view-action': 'onActionClicked'
      },
      onActionClicked: function() {
-         this.channel.trigger('book:details', {
-             id: this.model.get('id'),
-             title: this.model.get('title'),
-             author: this.model.get('author')
-         });
+         this.trigger('action', this.model);
      }
  });
 
 
- var BookCollectionView = Jskeleton.CollectionView.factory('BookCollectionView', {
-     childView: ItemBookView
+ Jskeleton.CollectionView.factory('BookCollectionView', {
+     childView: 'ListItemViewBook'
  });
 
  Jskeleton.ViewController.factory('DetalleDeLibro', function(ServicioDeCompras, _channel) {
@@ -63,7 +59,7 @@
  Jskeleton.ViewController.factory('ListadoDeLibros', function(_channel) {
      return {
          events: {
-             'childview:navigate @component.BookCollectionView': 'onNavigateClicked'
+            'childview:action @component.BookCollectionView': 'onNavigateClicked'
          },
          onNavigateClicked: function(childview, model) {
              _channel.trigger('book:details', {

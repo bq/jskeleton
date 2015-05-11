@@ -27,6 +27,24 @@ Jskeleton.CollectionView = Marionette.CollectionView.extend({
 
 
         return new ChildViewClass(options);
+    },
+    getChildView: function(child) {
+        var childView = this.getOption('childView');
+
+        //The child view is a `Jskeleton.Factory` key string reference
+        if (typeof childView === 'string') {
+            childView = Jskeleton.factory.getClass(childView);
+        }
+
+        if (!childView) {
+            throw new Marionette.Error({
+                name: 'NoChildViewError',
+                message: 'A "childView" must be specified'
+            });
+        }
+
+
+        return childView;
     }
 }, {
     factory: Jskeleton.Utils.FactoryAdd
