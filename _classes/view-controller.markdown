@@ -2,19 +2,26 @@
 layout: api
 title:  "ViewController"
 submenu:
-  - ViewController.app: ""
-  - ViewController.channel: ""
-  - ViewController.region: ""
-  - ViewController.service: ""
+  - ViewController.channel: "#viewcontroller-channel"
+  - ViewController.region: "#viewcontroller-region"
+  - ViewController.service: "#viewcontroller-service"
   - ViewController.context: "#viewcontroller-context"
   - ViewController.components: "#viewcontroller-components"
   - ViewController.events: "#components-events"
   - ViewController.template: "#viewcontroller-template"
 ---
 
- El objeto `Jskeleton.ViewController` nos permite "renderizar" el estado de una aplicación procesando una ruta o un evento de navegación. Es un hibrido entre Vista y Controlador.
+El objeto `Jskeleton.ViewController` nos permite "renderizar" el estado de una aplicación procesando una ruta o un evento de navegación. Es un hibrido entre Vista y Controlador.
 
- Se podría definir como un contenedor de "Componentes-UI", entendiendo como tales cualquier componente javascript que tenga como finalidad encapsular lógica UI y que pueda generar HTML (`Jskeleton.ItemView` , `Jskeleton.CollectionView`, `Jskeleton.CompositeView`, `Jskeleton.LayoutView`).
+Se podría definir como un contenedor de "Componentes-UI", entendiendo como tales cualquier componente javascript que tenga como finalidad encapsular lógica UI y que pueda generar HTML (`Jskeleton.ItemView` , `Jskeleton.CollectionView`, `Jskeleton.CompositeView`, `Jskeleton.LayoutView`).
+
+`Jskeleton.ViewController` extiende de `Marionette.LayoutView`. Para más información sobre las propiedades y métodos de esta clase visita [la documentación de Marionette](http://marionettejs.com/docs/v2.4.1/marionette.layoutview.html)
+
+##ViewController channel
+
+##ViewController region
+
+##ViewController service
 
 ##ViewController context
 
@@ -59,4 +66,4 @@ Para más información sobre componentes ir a:
 
 
 
- `Jskeleton.ViewController` extiende de `Marionette.LayoutView`, para más información sobre las propiedades y métodos de la clase Marionette.LayoutView referirse a: http://marionettejs.com/docs/v2.4.1/marionette.layoutview.html
+

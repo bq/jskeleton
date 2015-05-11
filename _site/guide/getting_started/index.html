@@ -207,20 +207,70 @@
 
   <article class=" api-content col-a-12 col-c-9">
     <h1>Getting Started</h1>
-    <p>Lo primero que debes hacer para empezar a crear aplicaciones con Jskeleton es descargarlo e instalarlo.</p>
+    <p>Lo primero que debemos hacer para empezar a crear aplicaciones con Jskeleton es descargarlo e instalarlo.</p>
 
-<p>La forma mas sencilla de hacerlo es con el <a href="https://github.com/bq/generator-jskeleton">generador de Yeoman</a>. Debes instalar <code>yeoman</code>, <code>grunt-cli</code>, <code>bower</code> y <code>generator-jskeleton</code>:</p>
+<p>La manera mas sencilla es utilizando <a href="https://github.com/bq/generator-jskeleton">el generador de Yeoman</a>. Primero, debes instalar <code>yeoman</code>, <code>grunt-cli</code>, <code>bower</code> y <code>generator-jskeleton</code>:</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span> npm install -g grunt-cli bower yo generator-jskeleton</code></pre></div>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>npm install -g grunt-cli bower yo generator-jskeleton</code></pre></div>
 
 <p>Crea un nuevo directorio para tu aplicación:</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">mkdir my-new-project <span class="o">&amp;&amp;</span> <span class="nb">cd</span> <span class="nv">$_</span></code></pre></div>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>mkdir my-new-project <span class="o">&amp;&amp;</span> <span class="nb">cd</span> <span class="nv">$_</span></code></pre></div>
 
-<p>Ejecuta el generador de yeoman con el nombre de tu aplicación:</p>
+<p>Ejecuta el generador con el nombre de tu nueva aplicación:</p>
 
-<div class="highlight"><pre><code class="language-bash" data-lang="bash">yo jskeleton <span class="o">[</span>app-name<span class="o">]</span></code></pre></div>
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>yo jskeleton <span class="o">[</span>app-name<span class="o">]</span></code></pre></div>
 
+<p>Por último, instala todas las dependencias de Jskeleton:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>npm install <span class="o">&amp;&amp;</span> bower install</code></pre></div>
+
+<p>Vamos a comprobar que todo está OK… Inicia el servidor:</p>
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>grunt serve</code></pre></div>
+
+<p>Si abres tu navegador favorito con la url: <a href="http://127.0.0.1:8080/">http://127.0.0.1:8080</a> deberías ver ????????????</p>
+
+<p>Ya está! Tu nueva aplicación está lista para comenzar a crear sobre ella con Jskeleton!</p>
+
+<!---
+First thing you should do to start creating apps with Jskeleton is download and install.
+
+Easiest way to do that is throught [our Yeoman generator](https://github.com/bq/generator-jskeleton). First, you must install `yeoman`, `grunt-cli`, `bower` and `generator-jskeleton`:
+
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>npm install -g grunt-cli bower yo generator-jskeleton</code></pre></div>
+
+
+Create a new folder to your app:
+
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>mkdir my-new-project <span class="o">&amp;&amp;</span> <span class="nb">cd</span> <span class="nv">$_</span></code></pre></div>
+
+
+Run the generator with your new app name:
+
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>yo jskeleton <span class="o">[</span>app-name<span class="o">]</span></code></pre></div>
+
+
+Now, install all Jskeleton dependecies:
+
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>npm install <span class="o">&amp;&amp;</span> bower install</code></pre></div>
+
+
+Let's start our server to see if all it's ok:
+
+
+<div class="highlight"><pre><code class="language-bash" data-lang="bash"><span class="nv">$ </span>grunt serve</code></pre></div>
+
+
+You should see ????????????????
+
+That's it!, you have your new app up and running and you are ready to build awesome things with Jskeleton!
+
+--->
 
   </article>
 
