@@ -67,10 +67,6 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         options = options || {};
         options.parentApp = this;
 
-        if (typeof Class === 'string') {
-            Class = Jskeleton.factory.get(Class);
-        }
-
         return this.di.create(Class, extendProperties, options);
     },
     //Internal method to create an application private channel and set the global channel
@@ -152,32 +148,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         return handlerName;
     },
-    //Extend view controller class for inyect template dependency
-    // _extendViewControllerClass: function(options) {
-
-    //     var template = options.template,
-    //         ViewControllerClass = this._getViewControllerClass(options);
-
-    //     if (!template) {
-    //         throw new Error('You have to define a template to the view-controller.');
-    //     }
-    //     //is a factory object
-    //     if (ViewControllerClass.Class) {
-    //         //extend the class inside stored in the factory object to add the template dependency.
-    //         ViewControllerClass.Class = ViewControllerClass.Class.extend({
-    //             template: template
-    //         });
-    //     } else {
-    //         //Add the template to the View-Controller class
-    //         ViewControllerClass = ViewControllerClass.extend({
-    //             template: template
-    //         });
-    //     }
-
-    //     return ViewControllerClass;
-
-    // },
-    // //Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).
+    // Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).
     //Ensure that don't extist a view-controller and if exist that it's not destroyed.
     //The view controller is instantiated using the `Jskeleton.Di` to resolve the view-controller dependencies.
     _getViewControllerInstance: function(routeObject) {
@@ -188,14 +159,13 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
             ViewControllerClass = routeObject._ViewController,
             //get the view-controller options
             viewControllerOptions = routeObject._viewControllerOptions || {},
-
-            viewControllerExtendProperties = routeObject.template ? {
+            //get the view-controller template
+            viewControllerExtendTemplate = routeObject.template ? {
                 template: routeObject.template
             } : undefined;
 
-
         if (!viewController || viewController.isDestroyed === true) {
-            viewController = this.factory(ViewControllerClass, viewControllerExtendProperties, viewControllerOptions);
+            viewController = this.factory(ViewControllerClass, viewControllerExtendTemplate, viewControllerOptions);
             this.listenTo(viewController, 'destroy', this._removeViewController.bind(this, routeObject, viewController));
         }
 

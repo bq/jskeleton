@@ -35,6 +35,7 @@ Jskeleton.CollectionView.factory('BookCollectionView', {
 
 Jskeleton.ViewController.factory('DetalleDeLibro', function(ServicioDeCompras, _channel) {
     return {
+        template: '<span> Detalle de libro: </span> {{@component name="DetailBookView" model=context.bookModel}}',
         events: {
             'action @component.DetailBookView': 'onActionClicked',
             'navigate @component.DetailBookView': 'onNavigateClicked'
@@ -58,7 +59,7 @@ Jskeleton.ViewController.factory('DetalleDeLibro', function(ServicioDeCompras, _
 Jskeleton.ViewController.factory('ListadoDeLibros', function(_channel) {
     return {
         events: {
-           'childview:action @component.BookCollectionView': 'onNavigateClicked'
+            'childview:action @component.BookCollectionView': 'onNavigateClicked'
         },
         onNavigateClicked: function(childview, model) {
             _channel.trigger('book:details', {
@@ -86,7 +87,6 @@ Jskeleton.ChildApplication.factory('BookCatalogue', {
     routes: {
         'book/show/:title(/:id)': {
             viewControllerClass: 'DetalleDeLibro',
-            template: '<span> Detalle de libro: </span> {{@component name="DetailBookView" model=context.bookModel}}',
             // name: 'home:navigate',
             // triggerEvent: ''
             // viewControllerOptions: {
@@ -98,7 +98,7 @@ Jskeleton.ChildApplication.factory('BookCatalogue', {
             handlerName: 'ListBooks',
             viewControllerClass: 'ListadoDeLibros',
             eventListener: 'book:list',
-            template: '<span> Listado de libros: </span> {{@component name="BookCollectionView" collection=context.bookCollection}} <span>test hbs helper: {{#if 1}} OK {{/if}}</span>'
+            template: '<span> Listado de libros: </span> {{@component name="BookCollectionView" collection=context.bookCollection}}',
         }
     },
     events: {
@@ -111,7 +111,6 @@ Jskeleton.ChildApplication.factory('BookCatalogue', {
         // ]
     }
 });
-
 Jskeleton.Service.factory('ServicioDeCompras', {
     initialize: function() {
         console.log('Soy my servicio');
@@ -121,7 +120,7 @@ Jskeleton.Service.factory('ServicioDeCompras', {
     }
 });
 
-var Layout = Jskeleton.LayoutView.extend({
+var Layout = Jskeleton.LayoutView.factory('MainLayout', {
     regions: {
         headerRegion: '.header',
         contentRegion: '.content',
@@ -131,9 +130,9 @@ var Layout = Jskeleton.LayoutView.extend({
 
 
 var AppMain = Jskeleton.Application.extend({
-    rootEl: '.app-container',
+    el: '.app-container',
     layout: {
-        layoutClass: Layout,
+        layoutClass: 'MainLayout',
         template: '<div class="hero-unit">' +
             '<h1>Aplicación de libros</h1>' +
             '<h3> Header: </h3>' +
@@ -142,10 +141,7 @@ var AppMain = Jskeleton.Application.extend({
             '<div class="content"></div>' +
             '<h3> Footer: </h3>' +
             '<div class="footer"></div>' +
-            '</div>'
-         // TODO:
-         //regions: {
-         //}
+            '</div>',
     },
     applications: {
         'bookCatalogue': {
@@ -153,9 +149,9 @@ var AppMain = Jskeleton.Application.extend({
             region: 'contentRegion'
         }
     }
- });
+});
 
- var app = new AppMain();
+var app = new AppMain();
 
 // app.router.route("*notFound", "page", function() {
 //     console.log("404 error", arguments);

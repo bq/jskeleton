@@ -95,27 +95,20 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     //Create a layout for the Application to have more regions availables.
     //The application expose the layout regions to the application object as own properties.
     _createApplicationLayout: function() {
+
         //ensure layout object is defined
-        if (this.layout && typeof this.layout === 'object') {
-            //get defined layout template
-            this.layoutTemplate = this.layout.template;
+        if (this.layout) {
+            //get layout class
+            var Layout = typeof this.layout === 'object' && this.layout.layoutClass ? this.layout.layoutClass : this.layout,
+                //get layout options
+                layoutOptions = typeof this.layout === 'object' && this.layout.layoutOptions ? this.layout.layoutOptions : {},
+                //extend layout template
+                layoutExtendTemplate = typeof this.layout === 'object' && this.layout.template ? {
+                    template: this.layout.template
+                } : undefined;
 
-
-            this.layoutClass = this.layout.layoutClass || this.getDefaultLayoutClass(); //TODO: mirar si poner layout por defecto ( seria necesario entonces poder poner regiones de forma explicita)
-
-            if (!this.layoutTemplate && this.layoutClass.template === undefined) {
-                throw new Error('You have to define a template for the application layout.');
-            }
-
-            if (this.layoutTemplate) {
-                //Extend the layout class to add the specified template
-                this.layoutClass = this.layoutClass.extend({
-                    template: this.layoutTemplate
-                });
-            }
-
-            //create the layout instance with the layout options declared in the application layout object
-            this._layout = this.factory(this.layoutClass, undefined, this.layout.options);
+            //create the layout instance
+            this._layout = this.factory(Layout, layoutExtendTemplate, layoutOptions);
 
             //Show the layout in the application main region
             this[this.mainRegionName].show(this._layout);
@@ -123,6 +116,7 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
             //expose the layout regions to the application object
             this._addLayoutRegions();
         }
+
     },
     //Expose layout regions to the application namespace
     _addLayoutRegions: function() {
