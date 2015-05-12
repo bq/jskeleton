@@ -29,6 +29,7 @@
   <!-- Styles -->
   <link rel="stylesheet" title="penguin-theme" href="/bower_components/penguin-themes/themes/penguin-doc/dist/css/penguin-doc.css">
   <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/toc.css">
 </head>
 
 
@@ -194,13 +195,25 @@
                 
                 <li class="nav__submenu__item">
                     
-                    <a href="#components-events" class="nav__submenu__link">ViewController.events</a>
+                    <a href="#viewcontroller-events" class="nav__submenu__link">ViewController.events</a>
                     
                 </li>
                 
                 <li class="nav__submenu__item">
                     
                     <a href="#viewcontroller-template" class="nav__submenu__link">ViewController.template</a>
+                    
+                </li>
+                
+                <li class="nav__submenu__item">
+                    
+                    <a href="#viewcontroller-render" class="nav__submenu__link">ViewController.render</a>
+                    
+                </li>
+                
+                <li class="nav__submenu__item">
+                    
+                    <a href="#viewcontroller-destroy" class="nav__submenu__link">ViewController.destroy</a>
                     
                 </li>
                 
@@ -300,7 +313,7 @@
                         
                         <li class="aside-nav__item ">
                             
-                            <a class="class-link" href="#components-events">ViewController.events
+                            <a class="class-link" href="#viewcontroller-events">ViewController.events
                             </a>
                             
                         </li>
@@ -308,6 +321,20 @@
                         <li class="aside-nav__item ">
                             
                             <a class="class-link" href="#viewcontroller-template">ViewController.template
+                            </a>
+                            
+                        </li>
+                        
+                        <li class="aside-nav__item ">
+                            
+                            <a class="class-link" href="#viewcontroller-render">ViewController.render
+                            </a>
+                            
+                        </li>
+                        
+                        <li class="aside-nav__item ">
+                            
+                            <a class="class-link" href="#viewcontroller-destroy">ViewController.destroy
                             </a>
                             
                         </li>
@@ -325,8 +352,8 @@
 
 </aside>
 
-
   <article class=" api-content col-a-12 col-c-9">
+    <div id="main_content"></div>
   	<h1>ViewController</h1>
     <p>El objeto <code>Jskeleton.ViewController</code> nos permite “renderizar” el estado de una aplicación procesando una ruta o un evento de navegación. Es un hibrido entre Vista y Controlador.</p>
 
@@ -335,6 +362,24 @@
 <p><code>Jskeleton.ViewController</code> extiende de <code>Marionette.LayoutView</code>. Para más información sobre las propiedades y métodos de esta clase visita <a href="http://marionettejs.com/docs/v2.4.1/marionette.layoutview.html">la documentación de Marionette</a></p>
 
 <h2 id="viewcontroller-channel">ViewController channel</h2>
+<p>El <code>channel</code> del ViewController define como se propagan los eventos del mismo a través de la aplicación. Cada vez que se crea un nuevo ViewController debemos inyectar su <code>channel</code>, que puede ser privado o global (ver Application.channels).</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">_channel</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">&#39;some:event&#39;</span><span class="p">);</span></code></pre></div>
+
+<p>En el ejemplo anterior el evento <code>some:event</code> sería propagado por <code>_channel</code>. En el siguiente ejemplo se puede ver como se definiría dentro de un ViewController:</p>
+
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">ViewController</span><span class="p">.</span><span class="nx">factory</span><span class="p">(</span><span class="s1">&#39;DetalleDeLibro&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">_channel</span><span class="p">)</span> <span class="p">{</span>
+       <span class="k">return</span> <span class="p">{</span>
+           <span class="nx">events</span><span class="o">:</span> <span class="p">{</span>
+               <span class="s1">&#39;navigate @component.DetailBookView&#39;</span><span class="o">:</span> <span class="s1">&#39;onNavigateClicked&#39;</span>
+           <span class="p">},</span>
+           <span class="nx">onNavigateClicked</span><span class="o">:</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+               <span class="nx">_channel</span><span class="p">.</span><span class="nx">trigger</span><span class="p">(</span><span class="s1">&#39;book:list&#39;</span><span class="p">);</span>
+           <span class="p">}</span>
+       <span class="p">};</span>
+   <span class="p">});</span></code></pre></div>
+
+<p>Los <code>channel</code> se basan en <code>Backbone.Radio</code>. Para mas información puedes acceder a <a href="https://github.com/marionettejs/backbone.radio#channels">su documentación</a>.</p>
 
 <h2 id="viewcontroller-region">ViewController region</h2>
 
@@ -358,20 +403,31 @@
 
 <p>El método podrá devolver una promesa para resolver asincronamente el renderizado…</p>
 
-<h2 id="dependency-injection">Dependency injection</h2>
-
-<h2 id="viewcontroller-components">ViewController components</h2>
+<h2 id="viewcontroller-components">ViewController Components</h2>
 
 <p>A través del template podremos definir componentes ui que el view-controller va a crear al renderizar el template:</p>
 
 <div class="highlight"><pre><code class="language-html" data-lang="html"><span class="nt">&lt;div&gt;</span> { { @component name=&quot;menu-bar&quot; model=context.model } } <span class="nt">&lt;/div&gt;</span></code></pre></div>
 
-<p>Para más información sobre componentes ir a:</p>
+<p>A su vez, una vez destruido un ViewController todos sus componentes son también destruidos.</p>
 
-<h2 id="components-events">Components events</h2>
+<p>Para más información sobre componentes puedes ir a <a href="/api-reference/components/">esta sección</a></p>
 
-<h2 id="viewcontroller-template">ViewController template</h2>
+<h2 id="viewcontroller-events">ViewController Events</h2>
 
+<p>Los eventos definidos en cada componente pueden disparar otros eventos definidos en el ViewController a través de su <code>channel</code>.</p>
+
+<div class="highlight"><pre><code class="language-html" data-lang="html">Jskeleton.ViewController.factory(&#39;BookListController&#39;, function(_channel) {
+       events: {
+           &#39;some:event @component.menu-bar&#39;: &#39;onMenuClicked&#39;
+       }
+  });</code></pre></div>
+
+<h2 id="viewcontroller-template">ViewController Template</h2>
+
+<h2 id="viewcontroller-render">ViewController Render</h2>
+
+<h2 id="viewcontroller-destroy">ViewController Destroy</h2>
 
   </article>
 
@@ -458,6 +514,14 @@
 
 <!-- Components demo -->
 <script src="/assets/js/demo.js"></script>
+
+<script src="/assets/js/toc.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#main_content').toc({ showEffect: 'slideDown' });
+    });
+</script>
 
 
 

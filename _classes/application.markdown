@@ -12,6 +12,7 @@ submenu:
 
  `JSkeleton.Application` es un contenedor donde almacenar y dividir en pequeñas partes la lógica de tu aplicación web, haciéndola más reusable, desacoplada y escalable.
 
+
 ##Documentation Index
 * [Application DOM](#application-dom)
     * [Definir el rootEl de una aplicación](#rootel)
@@ -57,7 +58,7 @@ Todas las `Jskeleton.Application` tienen una región raíz/principal (por defect
 Cada aplicación puede definir regiones de forma declarativa o de forma dinámica:
 
     {% highlight javascript %}
-        
+
         //Declarative Way
 var ExampleApp = Jskeleton.Application.extend({
     regions: {
@@ -140,7 +141,7 @@ app.start(); //explicit start (the child application chat will be started to but
 A su vez, es posible añadir aplicaciones bajo demanda. Por defecto, esta nueva aplicación se iniciará al añadirse, a no ser que tenga flag `startWithParent: false`, que habrá que arrancarla de forma explícita.
 
     {% highlight javascript %}
-    
+
     var app = new ExampleApp();
 
 var ChildApp = Jskeleton.ChildApplication.extend({});

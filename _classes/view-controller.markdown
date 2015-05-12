@@ -7,8 +7,10 @@ submenu:
   - ViewController.service: "#viewcontroller-service"
   - ViewController.context: "#viewcontroller-context"
   - ViewController.components: "#viewcontroller-components"
-  - ViewController.events: "#components-events"
+  - ViewController.events: "#viewcontroller-events"
   - ViewController.template: "#viewcontroller-template"
+  - ViewController.render: "#viewcontroller-render"
+  - ViewController.destroy: "#viewcontroller-destroy"
 ---
 
 El objeto `Jskeleton.ViewController` nos permite "renderizar" el estado de una aplicación procesando una ruta o un evento de navegación. Es un hibrido entre Vista y Controlador.
@@ -18,6 +20,28 @@ Se podría definir como un contenedor de "Componentes-UI", entendiendo como tale
 `Jskeleton.ViewController` extiende de `Marionette.LayoutView`. Para más información sobre las propiedades y métodos de esta clase visita [la documentación de Marionette](http://marionettejs.com/docs/v2.4.1/marionette.layoutview.html)
 
 ##ViewController channel
+El `channel` del ViewController define como se propagan los eventos del mismo a través de la aplicación. Cada vez que se crea un nuevo ViewController debemos inyectar su `channel`, que puede ser privado o global (ver Application.channels).
+
+{% highlight javascript %}
+  _channel.trigger('some:event');
+{% endhighlight %}
+
+En el ejemplo anterior el evento `some:event` sería propagado por `_channel`. En el siguiente ejemplo se puede ver como se definiría dentro de un ViewController:
+
+{% highlight javascript %}
+   Jskeleton.ViewController.factory('DetalleDeLibro', function(_channel) {
+       return {
+           events: {
+               'navigate @component.DetailBookView': 'onNavigateClicked'
+           },
+           onNavigateClicked: function() {
+               _channel.trigger('book:list');
+           }
+       };
+   });
+{% endhighlight %}
+
+Los `channel` se basan en `Backbone.Radio`. Para mas información puedes acceder a [su documentación](https://github.com/marionettejs/backbone.radio#channels).
 
 ##ViewController region
 
@@ -47,9 +71,7 @@ En el template asociado al view controller, tendremos total acceso al contexto c
 
 El método podrá devolver una promesa para resolver asincronamente el renderizado...
 
-##Dependency injection
-
-##ViewController components
+##ViewController Components
 
 A través del template podremos definir componentes ui que el view-controller va a crear al renderizar el template:
 
@@ -57,13 +79,24 @@ A través del template podremos definir componentes ui que el view-controller va
         <div> { { @component name="menu-bar" model=context.model } } </div>
     {% endhighlight %}
 
-Para más información sobre componentes ir a:
+A su vez, una vez destruido un ViewController todos sus componentes son también destruidos.
 
-##Components events
+Para más información sobre componentes puedes ir a [esta sección](/api-reference/components/)
 
-##ViewController template
+##ViewController Events
 
+Los eventos definidos en cada componente pueden disparar otros eventos definidos en el ViewController a través de su `channel`.
 
+{% highlight html %}
+  Jskeleton.ViewController.factory('BookListController', function(_channel) {
+       events: {
+           'some:event @component.menu-bar': 'onMenuClicked'
+       }
+  });
+{% endhighlight %}
 
+##ViewController Template
 
+##ViewController Render
 
+##ViewController Destroy

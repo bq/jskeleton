@@ -29,6 +29,7 @@
   <!-- Styles -->
   <link rel="stylesheet" title="penguin-theme" href="/bower_components/penguin-themes/themes/penguin-doc/dist/css/penguin-doc.css">
   <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/toc.css">
 </head>
 
 
@@ -312,8 +313,8 @@
 
 </aside>
 
-
   <article class=" api-content col-a-12 col-c-9">
+    <div id="main_content"></div>
   	<h1>Application</h1>
     <p><code>JSkeleton.Application</code> es un contenedor donde almacenar y dividir en pequeñas partes la lógica de tu aplicación web, haciéndola más reusable, desacoplada y escalable.</p>
 
@@ -594,6 +595,14 @@
 
 <!-- Components demo -->
 <script src="/assets/js/demo.js"></script>
+
+<script src="/assets/js/toc.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#main_content').toc({ showEffect: 'slideDown' });
+    });
+</script>
 
 
 

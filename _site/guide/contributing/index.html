@@ -29,6 +29,7 @@
   <!-- Styles -->
   <link rel="stylesheet" title="penguin-theme" href="/bower_components/penguin-themes/themes/penguin-doc/dist/css/penguin-doc.css">
   <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="stylesheet" href="/assets/css/toc.css">
 </head>
 
 
@@ -294,6 +295,14 @@
 
 <!-- Components demo -->
 <script src="/assets/js/demo.js"></script>
+
+<script src="/assets/js/toc.js"></script>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#main_content').toc({ showEffect: 'slideDown' });
+    });
+</script>
 
 
 
