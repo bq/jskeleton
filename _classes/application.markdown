@@ -155,11 +155,11 @@ Cada aplicación dispone de dos canales de comunicación:
 -**Canal global**:
     Canal para comunicar **aplicaciones** entre sí.
 
-Uso de los canales:
+A continuación, se muestra un ejemplo de uso de los canales.
 
     {% highlight javascript %}
     var app = new ExampleApp();
-
+//Using each channel
 app.privateChannel.trigger();
 app.globalChannel.trigger();
 
@@ -185,9 +185,9 @@ Cada aplicación, ya sea `Jskeleton.Application` como `Jskeleton.ChildApplicatio
     {% endhighlight %}
 
 
-Las rutas y eventos de una aplicación no se inician hasta que no se hace un app.start(). Si la ruta de una aplicación se dispara, Jskeleton se encarga de crear un view-controller (si no se ha definido se crea una clase por defecto automáticamente) e inyectar el template definido para esa ruta.
+Las rutas y eventos de una aplicación no se inician hasta que no se hace un _start()_ de la misma.
 
-Para especificar un `Jskeleton.ViewController` solo hay que añadir la clase como opción de la ruta:
+Es posible especificar un `Jskeleton.ViewController` para cada ruta. Si no se define ningún `Jskeleton.ViewController`, se inyectará uno por defecto usando el template de la ruta. Es recomendable el uso de _jskeleton dependency injection_ para definir dependencias.
 
     {% highlight javascript %}
     var ExampleApp = Jskeleton.ChildApplication.extend({
@@ -200,16 +200,11 @@ Para especificar un `Jskeleton.ViewController` solo hay que añadir la clase com
     });
     {% endhighlight %}
 
-
-(Se recomienda el uso de **jskeleton dependency injection** para definir dependencias)
-
-El view controller es **renderizado** en la región que se le ha definido a la aplicación.
-
-Si se trata de una `Jskeleton.Application` se renderizará en la región principal que hayamos definido para esa aplicación.
+El `Jskeleton.ViewController` es _renderizado_ en la región definida para la aplicación. En el caso de tratarse de una `Jskeleton.Application`, el `Jskeleton.ViewController` se renderizará en la región principal para esa aplicación.
 
 Si se trata de una `Jskeleton.ChildApplication` se renderizará en la región de la aplicación padre que nosotros le hayamos especificado al declararla como aplicación hija.
 
-Para cada ruta podemos definir el evento de navegación que va a provocar esa ruta, de tal forma que cuándo alguna otra aplicación lance dicho evento de navegación a nivel global, nuestra aplicación procese dicho evento como si de una ruta se tratase (renderizando el view controller con el template especificado y en la región de la aplicación) y actualizando la ruta de forma automática (mapeando los parametros que recibimos a través del evento con los parametros que se han definido en la ruta).
+Para cada ruta podemos definir el evento de navegación que va a provocar esa ruta. De este modo, cuándo otra aplicación lance dicho evento a nivel global, nuestra aplicación lo procesará como si de una ruta se tratase. Ésto conllevará el renderizado del `Jskeleton.ViewController` (con el template y la región especificada) y la actualización de la ruta de forma automática (mapeando los parámetros que recibimos a través del evento con los parametros que se han definido en la ruta).
 
     {% highlight javascript %}
     var ExampleApp = Jskeleton.ChildApplication.extend({
@@ -230,7 +225,7 @@ Para cada ruta podemos definir el evento de navegación que va a provocar esa ru
         params: '15'
     });
 
-    //La aplicación ExampleApp procesaría el vento como si de una ruta se tratase, y actualizaria la ruta del navegador con los parametros obtenidos del evento:
+    //La aplicación ExampleApp procesaría el evento como si de una ruta se tratase, y actualizaría la ruta del navegador con los parámetros obtenidos del evento:
     // 'backbone/route/ejemplo/15'
     {% endhighlight %}
 
