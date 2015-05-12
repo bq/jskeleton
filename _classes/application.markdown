@@ -5,9 +5,9 @@ submenu:
   - Application.rootEl: "#rootel"
   - Application.rootRegion: "#application-main-region"
   - Application.regions: "#regions"
+  - Application.layout: "#layout"
   - Application.applications: "#child-applications"
   - Application.channels: "#channels"
-  - Application.layout: ""
 ---
 
  `JSkeleton.Application` es un contenedor donde almacenar y dividir en pequeñas partes la lógica de tu aplicación web, haciéndola más reusable, desacoplada y escalable.
@@ -17,6 +17,7 @@ submenu:
     * [Definir el rootEl de una aplicación](#rootel)
     * [Definir la región principal de una aplicación](#application-main-region)
 * [Definir regiones de una aplicación](#regions)
+* [Definir layout de una aplicación](#layout)
 * [Definir child applications de una aplicación](#child-applications)
 * [Application channels](#Channels)
 
@@ -70,6 +71,8 @@ var app = new Jskeleton.Application();
 app.addRegion({contentRegion: 'body'});
 
     {% endhighlight %}
+
+##Layout
 
 Una aplicación también puede añadir regiones a través de su layout. Estas regiones se expondrán directamente a la aplicación y se destruirán cuando ésta se destruya.
 
