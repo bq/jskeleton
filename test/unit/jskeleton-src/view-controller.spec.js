@@ -65,7 +65,7 @@ describe('In view-controller ', function() {
 
     });
 
-    describe('When we have a view-controller object', function() {
+    describe('when we have a view-controller object', function() {
 
         beforeEach(function() {
 
@@ -236,6 +236,90 @@ describe('In view-controller ', function() {
                     expect(this.otherViewComponentSpyEvent.calledOnce).to.be.false;
                 });
             });
+
+            describe('if it`s context method returns a promise', function() {
+
+                before(function() {
+                    $('body').append('<div class="test-layer"></div>');
+
+                    this.def = $.Deferred();
+                    this.promise = this.def.promise();
+
+                    this.ViewController = Jskeleton.ViewController.extend({
+                        contextMethod: sandbox.stub().returns(this.promise),
+                        template: '<div></div>'
+                    });
+
+                    this.defNoRender = $.Deferred();
+
+                    this.promiseNoRender = this.defNoRender.promise();
+
+                    this.ViewControllerNoReRender = Jskeleton.ViewController.extend({
+                        contextMethod: sandbox.stub().returns(this.promiseNoRender),
+                        renderOnPromise: false,
+                        template: '<div></div>'
+                    });
+
+                    this.viewController = new this.ViewController({
+                        app: {},
+                        region: {}
+                    });
+
+                    this.viewControllerNoReRender = new this.ViewControllerNoReRender({
+                        app: {},
+                        region: {}
+                    });
+
+                    this.region = new Marionette.Region({
+                        el: 'body'
+                    });
+
+                    this.renderSpy = sandbox.spy(this.viewController, 'render');
+                    this.noRenderSpy = sandbox.spy(this.viewControllerNoReRender, 'render');
+                });
+
+                after(function() {
+                    $('.test-layer').remove();
+                });
+
+                it('view-controller is re-render ', function(done) {
+                    var that = this;
+
+                    this.viewController.show(this.region, 'contextMethod');
+
+                    expect(this.renderSpy.calledOnce).to.be.equal(true);
+
+                    this.def.resolve();
+
+                    this.promise.then(function() {
+                        expect(that.renderSpy.calledTwice).to.be.equal(true);
+                        done();
+                    });
+
+                });
+
+                it('view-controller is not re-render if renderOnPromise is false', function(done) {
+                    var that = this;
+
+                    this.viewControllerNoReRender.show(this.region, 'contextMethod');
+
+                    expect(this.noRenderSpy.calledOnce).to.be.equal(true);
+
+                    this.defNoRender.resolve();
+
+                    this.promiseNoRender.then(function() {
+                        expect(that.noRenderSpy.calledOnce).to.be.equal(true);
+                        done();
+                    });
+
+                });
+
+
+            });
+
+
+
+
         });
     });
 });
