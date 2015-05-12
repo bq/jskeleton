@@ -2,7 +2,7 @@
 layout: api
 title:  "Application"
 submenu:
-  - Application.rootEl: "#rootEl"
+  - Application.rootEl: "#rootel"
   - Application.rootRegion: "#application-main-region"
   - Application.regions: "#regions"
   - Application.applications: "#child-applications"
@@ -12,6 +12,7 @@ submenu:
 
  `JSkeleton.Application` es un contenedor donde almacenar y dividir en pequeñas partes la lógica de tu aplicación web, haciéndola más reusable, desacoplada y escalable.
 
+##Documentation Index
 * [Application DOM](#application-dom)
     * [Definir el rootEl de una aplicación](#rootel)
     * [Definir la región principal de una aplicación](#application-main-region)
