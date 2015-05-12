@@ -143,7 +143,7 @@
                 
                 <li class="nav__submenu__item">
                     
-                    <a href="#root-el" class="nav__submenu__link">Application.rootEl</a>
+                    <a href="#rootel" class="nav__submenu__link">Application.rootEl</a>
                     
                 </li>
                 
@@ -161,6 +161,12 @@
                 
                 <li class="nav__submenu__item">
                     
+                    <a href="#layout" class="nav__submenu__link">Application.layout</a>
+                    
+                </li>
+                
+                <li class="nav__submenu__item">
+                    
                     <a href="#child-applications" class="nav__submenu__link">Application.applications</a>
                     
                 </li>
@@ -168,12 +174,6 @@
                 <li class="nav__submenu__item">
                     
                     <a href="#channels" class="nav__submenu__link">Application.channels</a>
-                    
-                </li>
-                
-                <li class="nav__submenu__item">
-                    
-                    <a href="" class="nav__submenu__link">Application.layout</a>
                     
                 </li>
                 
@@ -232,7 +232,7 @@
                         
                         <li class="aside-nav__item ">
                             
-                            <a class="class-link" href="#root-el">Application.rootEl
+                            <a class="class-link" href="#rootel">Application.rootEl
                             </a>
                             
                         </li>
@@ -253,6 +253,13 @@
                         
                         <li class="aside-nav__item ">
                             
+                            <a class="class-link" href="#layout">Application.layout
+                            </a>
+                            
+                        </li>
+                        
+                        <li class="aside-nav__item ">
+                            
                             <a class="class-link" href="#child-applications">Application.applications
                             </a>
                             
@@ -261,13 +268,6 @@
                         <li class="aside-nav__item ">
                             
                             <a class="class-link" href="#channels">Application.channels
-                            </a>
-                            
-                        </li>
-                        
-                        <li class="aside-nav__item ">
-                            
-                            <a class="class-link" href="">Application.layout
                             </a>
                             
                         </li>
@@ -315,16 +315,18 @@
 
   <article class=" api-content col-a-12 col-c-9">
   	<h1>Application</h1>
-    <p><code>JSkeleton.Application</code> es un contenedor donde almacenar y dividir en pequeñas partes la lógica de tu aplicación web, haciendola más rehusable, más desacoplada y más escalable.</p>
+    <p><code>JSkeleton.Application</code> es un contenedor donde almacenar y dividir en pequeñas partes la lógica de tu aplicación web, haciéndola más reusable, desacoplada y escalable.</p>
 
+<h2 id="documentation-index">Documentation Index</h2>
 <ul>
   <li><a href="#application-dom">Application DOM</a>
     <ul>
-      <li><a href="#root-el">Definir el rootEl de una aplicación</a></li>
+      <li><a href="#rootel">Definir el rootEl de una aplicación</a></li>
       <li><a href="#application-main-region">Definir la región principal de una aplicación</a></li>
     </ul>
   </li>
   <li><a href="#regions">Definir regiones de una aplicación</a></li>
+  <li><a href="#layout">Definir layout de una aplicación</a></li>
   <li><a href="#child-applications">Definir child applications de una aplicación</a></li>
   <li><a href="#Channels">Application channels</a></li>
 </ul>
@@ -333,7 +335,7 @@
 
 <h3 id="rootel">rootEl</h3>
 
-<p>Todas las <code>Jskeleton.Application</code> <strong>tienen</strong> que tener un dom raíz, donde se definira la región raíz/principal de la aplicación y donde se pintará el layout de la aplicación (si se ha definido).</p>
+<p>Todas las <code>Jskeleton.Application</code> <strong>tienen</strong> que tener un DOM raíz, donde se definirá la región raíz/principal de la aplicación y donde se pintará el layout de la aplicación (si se ha definido).</p>
 
 <p>Para definir el root raíz de una aplicación, basta con definirlo en la clase o en la instanciación:</p>
 
@@ -341,15 +343,12 @@
         <span class="nx">rootEl</span><span class="o">:</span> <span class="s1">&#39;body&#39;</span>
     <span class="p">});</span>
 
-
-    <span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-    <span class="p">});</span>
-
-    <span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ExampleApp</span><span class="p">({</span><span class="nx">rootEl</span><span class="o">:</span> <span class="s1">&#39;body&#39;</span><span class="p">});</span></code></pre></div>
+<span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">extend</span><span class="p">({});</span>
+<span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ExampleApp</span><span class="p">({</span><span class="nx">rootEl</span><span class="o">:</span> <span class="s1">&#39;body&#39;</span><span class="p">});</span></code></pre></div>
 
 <h3 id="application-main-region">Application main region</h3>
 
-<p>Todas las <code>Jskeleton.Application</code> tienen una región raíz/principal (por defecto ‘root’). Esta región es la que se le pasará a las child applications si no se les especifica ninguna región. Para definir una región principal:</p>
+<p>Todas las <code>Jskeleton.Application</code> tienen una región raíz/principal (por defecto, ‘root’). Esta región es la que se le pasará a las child applications si no se les especifica ninguna región. Para definir una región principal:</p>
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
         <span class="nx">rootRegion</span><span class="o">:</span> <span class="s1">&#39;main&#39;</span>
@@ -357,41 +356,40 @@
 
 <h2 id="regions">Regions</h2>
 
-<p>Cada aplicación puede definir regiones de forma declarativa:</p>
+<p>Cada aplicación puede definir regiones de forma declarativa o de forma dinámica:</p>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-            <span class="nx">regions</span><span class="o">:</span> <span class="p">{</span>
-                <span class="nx">main</span><span class="o">:</span> <span class="s1">&#39;body&#39;</span><span class="p">,</span>
-                <span class="nx">someRegion</span><span class="o">:</span> <span class="s1">&#39;.dom-selector&#39;</span>
-            <span class="p">}</span>
-        <span class="p">});</span></code></pre></div>
+<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="c1">//Declarative Way</span>
+<span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">regions</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">main</span><span class="o">:</span> <span class="s1">&#39;body&#39;</span><span class="p">,</span>
+        <span class="nx">someRegion</span><span class="o">:</span> <span class="s1">&#39;.dom-selector&#39;</span>
+    <span class="p">}</span>
+<span class="p">});</span>
 
-<p>o de forma dinámica:</p>
+<span class="c1">//Dynamic Way</span>
+<span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">();</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">addRegion</span><span class="p">({</span><span class="nx">contentRegion</span><span class="o">:</span> <span class="s1">&#39;body&#39;</span><span class="p">});</span></code></pre></div>
 
-<div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">();</span>
+<h2 id="layout">Layout</h2>
 
-        <span class="nx">app</span><span class="p">.</span><span class="nx">addRegion</span><span class="p">({</span><span class="nx">contentRegion</span><span class="o">:</span> <span class="s1">&#39;body&#39;</span><span class="p">});</span></code></pre></div>
-
-<p>Una aplicación también puede añadir regiones a partir de su layout:</p>
+<p>Una aplicación también puede añadir regiones a través de su layout. Estas regiones se expondrán directamente a la aplicación y se destruirán cuando ésta se destruya.</p>
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">Layout</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Layout</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-            <span class="nx">regions</span><span class="o">:</span> <span class="p">{</span>
-                <span class="nx">anotherRegion</span><span class="o">:</span> <span class="s1">&#39;.template-dom-selector&#39;</span>
-            <span class="p">}</span>
-        <span class="p">});</span>
+    <span class="nx">regions</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">anotherRegion</span><span class="o">:</span> <span class="s1">&#39;.template-dom-selector&#39;</span>
+    <span class="p">}</span>
+<span class="p">});</span>
 
-        <span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
-            <span class="nx">layout</span><span class="o">:</span> <span class="p">{</span>
-                <span class="nx">template</span><span class="o">:</span> <span class="s1">&#39;&lt;div class=&quot;header&quot;&gt;&lt;/div&gt;&lt;div class=&quot;content&quot;&gt;&lt;/div&gt;&#39;</span><span class="p">,</span>
-                <span class="kr">class</span><span class="o">:</span> <span class="nx">Layout</span>
-            <span class="p">}</span>
-        <span class="p">});</span></code></pre></div>
+<span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+    <span class="nx">layout</span><span class="o">:</span> <span class="p">{</span>
+        <span class="nx">template</span><span class="o">:</span> <span class="s1">&#39;&lt;div class=&quot;header&quot;&gt;&lt;/div&gt;&lt;div class=&quot;content&quot;&gt;&lt;/div&gt;&#39;</span><span class="p">,</span>
+        <span class="kr">class</span><span class="o">:</span> <span class="nx">Layout</span>
+    <span class="p">}</span>
+<span class="p">});</span></code></pre></div>
 
-<p>Estas regiones se expondrán directamente a la aplicación y se destruirán cuando esta se destruya.</p>
+<h2 id="child-applications">Child Applications</h2>
 
-<h2 id="child-applications">Child applications</h2>
-
-<p>Una aplicación puede tener multiples <code>Jskeleton.ChildApplication</code>.</p>
+<p>Una aplicación puede tener múltiples <code>Jskeleton.ChildApplication</code>:</p>
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
         <span class="nx">applications</span><span class="o">:</span> <span class="p">{</span>
@@ -406,13 +404,12 @@
         <span class="p">}</span>
     <span class="p">});</span></code></pre></div>
 
-<p>Cuándo una aplicación define aplicaciones hijas,estas se instanciarán y “arrancaran” automaticamente cuando se llame explicitamente al método start.</p>
+<p>Cuando una aplicación define aplicaciones hijas, éstas se instanciarán y “arrancarán” automáticamente cuando se llame explícitamente a la función <em>start()</em>.</p>
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ExampleApp</span><span class="p">();</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">start</span><span class="p">();</span> <span class="c1">//explicit start (the child applications will be started to)</span></code></pre></div>
 
-    <span class="nx">app</span><span class="p">.</span><span class="nx">start</span><span class="p">();</span> <span class="c1">//explicit start (the child applications will be started to)</span></code></pre></div>
-
-<p>Para arrancar una aplicación hija de forma explicita, se puede añadir la opcion <code>startWithParent: false</code>  (por defecto a true) para que la aplicación hija no sea arrancada con su aplicación padre.</p>
+<p>Para obligar a que una aplicación hija deba de ser arrancada de forma explícita, se puede añadir la opción <code>startWithParent: false</code> (por defecto, <em>true</em>). De este modo, la aplicación hija no será arrancada por su aplicación padre.</p>
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">Application</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
         <span class="nx">applications</span><span class="o">:</span> <span class="p">{</span>
@@ -428,44 +425,36 @@
         <span class="p">}</span>
     <span class="p">});</span>
 
-    <span class="nx">app</span><span class="p">.</span><span class="nx">start</span><span class="p">();</span> <span class="c1">//explicit start (the child application chat will be started to but bookCatalogue child application will not)</span></code></pre></div>
+<span class="nx">app</span><span class="p">.</span><span class="nx">start</span><span class="p">();</span> <span class="c1">//explicit start (the child application chat will be started to but bookCatalogue child application will not)</span></code></pre></div>
 
-<p>Tambien se puede añadir aplicaciones bajo demanda:</p>
+<p>A su vez, es posible añadir aplicaciones bajo demanda. Por defecto, esta nueva aplicación se iniciará al añadirse, a no ser que tenga flag <code>startWithParent: false</code>, que habrá que arrancarla de forma explícita.</p>
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ExampleApp</span><span class="p">();</span>
 
-    <span class="kd">var</span> <span class="nx">ChildApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">ChildApplication</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
+<span class="kd">var</span> <span class="nx">ChildApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">ChildApplication</span><span class="p">.</span><span class="nx">extend</span><span class="p">({});</span>
 
-    <span class="p">});</span>
-
-    <span class="nx">app</span><span class="p">.</span><span class="nx">addApplication</span><span class="p">({</span><span class="nx">application</span><span class="o">:</span> <span class="nx">ChildApp</span><span class="p">,</span> <span class="nx">region</span><span class="o">:</span> <span class="s1">&#39;main&#39;</span><span class="p">,</span> <span class="nx">startWithParent</span><span class="o">:</span> <span class="kc">false</span><span class="p">});</span></code></pre></div>
-
-<p>Si la aplicación bajo demanda tiene el flag <code>startWithParent: false</code> (por defecto a true) la aplicación no va a arrancar automaticamente y habrá que arrancarla de forma explicita. En otro caso, la aplicación va a iniciarse nada más añadirse.</p>
+<span class="nx">app</span><span class="p">.</span><span class="nx">addApplication</span><span class="p">({</span><span class="nx">application</span><span class="o">:</span> <span class="nx">ChildApp</span><span class="p">,</span> <span class="nx">region</span><span class="o">:</span> <span class="s1">&#39;main&#39;</span><span class="p">,</span> <span class="nx">startWithParent</span><span class="o">:</span> <span class="kc">false</span><span class="p">});</span></code></pre></div>
 
 <h2 id="channels">Channels</h2>
 
 <p>Cada aplicación dispone de dos canales de comunicación:</p>
 
-<p>-Canal privado:
-    Canal para Comunicar componentes dentro de una aplicación sin afectar a otras aplicaciones.</p>
+<p>-<strong>Canal privado</strong>:
+    Canal para comunicar <strong>componentes</strong> dentro de una aplicación sin afectar a otras aplicaciones.</p>
 
-<p>-Canal global:
-    Canal para Comunicar aplicaciones entre sí.</p>
+<p>-<strong>Canal global</strong>:
+    Canal para comunicar <strong>aplicaciones</strong> entre sí.</p>
 
-<p>Uso de los canales:</p>
+<p>A continuación, se muestra un ejemplo de uso de los canales.</p>
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">app</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">ExampleApp</span><span class="p">();</span>
-
-    <span class="nx">app</span><span class="p">.</span><span class="nx">privateChannel</span><span class="p">.</span><span class="nx">trigger</span><span class="p">();</span>
-    <span class="nx">app</span><span class="p">.</span><span class="nx">globalChannel</span><span class="p">.</span><span class="nx">trigger</span><span class="p">();</span></code></pre></div>
+<span class="c1">//Using each channel</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">privateChannel</span><span class="p">.</span><span class="nx">trigger</span><span class="p">();</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">globalChannel</span><span class="p">.</span><span class="nx">trigger</span><span class="p">();</span></code></pre></div>
 
 <h2 id="routes">Routes</h2>
 
-<p>Cada aplicación define sus rutas y estados.</p>
-
-<p>Tanto las <code>Jskeleton.Application</code>, como las <code>Jskeleton.ChildApplication</code> pueden definir rutas.</p>
-
-<p>Para definir las rutas de una aplicación:</p>
+<p>Cada aplicación, ya sea <code>Jskeleton.Application</code> como <code>Jskeleton.ChildApplication</code>, define sus rutas y estados.</p>
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">ChildApplication</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
         <span class="nx">routes</span><span class="o">:</span> <span class="p">{</span>
@@ -479,9 +468,9 @@
         <span class="p">}</span>
     <span class="p">});</span></code></pre></div>
 
-<p>Jskeleton no empezará a escuchar las rutas y eventos de una aplicación hasta que esta no comienze (haga start). Si la ruta de una aplicación se dispara, Jskeleton se encarga de crear un view-controller (si no se ha definido se crea una clase por defecto automaticamente) e inyectar el template definido para esa ruta.</p>
+<p>Las rutas y eventos de una aplicación no se inician hasta que no se hace un <em>start()</em> de la misma.</p>
 
-<p>Para especificar un <code>Jskeleton.ViewController</code> solo hay que añadir la clase como opción de la ruta:</p>
+<p>Es posible especificar un <code>Jskeleton.ViewController</code> para cada ruta. Si no se define ningún <code>Jskeleton.ViewController</code>, se inyectará uno por defecto usando el template de la ruta. Es recomendable el uso de <em>jskeleton dependency injection</em> para definir dependencias.</p>
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">ChildApplication</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
         <span class="nx">routes</span><span class="o">:</span> <span class="p">{</span>
@@ -492,15 +481,11 @@
         <span class="p">}</span>
     <span class="p">});</span></code></pre></div>
 
-<p>(Se recomienda el uso de <strong>jskeleton dependency injection</strong> para definir dependencias)</p>
-
-<p>El view controller es <strong>renderizado</strong> en la región que se le ha definido a la aplicación.</p>
-
-<p>Si se trata de una <code>Jskeleton.Application</code> se renderizará en la región principal que hayamos definido para esa aplicación.</p>
+<p>El <code>Jskeleton.ViewController</code> es <em>renderizado</em> en la región definida para la aplicación. En el caso de tratarse de una <code>Jskeleton.Application</code>, el <code>Jskeleton.ViewController</code> se renderizará en la región principal para esa aplicación.</p>
 
 <p>Si se trata de una <code>Jskeleton.ChildApplication</code> se renderizará en la región de la aplicación padre que nosotros le hayamos especificado al declararla como aplicación hija.</p>
 
-<p>Para cada ruta podemos definir el evento de navegación que va a provocar esa ruta, de tal forma que cuándo alguna otra aplicación lance dicho evento de navegación a nivel global, nuestra aplicación procese dicho evento como si de una ruta se tratase (renderizando el view controller con el template especificado y en la región de la aplicación) y actualizando la ruta de forma automática (mapeando los parametros que recibimos a través del evento con los parametros que se han definido en la ruta).</p>
+<p>Para cada ruta podemos definir el evento de navegación que va a provocar esa ruta. De este modo, cuándo otra aplicación lance dicho evento a nivel global, nuestra aplicación lo procesará como si de una ruta se tratase. Ésto conllevará el renderizado del <code>Jskeleton.ViewController</code> (con el template y la región especificada) y la actualización de la ruta de forma automática (mapeando los parámetros que recibimos a través del evento con los parametros que se han definido en la ruta).</p>
 
 <div class="highlight"><pre><code class="language-javascript" data-lang="javascript"><span class="kd">var</span> <span class="nx">ExampleApp</span> <span class="o">=</span> <span class="nx">Jskeleton</span><span class="p">.</span><span class="nx">ChildApplication</span><span class="p">.</span><span class="nx">extend</span><span class="p">({</span>
         <span class="nx">routes</span><span class="o">:</span> <span class="p">{</span>
@@ -520,7 +505,7 @@
         <span class="nx">params</span><span class="o">:</span> <span class="s1">&#39;15&#39;</span>
     <span class="p">});</span>
 
-    <span class="c1">//La aplicación ExampleApp procesaría el vento como si de una ruta se tratase, y actualizaria la ruta del navegador con los parametros obtenidos del evento:</span>
+    <span class="c1">//La aplicación ExampleApp procesaría el evento como si de una ruta se tratase, y actualizaría la ruta del navegador con los parámetros obtenidos del evento:</span>
     <span class="c1">// &#39;backbone/route/ejemplo/15&#39;</span></code></pre></div>
 
 
