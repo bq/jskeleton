@@ -8,19 +8,10 @@ submenu:
   - Application.layout: "#layout"
   - Application.applications: "#child-applications"
   - Application.channels: "#channels"
+  - Application.routes: "#routes"
 ---
-
  `JSkeleton.Application` es un contenedor donde almacenar y dividir en pequeñas partes la lógica de tu aplicación web, haciéndola más reusable, desacoplada y escalable.
 
-
-##Documentation Index
-* [Application DOM](#application-dom)
-    * [Definir el rootEl de una aplicación](#rootel)
-    * [Definir la región principal de una aplicación](#application-main-region)
-* [Definir regiones de una aplicación](#regions)
-* [Definir layout de una aplicación](#layout)
-* [Definir child applications de una aplicación](#child-applications)
-* [Application channels](#Channels)
 
 ##Application DOM
 
@@ -58,7 +49,7 @@ Todas las `Jskeleton.Application` tienen una región raíz/principal (por defect
 Cada aplicación puede definir regiones de forma declarativa o de forma dinámica:
 
     {% highlight javascript %}
-
+        
         //Declarative Way
 var ExampleApp = Jskeleton.Application.extend({
     regions: {
@@ -141,7 +132,7 @@ app.start(); //explicit start (the child application chat will be started to but
 A su vez, es posible añadir aplicaciones bajo demanda. Por defecto, esta nueva aplicación se iniciará al añadirse, a no ser que tenga flag `startWithParent: false`, que habrá que arrancarla de forma explícita.
 
     {% highlight javascript %}
-
+    
     var app = new ExampleApp();
 
 var ChildApp = Jskeleton.ChildApplication.extend({});
@@ -233,5 +224,3 @@ Para cada ruta podemos definir el evento de navegación que va a provocar esa ru
     //La aplicación ExampleApp procesaría el evento como si de una ruta se tratase, y actualizaría la ruta del navegador con los parámetros obtenidos del evento:
     // 'backbone/route/ejemplo/15'
     {% endhighlight %}
-
-
