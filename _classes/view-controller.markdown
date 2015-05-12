@@ -19,8 +19,8 @@ Se podría definir como un contenedor de "Componentes-UI", entendiendo como tale
 
 `Jskeleton.ViewController` extiende de `Marionette.LayoutView`. Para más información sobre las propiedades y métodos de esta clase visita [la documentación de Marionette](http://marionettejs.com/docs/v2.4.1/marionette.layoutview.html)
 
-##ViewController channel
-El `channel` del ViewController define como se propagan los eventos del mismo a través de la aplicación. Cada vez que se crea un nuevo ViewController debemos inyectar su `channel`, que puede ser privado o global (ver Application.channels).
+##ViewController Channel
+El `channel` del ViewController define como se propagan los eventos del mismo a través de la aplicación. Cada vez que se crea un nuevo ViewController debemos inyectar su `channel`, que puede ser privado o global ([ver Application.channels](/api-reference/application/#channels)).
 
 {% highlight javascript %}
   _channel.trigger('some:event');
@@ -28,46 +28,56 @@ El `channel` del ViewController define como se propagan los eventos del mismo a 
 
 En el ejemplo anterior el evento `some:event` sería propagado por `_channel`. En el siguiente ejemplo se puede ver como se definiría dentro de un ViewController:
 
-{% highlight javascript %}
-   Jskeleton.ViewController.factory('DetalleDeLibro', function(_channel) {
+{% highlight javascript linenos=inline %}
+   Jskeleton.ViewController.factory('MyViewController', function(_channel) {
        return {
            events: {
-               'navigate @component.DetailBookView': 'onNavigateClicked'
+               'myevent @component.MyComponent': 'myMethod'
            },
-           onNavigateClicked: function() {
-               _channel.trigger('book:list');
+           myMethod: function() {
+               _channel.trigger('application:event');
            }
        };
    });
 {% endhighlight %}
 
+En la linea 1 definimos un ViewController `MyViewController` al que le inyectamos el canal privado `_channel` de la aplicación en la que va a estar contenido.
+
+En la línea 4 creamos un nuevo evento `myevent` que afectara al componente `MyComponent` que, al ser llamado, ejecutará al método `myMethod` definido en la línea 6.
+
+A su vez, `myMethod` dispara otro evento, `application:event`, que estará siendo escuchado en el ámbito de la aplicación que contenga la instancia de `MyViewController`, gracias a que ha sido disparado a través del canal privado `_channel`.
+
 Los `channel` se basan en `Backbone.Radio`. Para mas información puedes acceder a [su documentación](https://github.com/marionettejs/backbone.radio#channels).
 
-##ViewController region
+##ViewController Region
 
-##ViewController service
+##ViewController Service
 
-##ViewController context
-
+##ViewController Context
+<!--
 Cuando se procesa un evento o ruta de navegación, un método del view-controller es invocado (para ver más información sobre que método ir a: ); tras la ejecución de dicho método, se renderiza el template asociado al view controller con el contexto del view controller. Por tanto dicho método es ideal para inflar el contexto que el template va a consumir y exponer los modelos y colecciones que los componentes del template vayan a usar.
+-->
+Cuando se procesa un evento o ruta de navegación, se invoca un método del ViewController que se debe especificar en la aplicación en la que estemos definiendo el ViewController ([ver Application.Routes](/api-reference/application/#routes)). Tras la ejecución de dicho método, se renderiza el template asociado al ViewController con su contexto.
 
-    {% highlight javascript %}
+Por tanto, dicho método es ideal para inflar el contexto que el template va a consumir y exponer los modelos y colecciones que los componentes del template vayan a usar.
 
-   Jskeleton.ViewController.extend({
-        onBookList: function(routeParams, context){
-            context.model = new Backbone.Model({
+  {% highlight javascript linenos=inline %}
+
+    Jskeleton.ViewController.factory('MyViewController', function(_channel) {
+        myHandlerMethod: function(routeParams, context){
+            context.myModel = new Backbone.Model({
 
             });
         }
     });
 
-    {% endhighlight %}
+  {% endhighlight %}
 
-En el template asociado al view controller, tendremos total acceso al contexto creado por el view controller.
+En el template asociado al ViewController, tendremos total acceso al contexto creado por el ViewController.
 
-    {% highlight html %}
-        <div> { { context.model } } </div>
-    {% endhighlight %}
+  {% highlight html %}
+      <div> { { context.myModel } } </div>
+  {% endhighlight %}
 
 El método podrá devolver una promesa para resolver asincronamente el renderizado...
 
@@ -85,15 +95,28 @@ Para más información sobre componentes puedes ir a [esta sección](/api-refere
 
 ##ViewController Events
 
-Los eventos definidos en cada componente pueden disparar otros eventos definidos en el ViewController a través de su `channel`.
+Los eventos pueden ser definidos en una clase ViewController.
+Pueden escuchar acciones propagadas a través de su `channel`, sobre su propio `template` o dentro de sus componentes.
 
-{% highlight html %}
-  Jskeleton.ViewController.factory('BookListController', function(_channel) {
-       events: {
-           'some:event @component.menu-bar': 'onMenuClicked'
-       }
+{% highlight javascript linenos=inline %}
+  Jskeleton.ViewController.factory('MyViewController', function(_channel) {
+      template: '<h1> My Template with components: </h1>' +
+                '<div class="panel">This is a template</div>' +
+                ' { { @component name="MyComponent" model=context.myModel } }',
+      events: {
+         'click .panel': 'myMehtod'
+         'action @component.MyComponent': 'myOtherMethod',
+      },
+      myMethod: function(){
+        alert('Panel clicked!')
+      },
+      myOtherMethod: function(){
+        alert('Something happened in MyComponent!')
+      },
   });
 {% endhighlight %}
+
+Los `events` se basan en `Backbone.Events`. Para mas información puedes acceder a [su documentación](http://backbonejs.org/#Events).
 
 ##ViewController Template
 
