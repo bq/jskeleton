@@ -22,20 +22,29 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         this.router = Jskeleton.Router.getSingleton();
 
+        //application scope to share common data inside the application
         this.scope = {};
 
         Marionette.Application.prototype.constructor.apply(this, arguments);
 
         this._addApplicationDependencies();
     },
-    _addApplicationDependencies: function() {
+    start: function(options) {
+        options = options || {};
 
-        this.di.inject({
-            _channel: this.privateChannel,
-            _app: this,
-            _scope: this.scope
-        });
+        this._started = true;
 
+        this._initCallbacks.run(options, this);
+
+        this._initCallbacks.run(options, this);
+        //Add routes listeners to the Jskeleton.router
+        this._initRoutes(options);
+
+        //Add app proxy events
+        this._proxyEvents(options);
+    },
+    stop: function(options) {
+        this.stopListening();
     },
     //Call to the specified view-controller method for render a app state
     invokeViewControllerRender: function(routeObject, args, handlerName) {
@@ -52,6 +61,45 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         this._showControllerView(viewController, handlerName, args);
     },
+    //Factory method to instance objects from Class references or from factory key strings
+    factory: function(Class, extendProperties, options) {
+        options = options || {};
+        options.parentApp = this;
+
+        return this.di.create(Class, extendProperties, options);
+    },
+    destroy: function(options) {
+        this.removeRegions();
+    },
+    //Remove all regions from the application
+    removeRegions: function() {
+        // var self = this;
+        // this._regionManager.each(function(region) {
+        //     self.removeRegion(region);
+        // });
+    },
+    getDefaultviewController: function() {},
+    //Get default application layout class if no layoutClass is specified
+    getDefaultLayoutClass: function() {
+        return Marionette.LayoutView;
+    },
+    //Factory hook method
+    getHook: function() {
+        return new Jskeleton.Hook();
+    },
+    //Generate unique app id using underscore uniqueId method
+    getAppId: function() {
+        return _.uniqueId('a');
+    },
+    _addApplicationDependencies: function() {
+
+        this.di.inject({
+            _channel: this.privateChannel,
+            _app: this,
+            _scope: this.scope
+        });
+
+    },
     //Show the controller view instance in the application region
     _showControllerView: function(viewController, handlerName, args) {
         if (this.mainRegion && this.mainRegion.currentView !== viewController) {
@@ -59,13 +107,6 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         } else {
             viewController.render();
         }
-    },
-    //Factory method to instance objects from Class references or from factory key strings
-    factory: function(Class, extendProperties, options) {
-        options = options || {};
-        options.parentApp = this;
-
-        return this.di.create(Class, extendProperties, options);
     },
     //Internal method to create an application private channel and set the global channel
     _initChannel: function() {
@@ -127,12 +168,16 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     },
     //Update the url with the specified parameters
     _navigateTo: function(routeString, routeOptions, params) {
+        // if (this.processMiddlewares(routeString, routeOptions)) {
         var triggerValue = routeOptions.triggerNavigate === true ? true : false,
             processedRoute = this.router._replaceRouteString(routeString, params);
 
         this.router.navigate(processedRoute, {
             trigger: triggerValue
         });
+        // } else {
+        // this.denieNavigate();
+        // }
     },
     //Internal method to retrieve the name of the view-controller method to call before render the view
     _getViewControllerHandlerName: function(routeString) {
@@ -248,45 +293,6 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
                 });
             });
         }
-    },
-    start: function(options) {
-        options = options || {};
-
-        this._started = true;
-
-        this._initCallbacks.run(options, this);
-
-        //Add routes listeners to the Jskeleton.router
-        this._initRoutes(options);
-
-        //Add app proxy events
-        this._proxyEvents(options);
-    },
-    stop: function(options) {
-        this.stopListening();
-    },
-    destroy: function(options) {
-        this.removeRegions();
-    },
-    //Remove all regions from the application
-    removeRegions: function() {
-        // var self = this;
-        // this._regionManager.each(function(region) {
-        //     self.removeRegion(region);
-        // });
-    },
-    getDefaultviewController: function() {},
-    //Get default application layout class if no layoutClass is specified
-    getDefaultLayoutClass: function() {
-        return Marionette.LayoutView;
-    },
-    //Factory hook method
-    getHook: function() {
-        return new Jskeleton.Hook();
-    },
-    //Generate unique app id using underscore uniqueId method
-    getAppId: function() {
-        return _.uniqueId('a');
     }
 }, {
     factory: Jskeleton.Utils.FactoryAdd

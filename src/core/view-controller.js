@@ -23,10 +23,6 @@
             if (!options.app) {
                 throw new Error('El view-controller necesita tener la referencia a su application');
             }
-
-            if (!options.region) {
-                throw new Error('El view-controller necesita tener una region específica');
-            }
         },
         //Show the view-controller in a specified region.
         //The method call a specified view-controller method to create a template context before render itself in the region.
@@ -40,7 +36,7 @@
                 throw new Error('You must to define a region where the view-controller will be rendered.');
             }
 
-            //if the method exists, it is called by the view-controller before be render
+            //if the method exists, it is called by the view-controller before render to create a context
             if (this[handlerName] && typeof this[handlerName] === 'function') {
                 promise = this[handlerName].apply(this, Array.prototype.slice.call(arguments, 2));
             }
