@@ -54,14 +54,7 @@ describe('In view-controller ', function() {
     it('throws errors if we try to create a new view-controller with any option missing', function() {
         expect(this.createViewController).to.throw(Error);
 
-        expect(this.createViewController.bind(this, {
-            app: 'app'
-        })).to.throw(Error);
-
-
-        expect(this.createViewController.bind(this, {
-            region: 'region'
-        })).to.throw(Error);
+        expect(this.createViewController.bind(this, {})).to.throw(Error);
 
     });
 

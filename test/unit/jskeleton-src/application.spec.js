@@ -169,10 +169,10 @@ describe('Application object', function() {
     });
 
 
-    describe('with an application layout', function() {
+    describe('with an application view-controller', function() {
 
         before(function() {
-            this.Layout = Jskeleton.LayoutView.extend({
+            this.ViewController = Jskeleton.ViewController.extend({
                 template: '<div class="content"></div> <div class="content2"></div>',
                 render: function() {},
                 regions: {
@@ -184,16 +184,18 @@ describe('Application object', function() {
             this.customTemplate = '<div> <div class="content"></div> </div> <div class="content2"></div>';
 
             this.Application = Jskeleton.Application.extend({
-                layout: this.Layout
+                viewController: this.ViewController
             });
 
-            this.layout = new this.Layout();
+            this.viewController = new this.ViewController({
+                app: {}
+            });
 
-            this.renderSpy = sandbox.spy(this.layout, 'render');
+            this.renderSpy = sandbox.spy(this.viewController, 'render');
 
             this.factoryStub = sandbox.stub(this.Application.prototype, 'factory');
 
-            this.factoryStub.withArgs(this.Layout).returns(this.layout);
+            this.factoryStub.withArgs(this.ViewController).returns(this.viewController);
 
             this.application = new this.Application();
 
@@ -201,23 +203,23 @@ describe('Application object', function() {
         });
 
 
-        it('have a layout instance of the specified Layout class', function() {
-            expect(this.application._layout).to.be.instanceof(this.Layout);
+        it('have a View-Controller instance of the specified Layout class', function() {
+            expect(this.application._viewController).to.be.instanceof(this.ViewController);
         });
 
-        it('render the layout when the application is created', function() {
+        it('render the View-Controller when the application is created', function() {
             expect(this.renderSpy.calledOnce).to.be.equal(true);
         });
 
         it('has the layout regions as own properties', function() {
-            expect(this.layout).to.include.keys('content', 'content2');
+            expect(this.viewController).to.include.keys('content', 'content2');
         });
 
-        it('the layout template can be override', function() {
+        it('the View-Controller template can be override', function() {
 
             this.ApplicationTemplate = Jskeleton.Application.extend({
-                layout: {
-                    layoutClass: this.Layout,
+                viewController: {
+                    viewControllerClass: this.ViewController,
                     template: this.customTemplate
                 }
             });
@@ -228,7 +230,7 @@ describe('Application object', function() {
 
             this.app.start();
 
-            expect(this.factorySpy.calledWith(this.Layout, {
+            expect(this.factorySpy.calledWith(this.ViewController, {
                 template: this.customTemplate
             })).to.be.equal(true);
 

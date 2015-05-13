@@ -33,7 +33,7 @@ Jskeleton.CollectionView.factory('BookCollectionView', {
     childView: 'ListItemViewBook'
 });
 
-Jskeleton.ViewController.factory('DetalleDeLibro', function(ServicioDeCompras, _channel) {
+Jskeleton.ViewController.factory('DetalleDeLibro', function(ServicioDeLibros, _channel) {
     return {
         template: '<span> Detalle de libro: </span> {{@component name="DetailBookView" model=context.bookModel}}',
         events: {
@@ -41,7 +41,7 @@ Jskeleton.ViewController.factory('DetalleDeLibro', function(ServicioDeCompras, _
             'navigate @component.DetailBookView': 'onNavigateClicked'
         },
         onActionClicked: function(libro) {
-            ServicioDeCompras.buy(libro);
+            ServicioDeLibros.bookAction(libro);
         },
         onNavigateClicked: function() {
             _channel.trigger('book:list');
@@ -69,19 +69,30 @@ Jskeleton.ViewController.factory('ListadoDeLibros', function(_channel) {
             });
         },
         ListBooks: function() {
-            this.context.bookCollection = new Backbone.Collection([{
-                title: 'Juego de tronos',
-                id: 165
-            }, {
-                title: 'El hobbit',
-                id: 170
-            }, {
-                title: 'Cien años de soledad',
-                id: 14
-            }]);
+            var def = $.Deferred();
+            var self = this;
+
+            setTimeout(function() {
+                def.resolve();
+            }, 2000);
+
+            return def.promise().then(function() {
+                self.context.bookCollection = new Backbone.Collection([{
+                    title: 'Juego de tronos',
+                    id: 165
+                }, {
+                    title: 'El hobbit',
+                    id: 170
+                }, {
+                    title: 'Cien años de soledad',
+                    id: 14
+                }]);
+
+            });
         }
     };
 });
+
 
 Jskeleton.ChildApplication.factory('BookCatalogue', {
     routes: {
@@ -98,7 +109,7 @@ Jskeleton.ChildApplication.factory('BookCatalogue', {
             handlerName: 'ListBooks',
             viewControllerClass: 'ListadoDeLibros',
             eventListener: 'book:list',
-            template: '<span> Listado de libros: </span> {{@component name="BookCollectionView" collection=context.bookCollection}}',
+            template: '{{#if context.isPromise}} <span> spinner </span> {{else}} <span> Listado de libros: </span> {{@component name="BookCollectionView" collection=context.bookCollection}} {{/if}}'
         }
     },
     events: {
@@ -110,10 +121,10 @@ Jskeleton.ChildApplication.factory('BookCatalogue', {
         // 'all'
         // ]
     }
+
 });
 
-
-Jskeleton.Service.factory('ServicioDeCompras', {
+Jskeleton.Service.factory('ServicioDeLibros', {
     initialize: function() {
         console.log('Soy my servicio');
     },
@@ -122,19 +133,23 @@ Jskeleton.Service.factory('ServicioDeCompras', {
     }
 });
 
-var Layout = Jskeleton.LayoutView.factory('MainLayout', {
+var Layout = Jskeleton.ViewController.factory('MainViewController', {
     regions: {
         headerRegion: '.header',
         contentRegion: '.content',
         footerRegion: '.footer'
+    },
+    onStart: function() {
+
+
+
     }
 });
 
-
 var AppMain = Jskeleton.Application.extend({
     el: '.app-container',
-    layout: {
-        layoutClass: 'MainLayout',
+    viewController: {
+        viewControllerClass: 'MainViewController',
         template: '<div class="hero-unit">' +
             '<h1>Aplicación de libros</h1>' +
             '<h3> Header: </h3>' +
@@ -144,6 +159,7 @@ var AppMain = Jskeleton.Application.extend({
             '<h3> Footer: </h3>' +
             '<div class="footer"></div>' +
             '</div>',
+        handlerName: 'onStart'
     },
     applications: {
         'bookCatalogue': {

@@ -67,7 +67,7 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
         // Create root region on root DOM reference
         this._createMainRegion();
         // Create a layout for the application if a layoutView its defined
-        this._createApplicationLayout();
+        this._createApplicationViewController();
     },
     //Private method to ensure that the main application has a dom reference where create the root webapp region
     _ensureEl: function() {
@@ -94,35 +94,41 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
     },
     //Create a layout for the Application to have more regions availables.
     //The application expose the layout regions to the application object as own properties.
-    _createApplicationLayout: function() {
+    _createApplicationViewController: function() {
 
-        //ensure layout object is defined
-        if (this.layout) {
-            //get layout class
-            var Layout = typeof this.layout === 'object' && this.layout.layoutClass ? this.layout.layoutClass : this.layout,
-                //get layout options
-                layoutOptions = typeof this.layout === 'object' && this.layout.layoutOptions ? this.layout.layoutOptions : {},
-                //extend layout template
-                layoutExtendTemplate = typeof this.layout === 'object' && this.layout.template ? {
-                    template: this.layout.template
-                } : undefined;
+        //ensure viewController object is defined
+        if (this.viewController) {
+            //get viewController class
+            var ViewController = typeof this.viewController === 'object' && this.viewController.viewControllerClass ? this.viewController.viewControllerClass : this.viewController,
+                //get the viewController that will be passed to the view controller constructor
+                viewControllerOptions = typeof this.viewController === 'object' && this.viewController.viewControllerOptions ? this.viewController.viewControllerOptions : {},
+                //extend viewController template
+                viewControllerExtendTemplate = typeof this.viewController === 'object' && this.viewController.template ? {
+                    template: this.viewController.template
+                } : undefined,
+                handlerName = this.viewController.handlerName ? this.viewController.handlerName : '';
 
-            //create the layout instance
-            this._layout = this.factory(Layout, layoutExtendTemplate, layoutOptions);
+            viewControllerOptions = _.extend(viewControllerOptions, {
+                app: this,
+                channel: this.privateChannel
+            });
 
-            //Show the layout in the application main region
-            this[this.mainRegionName].show(this._layout);
+            //create the view-controller instance
+            this._viewController = this.factory(ViewController, viewControllerExtendTemplate, viewControllerOptions);
 
-            //expose the layout regions to the application object
-            this._addLayoutRegions();
+            //Show the view-controller in the application main region
+            this._viewController.show(this[this.mainRegionName], handlerName);
+
+            //expose the view-controller regions to the application object
+            this._addViewControllerRegions();
         }
 
     },
-    //Expose layout regions to the application namespace
-    _addLayoutRegions: function() {
+    //Expose view-controller regions to the application namespace
+    _addViewControllerRegions: function() {
         var self = this;
-        if (this._layout.regionManager.length > 0) {
-            _.each(this._layout.regionManager._regions, function(region, regionName) {
+        if (this._viewController.regionManager.length > 0) {
+            _.each(this._viewController.regionManager._regions, function(region, regionName) {
                 self[regionName] = region;
             });
         }
@@ -171,8 +177,8 @@ Jskeleton.Application = Jskeleton.BaseApplication.extend({
             regionName = appOptions.region || this.mainRegionName;
 
         //retrieve the region from the application layout (if it exists)
-        if (this._layout && this._layout.regionManager) {
-            region = this._layout.regionManager.get(regionName);
+        if (this._viewController && this._viewController.regionManager) {
+            region = this._viewController.regionManager.get(regionName);
         }
 
         //if the region isn`t in the application layout, retrieve the region from the application region manager defined as application region

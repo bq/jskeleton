@@ -80,26 +80,26 @@ describe('In Component module', function() {
             routes: {
                 '': {
                     viewControllerClass: ViewControllerComponent,
-                    template: "{{@component name='ViewComponent' model=context.model}}"
+                    template: '{{@component name="ViewComponent" model=context.model}}'
                 },
 
                 'book/list': {
                     viewControllerClass: ViewControllerComponent,
-                    template: "{{@component name='ViewListComponent'}}",
+                    template: '{{@component name="ViewListComponent"}}',
                     eventListener: 'come:back'
                 }
             }
         });
 
-        var LayoutComponent = Jskeleton.LayoutView.extend({
+        var ViewController = Jskeleton.ViewController.extend({
             regions: {
-                content: ".content"
+                content: '.content'
             }
         });
 
         MainApp = Jskeleton.Application.extend({
-            layout: {
-                layoutClass: LayoutComponent,
+            viewController: {
+                viewControllerClass: ViewController,
                 template: '<div class="content"></div>'
             },
             applications: {
