@@ -7,7 +7,7 @@ submenu:
 
 ##Definition
 
-Las `JSkeleton.Applications` van a usar `JSkeleton.Services` para comunicarse con entidades externas. Para ello es necesario dar de alta en la factoría al nuevo servicio.
+Los `JSkeleton.Services` son objetos que van a permitir que las `JSkeleton.Applications` se comuniquen con entidades externas. Para ello es necesario dar de alta en la factoría al nuevo servicio.
 
 {% highlight javascript %}
 
@@ -20,7 +20,7 @@ Jskeleton.Service.factory('ServiceExample', {
 });
 {% endhighlight %}
 
-Una `JSkeleton.Application` hará uso de este `JSkeleton.Service` a través de su `JSkeleton.ViewController`
+En este nuevo `JSkeleton.Service` se define la interfaz de comunicación con entidades externas. Esa interfaz será usada por las `JSkeleton.Application` a través de su `JSkeleton.ViewController`
 
 {% highlight javascript %}
 
@@ -30,7 +30,7 @@ Jskeleton.ViewController.factory('DetalleDeLibro', function(ServiceExample, _cha
         events: {
             'action @component.DetailBookView': 'onActionClicked'
         },
-        onActionClicked: function(libro) {
+        onActionClicked: function(args) {
             ServicioDeCompras.actionService(args);
         }
     };
