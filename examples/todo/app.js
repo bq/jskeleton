@@ -166,6 +166,13 @@ var AppMain = Jskeleton.Application.extend({
             applicationClass: 'BookCatalogue',
             region: 'contentRegion'
         }
+    },
+    routeFilters: function(_routeParams){
+        console.log('middleware llamado');
+        console.log('params: ', _routeParams);
+    },
+    filterError : function(err){
+        if(err) console.log(err);
     }
 });
 

@@ -10,12 +10,18 @@
 Jskeleton.BaseApplication = Marionette.Application.extend({
     //Default global webapp channel for communicate with other apps
     globalChannel: 'global',
+    filterStack: [],
     constructor: function(options) {
         options = options || {};
 
         this.di = new Jskeleton.Di({
             globalDi: Jskeleton.di
         });
+
+        //add middlewares to app workflow
+        if(this.routeFilters){
+            this._use(this.routeFilters);
+        }
 
         //generate application id
         this.aid = this.getAppId();
@@ -168,16 +174,48 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     },
     //Update the url with the specified parameters
     _navigateTo: function(routeString, routeOptions, params) {
-        // if (this.processMiddlewares(routeString, routeOptions)) {
-        var triggerValue = routeOptions.triggerNavigate === true ? true : false,
-            processedRoute = this.router._replaceRouteString(routeString, params);
+        // middlewares handlers
+        if(this._middlewaresproccess(routeString,routeOptions,params)){
+            var triggerValue = routeOptions.triggerNavigate === true ? true : false,
+                processedRoute = this.router._replaceRouteString(routeString, params);
+            
+            this.router.navigate(processedRoute, {
+                trigger: triggerValue
+            });
+        
+        }else{
+            throw new TypeError('Application middleware proccess Error');
+        }
+    },
+    //Middlewares handlers proccesor
+    _middlewaresproccess: function(routeString,routeOptions,params){
+        var self = this,
+            mainStack = this.parentApp.filterStack,
+            filterError = false,
+            err= null,
+            result,
+            _routeParams = {
+                routeString : routeString,
+                routeOptions : routeOptions,
+                params : params
+            };
 
-        this.router.navigate(processedRoute, {
-            trigger: triggerValue
-        });
-        // } else {
-        // this.denieNavigate();
-        // }
+            if(mainStack.length !== 0){
+                for(var i = 0; i < mainStack.length; i++){
+                    result = mainStack[i].call(self,_routeParams);
+                    if(!!result){
+                        filterError = true;
+                        err = result;
+                        break;
+                    }
+                }
+            }
+
+            if(filterError === false){
+                return true;
+            }else{
+                (this.parentApp) ? this.parentApp.filterError : this.filterError(err);
+            }
     },
     //Internal method to retrieve the name of the view-controller method to call before render the view
     _getViewControllerHandlerName: function(routeString) {
@@ -189,6 +227,15 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         }
 
         return handlerName;
+    },
+    _use: function(fn){
+        var offset = 0;
+        var fns = _.flatten(Array.prototype.slice.call(arguments,offset));
+
+        if(fns.length === 0){
+            throw new TypeError('Application.routeFilters() requires filter functions');
+        }
+        this.filterStack = _.union(this.filterStack,fns);
     },
     // Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).
     //Ensure that don't extist a view-controller and if exist that it's not destroyed.
