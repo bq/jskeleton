@@ -20,3 +20,6 @@ script:
 branches:
   only:
   - doc
+env:
+  global:
+    secure: "<token>"
