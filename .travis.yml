@@ -22,4 +22,4 @@ branches:
   - doc
 env:
   global:
-    secure: "<token>"
+    secure: IiaeVK1kcXQUFMl9BStf4bSu15K6fEnCRQVaHpeFx6nxZ48tvfbEn/bPXu50HeKSyr8+8JZwXSA6AIA7hu9/nL+x2MpyEq8dUUHopDUd6RtK55DQFfqIYpyMIvlb/VeLsh4f7T0JlQMBk+bJog3yvBxfSvhsgdQY0i+pm8h7PqM=
