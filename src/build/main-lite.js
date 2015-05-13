@@ -21,8 +21,6 @@
         var Marionette = require('backbone.marionette'),
             Jskeleton = factory(root, $, _, Backbone, Marionette);
 
-        var Handlebars = require('Handlebars');
-
         module.exports = Jskeleton;
     } else if (root !== undefined) {
         root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
@@ -32,7 +30,6 @@
     'use strict';
 
     /* jshint unused: false */
-
 
     var Jskeleton = root.Jskeleton || {};
 
@@ -53,7 +50,6 @@
     //  @include ../helpers/if.js
     //  @include ../utils/hooks.js
     //  @include ../utils/factory.js
-
 
     return Jskeleton;
 

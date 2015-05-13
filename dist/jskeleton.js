@@ -1,4 +1,4 @@
-/*! jskeleton - v0.0.1 - 2015-05-11 
+/*! jskeleton - v0.0.1 - 2015-05-13 
  */(function(root, factory) {
     'use strict';
     /*globals require,define */
@@ -9,29 +9,27 @@
             'underscore',
             'backbone',
             'backbone.marionette',
-            'handlebars',
             'backbone.radio'
-        ], function($, _, Backbone, Marionette, Handlebars) {
-            return factory.call(root, root, $, _, Backbone, Marionette, Handlebars);
+        ], function($, _, Backbone, Marionette) {
+            return factory.call(root, root, $, _, Backbone, Marionette);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         var $ = require('jquery'),
             _ = require('underscore'),
             Backbone = require('backbone'),
-            Handlebars = require('handlebars'),
             radio = require('backbone.radio');
 
         Backbone.$ = $;
 
         var Marionette = require('backbone.marionette'),
-            Jskeleton = factory(root, $, _, Backbone, Marionette, Handlebars);
+            Jskeleton = factory(root, $, _, Backbone, Marionette);
 
         module.exports = Jskeleton;
     } else if (root !== undefined) {
-        root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette, root.Handlebars);
+        root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
     }
 
-})(this, function(root, $, _, Backbone, Marionette, Handlebars) {
+})(this, function(root, $, _, Backbone, Marionette) {
     'use strict';
     /*globals require,requireModule */
     /* jshint unused: false */
@@ -11790,55 +11788,50 @@
      /* jshint unused: false */
     
     
-    Marionette.Renderer.render = function(template, data) {
-        data = data || {};
+     Marionette.Renderer.render = function(template, data) {
+         data = data || {};
     
-        // data.enviroment; //_app, channel, _view
-        // data.templateHelpers; //Marionette template helpers view
-        // data.serializedData; //Marionette model/collection serializedData
-        // data.context; //View-controller context
+         // data.enviroment; //_app, channel, _view
+         // data.templateHelpers; //Marionette template helpers view
+         // data.serializedData; //Marionette model/collection serializedData
+         // data.context; //View-controller context
     
-        if (!template && template !== '') {
-            throw new Marionette.Error({
-                name: 'TemplateNotFoundError',
-                message: 'Cannot render the template since its false, null or undefined.'
-            });
-        }
+         if (!template && template !== '') {
+             throw new Marionette.Error({
+                 name: 'TemplateNotFoundError',
+                 message: 'Cannot render the template since its false, null or undefined.'
+             });
+         }
     
-        template = typeof template === 'function' ? template(data) : template;
-        template = typeof template === 'string' ? template : String(template);
+         template = typeof template === 'function' ? template(data) : template;
     
-        var compiler = Jskeleton.htmlBars.compiler,
+         template = typeof template === 'string' ? template : String(template);
+    
+         var compiler = Jskeleton.htmlBars.compiler,
              DOMHelper = Jskeleton.htmlBars.DOMHelper,
              hooks = Jskeleton.htmlBars.hooks,
              render = Jskeleton.htmlBars.render;
-         // template = templateFunc();
     
-        var template = template.replace(Jskeleton.Utils.regExpComponent, '\\{{@component'),
-        hbs_compiler = Handlebars.compile(template, {KnowsHelpersOnly: false, strict:false, assumeObjects:false}),
-        tmp_compiled = hbs_compiler(data);
+         var templateSpec = compiler.compileSpec(template, {}),
+             templatePreCompiled = compiler.template(templateSpec),
+             env = {
+                 dom: new DOMHelper(),
+                 hooks: hooks,
+                 helpers: Jskeleton._helpers,
+                 enviroment: data.enviroment,
+                 scope: hooks.createFreshScope() // for helper access to the enviroments
+             };
     
-        var templateSpec = compiler.compileSpec(tmp_compiled, {}),
-            templatePreCompiled = compiler.template(templateSpec),
-            env = {
-                dom: new DOMHelper(),
-                hooks: hooks,
-                helpers: Jskeleton._helpers,
-                enviroment: data.enviroment // for helper access to the enviroments
-            },
-            scope = hooks.createFreshScope();
+         hooks.bindSelf(env, env.scope, data);
     
-        hooks.bindSelf(env, scope, data);
+         //template access: context (view-controller context) , templateHelpers and model serialized data
     
-        //template access: context (view-controller context) , templateHelpers and model serialized data
-    
-        var dom = render(templatePreCompiled, env, scope, {
+         var dom = render(templatePreCompiled, env, env.scope, {
              //contextualElement: output
-        }).fragment;
+         }).fragment;
     
-        return dom;
+         return dom;
      };
-    
         'use strict';
         /*globals Jskeleton */
     
@@ -11915,6 +11908,68 @@
              viewInstance.addComponent(componentName, component);
     
              return component.render().$el.get(0);
+         });
+         'use strict';
+         /*globals  Jskeleton, _ */
+         /* jshint unused: false */
+         var shouldDisplay = function(param, param2, operator) {
+             var result;
+    
+             if (operator) {
+    
+                 if (!param2) {
+                     throw new Error('If template helper error: If you define a operator, you must define a second parammeter');
+                 }
+    
+                 switch (operator) {
+                     case '===':
+                         result = param === param2;
+                         break;
+                     case '==':
+                         result = param == param2; // jshint ignore:line
+                         break;
+                     case '>':
+                         result = param > param2;
+                         break;
+                     case '>=':
+                         result = param >= param2;
+                         break;
+                     case '<':
+                         result = param < param2;
+                         break;
+                     case '<=':
+                         result = param <= param2;
+                         break;
+                     case '!=':
+                         result = param != param2; // jshint ignore:line
+                         break;
+                     case '!==':
+                         result = param !== param2;
+                         break;
+                     default:
+                         result = false;
+                 }
+    
+             } else {
+                 result = !!param;
+             }
+    
+             return result;
+         };
+    
+    
+         Jskeleton.registerHelper('if', function(params, env, args, options) {
+    
+             var condition = shouldDisplay(args[0], args[2], args[1]),
+                 truthyTemplate = options.template || '',
+                 falsyTemplate = options.inverse || '';
+    
+             var template = condition ? truthyTemplate : falsyTemplate;
+    
+             if (template) {
+                 return template.render(undefined, env);
+             }
+    
          });
     'use strict';
     /*globals Jskeleton, Backbone, _ */
@@ -12555,20 +12610,29 @@
     
             this.router = Jskeleton.Router.getSingleton();
     
+            //application scope to share common data inside the application
             this.scope = {};
     
             Marionette.Application.prototype.constructor.apply(this, arguments);
     
             this._addApplicationDependencies();
         },
-        _addApplicationDependencies: function() {
+        start: function(options) {
+            options = options || {};
     
-            this.di.inject({
-                _channel: this.privateChannel,
-                _app: this,
-                _scope: this.scope
-            });
+            this._started = true;
     
+            this._initCallbacks.run(options, this);
+    
+            this._initCallbacks.run(options, this);
+            //Add routes listeners to the Jskeleton.router
+            this._initRoutes(options);
+    
+            //Add app proxy events
+            this._proxyEvents(options);
+        },
+        stop: function(options) {
+            this.stopListening();
         },
         //Call to the specified view-controller method for render a app state
         invokeViewControllerRender: function(routeObject, args, handlerName) {
@@ -12585,6 +12649,45 @@
     
             this._showControllerView(viewController, handlerName, args);
         },
+        //Factory method to instance objects from Class references or from factory key strings
+        factory: function(Class, extendProperties, options) {
+            options = options || {};
+            options.parentApp = this;
+    
+            return this.di.create(Class, extendProperties, options);
+        },
+        destroy: function(options) {
+            this.removeRegions();
+        },
+        //Remove all regions from the application
+        removeRegions: function() {
+            // var self = this;
+            // this._regionManager.each(function(region) {
+            //     self.removeRegion(region);
+            // });
+        },
+        getDefaultviewController: function() {},
+        //Get default application layout class if no layoutClass is specified
+        getDefaultLayoutClass: function() {
+            return Marionette.LayoutView;
+        },
+        //Factory hook method
+        getHook: function() {
+            return new Jskeleton.Hook();
+        },
+        //Generate unique app id using underscore uniqueId method
+        getAppId: function() {
+            return _.uniqueId('a');
+        },
+        _addApplicationDependencies: function() {
+    
+            this.di.inject({
+                _channel: this.privateChannel,
+                _app: this,
+                _scope: this.scope
+            });
+    
+        },
         //Show the controller view instance in the application region
         _showControllerView: function(viewController, handlerName, args) {
             if (this.mainRegion && this.mainRegion.currentView !== viewController) {
@@ -12592,13 +12695,6 @@
             } else {
                 viewController.render();
             }
-        },
-        //Factory method to instance objects from Class references or from factory key strings
-        factory: function(Class, extendProperties, options) {
-            options = options || {};
-            options.parentApp = this;
-    
-            return this.di.create(Class, extendProperties, options);
         },
         //Internal method to create an application private channel and set the global channel
         _initChannel: function() {
@@ -12660,12 +12756,16 @@
         },
         //Update the url with the specified parameters
         _navigateTo: function(routeString, routeOptions, params) {
+            // if (this.processMiddlewares(routeString, routeOptions)) {
             var triggerValue = routeOptions.triggerNavigate === true ? true : false,
                 processedRoute = this.router._replaceRouteString(routeString, params);
     
             this.router.navigate(processedRoute, {
                 trigger: triggerValue
             });
+            // } else {
+            // this.denieNavigate();
+            // }
         },
         //Internal method to retrieve the name of the view-controller method to call before render the view
         _getViewControllerHandlerName: function(routeString) {
@@ -12781,45 +12881,6 @@
                     });
                 });
             }
-        },
-        start: function(options) {
-            options = options || {};
-    
-            this._started = true;
-    
-            this._initCallbacks.run(options, this);
-    
-            //Add routes listeners to the Jskeleton.router
-            this._initRoutes(options);
-    
-            //Add app proxy events
-            this._proxyEvents(options);
-        },
-        stop: function(options) {
-            this.stopListening();
-        },
-        destroy: function(options) {
-            this.removeRegions();
-        },
-        //Remove all regions from the application
-        removeRegions: function() {
-            // var self = this;
-            // this._regionManager.each(function(region) {
-            //     self.removeRegion(region);
-            // });
-        },
-        getDefaultviewController: function() {},
-        //Get default application layout class if no layoutClass is specified
-        getDefaultLayoutClass: function() {
-            return Marionette.LayoutView;
-        },
-        //Factory hook method
-        getHook: function() {
-            return new Jskeleton.Hook();
-        },
-        //Generate unique app id using underscore uniqueId method
-        getAppId: function() {
-            return _.uniqueId('a');
         }
     }, {
         factory: Jskeleton.Utils.FactoryAdd
@@ -12893,7 +12954,7 @@
             // Create root region on root DOM reference
             this._createMainRegion();
             // Create a layout for the application if a layoutView its defined
-            this._createApplicationLayout();
+            this._createApplicationViewController();
         },
         //Private method to ensure that the main application has a dom reference where create the root webapp region
         _ensureEl: function() {
@@ -12920,35 +12981,41 @@
         },
         //Create a layout for the Application to have more regions availables.
         //The application expose the layout regions to the application object as own properties.
-        _createApplicationLayout: function() {
+        _createApplicationViewController: function() {
     
-            //ensure layout object is defined
-            if (this.layout) {
-                //get layout class
-                var Layout = typeof this.layout === 'object' && this.layout.layoutClass ? this.layout.layoutClass : this.layout,
-                    //get layout options
-                    layoutOptions = typeof this.layout === 'object' && this.layout.layoutOptions ? this.layout.layoutOptions : {},
-                    //extend layout template
-                    layoutExtendTemplate = typeof this.layout === 'object' && this.layout.template ? {
-                        template: this.layout.template
-                    } : undefined;
+            //ensure viewController object is defined
+            if (this.viewController) {
+                //get viewController class
+                var ViewController = typeof this.viewController === 'object' && this.viewController.viewControllerClass ? this.viewController.viewControllerClass : this.viewController,
+                    //get the viewController that will be passed to the view controller constructor
+                    viewControllerOptions = typeof this.viewController === 'object' && this.viewController.viewControllerOptions ? this.viewController.viewControllerOptions : {},
+                    //extend viewController template
+                    viewControllerExtendTemplate = typeof this.viewController === 'object' && this.viewController.template ? {
+                        template: this.viewController.template
+                    } : undefined,
+                    handlerName = this.viewController.handlerName ? this.viewController.handlerName : '';
     
-                //create the layout instance
-                this._layout = this.factory(Layout, layoutExtendTemplate, layoutOptions);
+                viewControllerOptions = _.extend(viewControllerOptions, {
+                    app: this,
+                    channel: this.privateChannel
+                });
     
-                //Show the layout in the application main region
-                this[this.mainRegionName].show(this._layout);
+                //create the view-controller instance
+                this._viewController = this.factory(ViewController, viewControllerExtendTemplate, viewControllerOptions);
     
-                //expose the layout regions to the application object
-                this._addLayoutRegions();
+                //Show the view-controller in the application main region
+                this._viewController.show(this[this.mainRegionName], handlerName);
+    
+                //expose the view-controller regions to the application object
+                this._addViewControllerRegions();
             }
     
         },
-        //Expose layout regions to the application namespace
-        _addLayoutRegions: function() {
+        //Expose view-controller regions to the application namespace
+        _addViewControllerRegions: function() {
             var self = this;
-            if (this._layout.regionManager.length > 0) {
-                _.each(this._layout.regionManager._regions, function(region, regionName) {
+            if (this._viewController.regionManager.length > 0) {
+                _.each(this._viewController.regionManager._regions, function(region, regionName) {
                     self[regionName] = region;
                 });
             }
@@ -12997,8 +13064,8 @@
                 regionName = appOptions.region || this.mainRegionName;
     
             //retrieve the region from the application layout (if it exists)
-            if (this._layout && this._layout.regionManager) {
-                region = this._layout.regionManager.get(regionName);
+            if (this._viewController && this._viewController.regionManager) {
+                region = this._viewController.regionManager.get(regionName);
             }
     
             //if the region isn`t in the application layout, retrieve the region from the application region manager defined as application region
@@ -13232,10 +13299,6 @@
                 if (!options.app) {
                     throw new Error('El view-controller necesita tener la referencia a su application');
                 }
-    
-                if (!options.region) {
-                    throw new Error('El view-controller necesita tener una region específica');
-                }
             },
             //Show the view-controller in a specified region.
             //The method call a specified view-controller method to create a template context before render itself in the region.
@@ -13249,7 +13312,7 @@
                     throw new Error('You must to define a region where the view-controller will be rendered.');
                 }
     
-                //if the method exists, it is called by the view-controller before be render
+                //if the method exists, it is called by the view-controller before render to create a context
                 if (this[handlerName] && typeof this[handlerName] === 'function') {
                     promise = this[handlerName].apply(this, Array.prototype.slice.call(arguments, 2));
                 }

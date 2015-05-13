@@ -8,29 +8,27 @@
             'underscore',
             'backbone',
             'backbone.marionette',
-            'handlebars',
             'backbone.radio'
-        ], function($, _, Backbone, Marionette, Handlebars) {
-            return factory.call(root, root, $, _, Backbone, Marionette, Handlebars);
+        ], function($, _, Backbone, Marionette) {
+            return factory.call(root, root, $, _, Backbone, Marionette);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         var $ = require('jquery'),
             _ = require('underscore'),
             Backbone = require('backbone'),
-            Handlebars = require('handlebars'),
             radio = require('backbone.radio');
 
         Backbone.$ = $;
 
         var Marionette = require('backbone.marionette'),
-            Jskeleton = factory(root, $, _, Backbone, Marionette, Handlebars);
+            Jskeleton = factory(root, $, _, Backbone, Marionette);
 
         module.exports = Jskeleton;
     } else if (root !== undefined) {
-        root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette, root.Handlebars);
+        root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
     }
 
-})(this, function(root, $, _, Backbone, Marionette, Handlebars) {
+})(this, function(root, $, _, Backbone, Marionette) {
     'use strict';
     /*globals require,requireModule */
     /* jshint unused: false */

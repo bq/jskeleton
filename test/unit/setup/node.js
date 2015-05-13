@@ -45,9 +45,6 @@ global.slice = Array.prototype.slice;
 //var htmlbarsRuntime =   require('../../../node_modules/htmlbars/dist/cjs/htmlbars-runtime.js');
 
 global.BackboneRadio = require('../../../bower_components/backbone.radio/src/backbone.radio.js');
-global.Handlebars = require('../../../bower_components/handlebars/handlebars.js');
-
-
 
 /*global.Jskeleton.htmlBars =  {
     compiler: htmlbarsCompiler,
@@ -55,7 +52,6 @@ global.Handlebars = require('../../../bower_components/handlebars/handlebars.js'
     /*hooks: htmlbarsRuntime.hooks,*/
 /* render: htmlbarsRuntime.render
 };*/
-
 
 if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     //Marionette.Deferred = global.Backbone.$.Deferred;
