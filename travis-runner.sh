@@ -5,6 +5,7 @@ echo "$TRAVIS_BRANCH"
 
 if [ "$TRAVIS_BRANCH" = "doc" ] && [ "$TRAVIS_PULL_REQUEST" != "true" ]
 then
+  echo ${GH_OAUTH_TOKEN} && \
   echo "Deploying!" && \
   cp CNAME _site
   cd _site && \
