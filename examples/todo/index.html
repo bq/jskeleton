@@ -44,6 +44,15 @@
 
         <!-- build:js({app,.tmp}) scripts/main.js -->
         <script src="../../dist/jskeleton.js"></script>
+        <script>
+
+            Jskeleton.common.set('corbel',{
+                urlBase: 'https://{{module}}-qa.bqws.io/v1.0/'
+            });
+
+        </script>
+        <script src="../../bower_components/corbel-js/dist/corbel.js"></script>
+        <script src="../../bower_components/jskeleton-corbel/src/main.js"></script>
         <script src="app.js"></script>
         <!-- endbuild -->
 </body>

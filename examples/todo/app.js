@@ -95,7 +95,7 @@ Jskeleton.ViewController.factory('ListadoDeLibros', function(_channel) {
 });
 
 // {{@component name="BookCollectionView" collection=context.bookCollection}}
-//
+//{{#each "model" in context.bookCollection}} <span> Titulo del libro: {{model.title}} Posicion en el listado: {{model.count}} </span> {{/each}}
 //
 Jskeleton.ChildApplication.factory('BookCatalogue', {
     routes: {
@@ -112,7 +112,7 @@ Jskeleton.ChildApplication.factory('BookCatalogue', {
             handlerName: 'ListBooks',
             viewControllerClass: 'ListadoDeLibros',
             eventListener: 'book:list',
-            template: '{{#if context.isPromise }} <span> spinner </span> {{else}} <span> Listado de libros: </span> {{#each "model" in context.bookCollection}} <span> Titulo del libro: {{model.title}} Posicion en el listado: {{model.count}} </span> {{/each}} Count Fuera: {{item.count}} {{/if}}',
+            template: '{{#if context.isPromise }} <span> spinner </span> {{else}} <span> Listado de libros: </span>  {{@component name="BookCollectionView" collection=context.bookCollection}} {{/if}}',
             requireLogin: true
         }
     },
@@ -171,13 +171,13 @@ var AppMain = Jskeleton.Application.extend({
             region: 'contentRegion'
         }
     },
-    routeFilters: function(_routeParams){
+    routeFilters: function(_routeParams) {
         console.log('middleware llamado');
         console.log('params: ', _routeParams);
         //return {error : "error"};
     },
-    onFilterError : function(err,_routeParams){
-        if(err) console.log(err);
+    onFilterError: function(err, _routeParams) {
+        if (err) console.log(err);
     }
 });
 
