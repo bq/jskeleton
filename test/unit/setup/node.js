@@ -67,6 +67,8 @@ if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     requireHelper('/utils/utils.js');
     requireHelper('/utils/hooks.js');
     requireHelper('/utils/factory.js');
+    requireHelper('/utils/plugin.js');
+    requireHelper('/utils/extension.js');
     requireHelper('/core/router.js');
     requireHelper('/core/service.js');
     requireHelper('/core/base-application.js');
