@@ -18,7 +18,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
             globalDi: Jskeleton.di
         });
 
-        //add middlewares to app workflow
+        //add routeFilters middlewares to app workflow
         if(this.routeFilters){
             this._use(this.routeFilters);
         }
@@ -174,8 +174,8 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     },
     //Update the url with the specified parameters
     _navigateTo: function(routeString, routeOptions, params) {
-        // middlewares handlers
-        if(this._middlewaresproccess(routeString,routeOptions,params)){
+        // routeFilters handlers
+        if(this._routeFilterProcessing(routeString,routeOptions,params)){
             var triggerValue = routeOptions.triggerNavigate === true ? true : false,
                 processedRoute = this.router._replaceRouteString(routeString, params);
             
@@ -183,14 +183,11 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
                 trigger: triggerValue
             });
         
-        }else{
-            throw new TypeError('Application middleware proccess Error');
-        }
+        }   
     },
-    //Middlewares handlers proccesor
-    _middlewaresproccess: function(routeString,routeOptions,params){
+    //Middlewares handlers procesor
+    _routeFilterProcessing: function(routeString,routeOptions,params){
         var self = this,
-            mainStack = this.parentApp.filterStack,
             filterError = false,
             err= null,
             result,
@@ -200,10 +197,13 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
                 params : params
             };
 
+            var mainStack = (this.parentApp) ? this.parentApp.filterStack : this.filterStack;
+
+
             if(mainStack.length !== 0){
                 for(var i = 0; i < mainStack.length; i++){
                     result = mainStack[i].call(self,_routeParams);
-                    if(!!result){
+                    if(typeof result !== true && typeof result !== 'undefined'){
                         filterError = true;
                         err = result;
                         break;
@@ -214,7 +214,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
             if(filterError === false){
                 return true;
             }else{
-                (this.parentApp) ? this.parentApp.filterError : this.filterError(err);
+                (this.parentApp) ? this.parentApp.triggerMethod('filter:error',err,_routeParams) : this.triggerMethod('filter:error',err,_routeParams);
             }
     },
     //Internal method to retrieve the name of the view-controller method to call before render the view

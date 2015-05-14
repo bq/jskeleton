@@ -1,4 +1,4 @@
-/*! jskeleton - v0.0.1 - 2015-05-13 
+/*! jskeleton - v0.0.1 - 2015-05-14 
  */(function(root, factory) {
     'use strict';
     /*globals require,define */
@@ -12598,12 +12598,18 @@
     Jskeleton.BaseApplication = Marionette.Application.extend({
         //Default global webapp channel for communicate with other apps
         globalChannel: 'global',
+        filterStack: [],
         constructor: function(options) {
             options = options || {};
     
             this.di = new Jskeleton.Di({
                 globalDi: Jskeleton.di
             });
+    
+            //add routeFilters middlewares to app workflow
+            if(this.routeFilters){
+                this._use(this.routeFilters);
+            }
     
             //generate application id
             this.aid = this.getAppId();
@@ -12756,16 +12762,48 @@
         },
         //Update the url with the specified parameters
         _navigateTo: function(routeString, routeOptions, params) {
-            // if (this.processMiddlewares(routeString, routeOptions)) {
-            var triggerValue = routeOptions.triggerNavigate === true ? true : false,
-                processedRoute = this.router._replaceRouteString(routeString, params);
+            // routeFilters handlers
+            if(this._routeFilterProcessing(routeString,routeOptions,params)){
+                var triggerValue = routeOptions.triggerNavigate === true ? true : false,
+                    processedRoute = this.router._replaceRouteString(routeString, params);
+                
+                this.router.navigate(processedRoute, {
+                    trigger: triggerValue
+                });
+            
+            }   
+        },
+        //Middlewares handlers procesor
+        _routeFilterProcessing: function(routeString,routeOptions,params){
+            var self = this,
+                filterError = false,
+                err= null,
+                result,
+                _routeParams = {
+                    routeString : routeString,
+                    routeOptions : routeOptions,
+                    params : params
+                };
     
-            this.router.navigate(processedRoute, {
-                trigger: triggerValue
-            });
-            // } else {
-            // this.denieNavigate();
-            // }
+                var mainStack = (this.parentApp) ? this.parentApp.filterStack : this.filterStack;
+    
+    
+                if(mainStack.length !== 0){
+                    for(var i = 0; i < mainStack.length; i++){
+                        result = mainStack[i].call(self,_routeParams);
+                        if(typeof result !== true && typeof result !== 'undefined'){
+                            filterError = true;
+                            err = result;
+                            break;
+                        }
+                    }
+                }
+    
+                if(filterError === false){
+                    return true;
+                }else{
+                    (this.parentApp) ? this.parentApp.triggerMethod('filter:error',err,_routeParams) : this.triggerMethod('filter:error',err,_routeParams);
+                }
         },
         //Internal method to retrieve the name of the view-controller method to call before render the view
         _getViewControllerHandlerName: function(routeString) {
@@ -12777,6 +12815,15 @@
             }
     
             return handlerName;
+        },
+        _use: function(fn){
+            var offset = 0;
+            var fns = _.flatten(Array.prototype.slice.call(arguments,offset));
+    
+            if(fns.length === 0){
+                throw new TypeError('Application.routeFilters() requires filter functions');
+            }
+            this.filterStack = _.union(this.filterStack,fns);
         },
         // Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).
         //Ensure that don't extist a view-controller and if exist that it's not destroyed.
@@ -12885,6 +12932,7 @@
     }, {
         factory: Jskeleton.Utils.FactoryAdd
     });
+    
     'use strict';
     
     /*globals Marionette, Jskeleton, _, Backbone */
