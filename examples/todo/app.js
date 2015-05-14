@@ -174,8 +174,9 @@ var AppMain = Jskeleton.Application.extend({
     routeFilters: function(_routeParams){
         console.log('middleware llamado');
         console.log('params: ', _routeParams);
+        //return {error : "error"};
     },
-    filterError : function(err){
+    onFilterError : function(err,_routeParams){
         if(err) console.log(err);
     }
 });
