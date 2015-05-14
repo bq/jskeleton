@@ -61,6 +61,7 @@ if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     requireHelper('/helpers/html-bars.js');
     requireHelper('/helpers/component.js');
     requireHelper('/helpers/if.js');
+    requireHelper('/helpers/each.js');
     requireHelper('/utils/utils.js');
     requireHelper('/utils/hooks.js');
     requireHelper('/utils/factory.js');

@@ -48,6 +48,7 @@
     //  @include ../helpers/html-bars.js
     //  @include ../helpers/component.js
     //  @include ../helpers/if.js
+    //  @include ../helpers/each.js
     //  @include ../utils/hooks.js
     //  @include ../utils/factory.js
 

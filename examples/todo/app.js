@@ -77,6 +77,7 @@ Jskeleton.ViewController.factory('ListadoDeLibros', function(_channel) {
             }, 2000);
 
             return def.promise().then(function() {
+
                 self.context.bookCollection = new Backbone.Collection([{
                     title: 'Juego de tronos',
                     id: 165
@@ -93,7 +94,9 @@ Jskeleton.ViewController.factory('ListadoDeLibros', function(_channel) {
     };
 });
 
-
+// {{@component name="BookCollectionView" collection=context.bookCollection}}
+//
+//
 Jskeleton.ChildApplication.factory('BookCatalogue', {
     routes: {
         'book/show/:title(/:id)': {
@@ -109,7 +112,8 @@ Jskeleton.ChildApplication.factory('BookCatalogue', {
             handlerName: 'ListBooks',
             viewControllerClass: 'ListadoDeLibros',
             eventListener: 'book:list',
-            template: '{{#if context.isPromise}} <span> spinner </span> {{else}} <span> Listado de libros: </span> {{@component name="BookCollectionView" collection=context.bookCollection}} {{/if}}'
+            template: '{{#if context.isPromise }} <span> spinner </span> {{else}} <span> Listado de libros: </span> {{#each "model" in context.bookCollection}} <span> Titulo del libro: {{model.title}} Posicion en el listado: {{model.count}} </span> {{/each}} Count Fuera: {{item.count}} {{/if}}',
+            requireLogin: true
         }
     },
     events: {

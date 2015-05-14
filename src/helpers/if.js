@@ -55,7 +55,7 @@
 
          var template = condition ? truthyTemplate : falsyTemplate;
 
-         if (template) {
+         if (template && typeof template.render === 'function') {
              return template.render(undefined, env);
          }
 
