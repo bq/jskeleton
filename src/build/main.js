@@ -55,6 +55,7 @@
     //  @include ../utils/utils.js
     //  @include ../utils/hooks.js
     //  @include ../utils/factory.js
+    //  @include ../utils/common.js
     //  @include ../core/di.js
     //  @include ../core/router.js
     //  @include ../core/service.js
