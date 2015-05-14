@@ -6,7 +6,7 @@ describe('In Plugin module', function() {
     var sandbox = sinon.sandbox.create();
 
 
-    before(function(){
+    before(function() {
         var self = this;
 
         this.spy = sinon.spy();
@@ -15,7 +15,7 @@ describe('In Plugin module', function() {
 
         this.plugin = Jskeleton.plugin;
 
-        this.pluginFunction = function(){
+        this.pluginFunction = function() {
             self.spy();
         };
 
@@ -30,46 +30,45 @@ describe('In Plugin module', function() {
         expect(this.plugin).to.be.a('function');
     });
 
-    it('adds plugins to the factory', function(){
+    it('adds plugins to the factory', function() {
         this.pluginInFactory = this.factory.get('myTestPlugin');
         expect(this.pluginInFactory).not.to.be.undefined;
         expect(this.pluginInFactory.Class).to.be.equal(this.pluginFunction);
     });
 
-    it('plugin is not started', function(){
+    it('plugin is not started', function() {
         expect(this.spy.called).to.be.false;
     });
 
-    it('they can be called', function(){
+    it('they can be called', function() {
         this.factory.getClass('myTestPlugin')();
         expect(this.spy.calledOnce).to.be.true;
     });
 
-    describe('when plugin has dependencies', function(){
-        before(function(){
+    describe('when plugin has dependencies', function() {
+        before(function() {
             var self = this;
             this.MyNewBackboneView = Backbone.View.extend({});
             this.factory.add('myNewBackboneView', this.MyNewBackboneView);
 
             this.newSpy = sinon.spy();
 
-            this.newPluginFunction = function(myTestPlugin){
+            this.newPluginFunction = function(myTestPlugin) {
                 self.newSpy();
             };
 
         });
 
-        it('they are called when our plugin is called', function(){
+        it('they are called when our plugin is called', function() {
             this.plugin('myNewPlugin', this.newPluginFunction);
             this.factory.getClass('myNewPlugin')();
 
             expect(this.spy.calledOnce).to.be.true;
             expect(this.newSpy.calledOnce).to.be.true;
-            Jskeleton.di.store('myTestPlugin', undefined,{});
-            console.log(this.factory.getClass('myTestPlugin'));
+            Jskeleton.di.store('myTestPlugin', undefined, {});
         });
 
-        it.skip('they are functions', function(){
+        it.skip('they are functions', function() {
 
         });
     });

@@ -51,7 +51,6 @@
     //  @include ../helpers/each.js
     //  @include ../utils/plugin.js
     //  @include ../utils/extension.js
-    //  @include ../utils/hooks.js
     //  @include ../utils/utils.js
     //  @include ../utils/factory.js
     //  @include ../utils/common.js
