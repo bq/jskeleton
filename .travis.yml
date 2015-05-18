@@ -15,10 +15,6 @@ install:
 script:
     - bundle exec jekyll build
     - bash ./travis-runner.sh
-
-after_failure:
-    - bash ./after_failure.sh
-
 branches:
   only:
   - doc
