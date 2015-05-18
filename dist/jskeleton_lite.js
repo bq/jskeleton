@@ -1405,43 +1405,118 @@
     
           });
     'use strict';
-    /*globals Jskeleton,_ */
+    
+    /*globals Jskeleton */
+    
     /* jshint unused: false */
     
-    var Hook = Jskeleton.Hook = function() {
-        this.beforeCallbacks = [];
-        this.afterCallbacks = [];
-        return this;
+    Jskeleton.plugin = function(name, protoFunction) {
+        return Jskeleton.factory.add(name, protoFunction);
+    };
+    'use strict';
+    /*globals Marionette, Jskeleton, _, Backbone */
+    /* jshint unused: false */
+    
+    var extension = function(name, classToExtend, extensionContent){
+        var jskeletonClass = Jskeleton[classToExtend];
+    
+        if (!jskeletonClass){
+            throw new Error('You must specify a existent Jskeleton Class');
+        }
+        else if(!extensionContent || typeof extensionContent !== 'object'){
+            throw new Error('You must spefify a correct extension object');
+        }
+        else{
+            Jskeleton[name] = jskeletonClass.extend(extensionContent);
+        }
+    };
+    
+    Jskeleton.extension = extension;
+    
+    'use strict';
+    /*globals Jskeleton, Backbone, _ */
+    /* jshint unused: false */
+    
+    var utils = {};
+    
+    // RegExp @component htmlBars
+    utils.regExpComponent = /{{@component/ig;
+    
+    //replace string chars (instead using encodeUrl)
+    utils.replaceSpecialChars = function(text) {
+        if (typeof text === 'string') {
+    
+            var specialChars = 'ãàáäâèéëêìíïîòóöôùúüûÑñÇç \'',
+                chars = 'aaaaaeeeeiiiioooouuuunncc--';
+    
+            for (var i = 0; i < specialChars.length; i++) {
+                text = text.replace(new RegExp(specialChars.charAt(i), 'g'), chars.charAt(i));
+            }
+        }
+        return text;
+    };
+    
+    utils.normalizeComponentName = function(eventString) {
+        var name = /@component\.[a-zA-Z_$0-9]*/g.exec(String(eventString))[0].slice(11);
+    
+        return name;
+    };
+    
+    // utility method for parsing event syntax strings to retrieve the event type string
+    utils.normailzeEventType = function(eventString) {
+        var eventType = /(\S)*/g.exec(String(eventString))[0].trim();
+    
+        return eventType;
+    };
+    
+    // utility method for extract @component. syntax strings
+    // into associated object
+    utils.extractComponentEvents = function(events) {
+        return _.reduce(events, function(memo, val, eventName) {
+            if (eventName.match(/@component\.[a-zA-Z_$0-9]*/g)) {
+                memo[eventName] = val;
+            }
+            return memo;
+        }, {});
+    };
+    
+    // allows for the use of the @component. syntax within
+    // a given key for triggers and events
+    // swaps the @component with the associated component object.
+    // Returns a new, parsed components event hash, and mutate the object events hash.
+    utils.normalizeComponentKeys = function(events, components) {
+        return _.reduce(events, function(memo, val, key) {
+            var normalizedKey = Marionette.normalizeComponentString(key, components);
+            memo[normalizedKey] = val;
+            return memo;
+        }, {});
     };
     
     
-    Hook.prototype.before = function(callback) {
-        this.beforeCallbacks.push(callback);
-        return this;
+    var BackboneExtend = Backbone.Model.extend;
+    
+    // Util function to correctly set up the prototype chain for subclasses.
+    // Override the Backbone extend implementation to integrate with Jskeleton.factory
+    // and with Jskeleton.Di Jskeleton.di
+    utils.FactoryAdd = function(name, protoProps, staticProps) {
+        var Class = protoProps,
+            Parent = this;
+    
+        if (_.isFunction(protoProps)) {
+            Jskeleton.factory.add(name, Class, Parent);
+        } else {
+            //get the inherited class using default Backbone extend method
+            Class = BackboneExtend.apply(this, Array.prototype.slice.call(arguments, 1));
+            //add the inherited class to the Jskeleton.factory
+            Jskeleton.factory.add(name, Class);
+    
+            return Class;
+        }
+    
     };
     
-    Hook.prototype.after = function(callback) {
-        this.afterCallbacks.push(callback);
-        return this;
-    };
+    Jskeleton.Utils = utils;
     
-    Hook.prototype.processBefore = function() {
-        var self = this;
-        _.each(this.beforeCallbacks, function(callback) {
-            callback.apply(self);
-        });
-        this.beforeCallbacks = [];
-        return this;
-    };
-    
-    Hook.prototype.processAfter = function() {
-        var self = this;
-        _.each(this.afterCallbacks, function(callback) {
-            callback.apply(self);
-        });
-        this.afterCallbacks = [];
-        return this;
-    };
     'use strict';
     /*globals Marionette, Jskeleton, _, Backbone */
     /* jshint unused: false */
@@ -1558,6 +1633,57 @@
     
     Jskeleton.factory = factory;
     
+    'use strict';
+    
+    /* globals _, Jskeleton */
+    
+    // Application global config and params
+    var common = Jskeleton.common = {
+        config: {
+            mode: undefined,
+            version: '0.0.1',
+            // application name
+            appName: 'jskeleton-app',
+            // Client type
+            clientType: 'WEB',
+            // WebApp root URL
+            wwwRoot: window.location.protocol + '//' + window.location.host + window.location.pathname,
+            //Default lang
+            lang: 'es-ES'
+        }
+    };
+    
+    // Returns all application config params
+    common.getConfig = function() {
+        return this.config;
+    };
+    
+    // Overrides current config with params object config
+    common.setConfig = function(config) {
+    
+        _.extend(this.config, config);
+    
+        return this;
+    };
+    
+    
+    // Gets a specific config param
+    common.get = function(field) {
+        if (this.config[field] === undefined) {
+            throw new Error('UndefinedCommonField "' + field + '"');
+        }
+        return this.config[field];
+    };
+    
+    // Gets a specific config param or default
+    common.getOrDefault = function(field, defaultValue) {
+        return this.config[field] || defaultValue;
+    };
+    
+    // Sets a new value for specific config param
+    common.set = function(field, value) {
+        this.config[field] = value;
+    };
 
     return Jskeleton;
 

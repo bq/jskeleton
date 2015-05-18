@@ -1,5 +1,4 @@
-/*! jskeleton - v0.0.1 - 2015-05-14 
- */(function(root, factory) {
+(function(root, factory) {
     'use strict';
     /*globals require,define */
     /* jshint unused: false */
@@ -12118,43 +12117,34 @@
     Jskeleton.Utils = utils;
     
     'use strict';
-    /*globals Jskeleton,_ */
+    
+    /*globals Jskeleton */
+    
     /* jshint unused: false */
     
-    var Hook = Jskeleton.Hook = function() {
-        this.beforeCallbacks = [];
-        this.afterCallbacks = [];
-        return this;
+    Jskeleton.plugin = function(name, protoFunction) {
+        return Jskeleton.factory.add(name, protoFunction);
+    };
+    'use strict';
+    /*globals Marionette, Jskeleton, _, Backbone */
+    /* jshint unused: false */
+    
+    var extension = function(name, classToExtend, extensionContent){
+        var jskeletonClass = Jskeleton[classToExtend];
+    
+        if (!jskeletonClass){
+            throw new Error('You must specify a existent Jskeleton Class');
+        }
+        else if(!extensionContent || typeof extensionContent !== 'object'){
+            throw new Error('You must spefify a correct extension object');
+        }
+        else{
+            Jskeleton[name] = jskeletonClass.extend(extensionContent);
+        }
     };
     
+    Jskeleton.extension = extension;
     
-    Hook.prototype.before = function(callback) {
-        this.beforeCallbacks.push(callback);
-        return this;
-    };
-    
-    Hook.prototype.after = function(callback) {
-        this.afterCallbacks.push(callback);
-        return this;
-    };
-    
-    Hook.prototype.processBefore = function() {
-        var self = this;
-        _.each(this.beforeCallbacks, function(callback) {
-            callback.apply(self);
-        });
-        this.beforeCallbacks = [];
-        return this;
-    };
-    
-    Hook.prototype.processAfter = function() {
-        var self = this;
-        _.each(this.afterCallbacks, function(callback) {
-            callback.apply(self);
-        });
-        this.afterCallbacks = [];
-        return this;
-    };
     'use strict';
     /*globals Marionette, Jskeleton, _, Backbone */
     /* jshint unused: false */
@@ -12271,6 +12261,57 @@
     
     Jskeleton.factory = factory;
     
+    'use strict';
+    
+    /* globals _, Jskeleton */
+    
+    // Application global config and params
+    var common = Jskeleton.common = {
+        config: {
+            mode: undefined,
+            version: '0.0.1',
+            // application name
+            appName: 'jskeleton-app',
+            // Client type
+            clientType: 'WEB',
+            // WebApp root URL
+            wwwRoot: window.location.protocol + '//' + window.location.host + window.location.pathname,
+            //Default lang
+            lang: 'es-ES'
+        }
+    };
+    
+    // Returns all application config params
+    common.getConfig = function() {
+        return this.config;
+    };
+    
+    // Overrides current config with params object config
+    common.setConfig = function(config) {
+    
+        _.extend(this.config, config);
+    
+        return this;
+    };
+    
+    
+    // Gets a specific config param
+    common.get = function(field) {
+        if (this.config[field] === undefined) {
+            throw new Error('UndefinedCommonField "' + field + '"');
+        }
+        return this.config[field];
+    };
+    
+    // Gets a specific config param or default
+    common.getOrDefault = function(field, defaultValue) {
+        return this.config[field] || defaultValue;
+    };
+    
+    // Sets a new value for specific config param
+    common.set = function(field, value) {
+        this.config[field] = value;
+    };
     'use strict';
     
     /*globals Marionette, Jskeleton,_ */
