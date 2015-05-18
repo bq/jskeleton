@@ -50,16 +50,7 @@
                     <a class="class-link" href="{{ class.url | prepend: site.baseurl }}">{{ class.title }}</a>
 
                     {% if page.title == class.title %}
-                    <ul>
-                        {% for link_hash in page.submenu %}
-                        <li class="aside-nav__item ">
-                            {% for link in link_hash %}
-                            <a class="class-link" href="{{ link[1] }}">{{ link[0] }}
-                            </a>
-                            {% endfor %}
-                        </li>
-                        {% endfor %}
-                    </ul>
+                    <div id="aside-menu"></div>
                     {% endif %}
 
                 </li>

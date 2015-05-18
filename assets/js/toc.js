@@ -4,6 +4,9 @@
     var defaults = {
       noBackToTopLinks: false,
       title: '<h2>Documentation Index</h2>',
+      submenuTitle: "",
+      liClass: "",
+      aClass: "",
       minimumHeaders: 3,
       headers: 'h1, h2, h3, h4, h5, h6',
       listType: 'ol', // values: [ol|ul]
@@ -55,23 +58,24 @@
     })
     .addClass('clickable-header')
     .each(function(_, header) {
+      console.log('submenu title:',settings.submenuTitle)
       this_level = get_level(header);
       if (!settings.noBackToTopLinks && this_level === highest_level) {
         $(header).addClass('top-level-header').after(return_to_top);
       }
       if (this_level === level) // same level as before; same indenting
-        html += "<li><a href='#" + fixedEncodeURIComponent(header.id) + "'>" + header.innerHTML + "</a>";
+        html += "<li class='"+ settings.liClass +"'><a class='"+ settings.aClass +"'  href='#"  + fixedEncodeURIComponent(header.id) + "'>" + settings.submenuTitle + header.innerHTML + "</a>";
       else if (this_level <= level){ // higher level than before; end parent ol
         for(i = this_level; i < level; i++) {
           html += "</li></"+settings.listType+">"
         }
-        html += "<li><a href='#" + fixedEncodeURIComponent(header.id) + "'>" + header.innerHTML + "</a>";
+        html += "<li class='"+ settings.liClass +"'><a  class='"+ settings.aClass +"' href='#"  + fixedEncodeURIComponent(header.id) + "'>" + settings.submenuTitle + header.innerHTML + "</a>";
       }
       else if (this_level > level) { // lower level than before; expand the previous to contain a ol
         for(i = this_level; i > level; i--) {
           html += "<"+settings.listType+"><li>"
         }
-        html += "<a href='#" + fixedEncodeURIComponent(header.id) + "'>" + header.innerHTML + "</a>";
+        html += "<a class='"+ settings.aClass +"' href='#"  + fixedEncodeURIComponent(header.id) + "'>" + settings.submenuTitle + header.innerHTML + "</a>";
       }
       level = this_level; // update for the next one
     });

@@ -81,7 +81,19 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-        $('#main_content').toc({ showEffect: 'slideDown' });
+        $('#main_content').toc({
+            showEffect: 'none',
+            submenuTitle: "{{ page.title  }}.",
+        });
+        $('#aside-menu').toc(
+            {
+                listType: 'ul',
+                title: "",
+                liClass: "aside-subnav__item",
+                aClass: "class-link",
+                showEffect: "none"
+            }
+            );
     });
 </script>
 
