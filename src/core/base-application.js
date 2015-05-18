@@ -11,7 +11,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     //Default global webapp channel for communicate with other apps
     globalChannel: 'global',
     filterStack: [],
-    middlewareStack : [],
+    middlewareStack: [],
     constructor: function(options) {
         options = options || {};
 
@@ -20,15 +20,14 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         });
 
         //add routeFilters middlewares to app workflow
-        if(this.routeFilters){
-            this._use('routeFilters',this.routeFilters);
+        if (this.routeFilters) {
+            this._use('routeFilters', this.routeFilters);
         }
 
         //add middlewares to app wordflow
-        if(this.middlewares){
-            this._use('middlewares',this.middlewares);
+        if (this.middlewares) {
+            this._use('middlewares', this.middlewares);
         }
-
         //generate application id
         this.aid = this.getAppId();
 
@@ -40,6 +39,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         Marionette.Application.prototype.constructor.apply(this, arguments);
 
         this._addApplicationDependencies();
+
     },
     start: function(options) {
         options = options || {};
@@ -106,7 +106,8 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     _addApplicationDependencies: function() {
 
         this.di.inject({
-            _channel: this.privateChannel,
+            _privateChannel: this.privateChannel,
+            _globalChannel: this.globalChannel,
             _app: this,
             _scope: this.scope
         });
@@ -181,39 +182,39 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     //Update the url with the specified parameters
     _navigateTo: function(routeString, routeOptions, params) {
         // routeFilters handlers
-        if(this._routeFilterProcessing(routeString,routeOptions,params)){
-            
+        if (this._routeFilterProcessing(routeString, routeOptions, params)) {
+
             //middlewares processing before navigation
-            this._middlewaresProcessing(routeString,routeOptions,params);
-            
+            this._middlewaresProcessing(routeString, routeOptions, params);
+
             var triggerValue = routeOptions.triggerNavigate === true ? true : false,
                 processedRoute = this.router._replaceRouteString(routeString, params);
-            
+
             this.router.navigate(processedRoute, {
                 trigger: triggerValue
             });
-        
-        }   
+
+        }
     },
     //RouteFilters Middlewares handlers processor
-    _routeFilterProcessing: function(routeString,routeOptions,params){
+    _routeFilterProcessing: function(routeString, routeOptions, params) {
         var self = this,
             filterError = false,
-            err= null,
+            err = null,
             result,
             _routeParams = {
-                routeString : routeString,
-                routeOptions : routeOptions,
-                params : params
+                routeString: routeString,
+                routeOptions: routeOptions,
+                params: params
             };
 
         var mainStack = (this.parentApp) ? this.parentApp.filterStack : this.filterStack;
 
 
-        if(mainStack.length !== 0){
-            for(var i = 0; i < mainStack.length; i++){
-                result = mainStack[i].call(self,_routeParams);
-                if(typeof result !== true && typeof result !== 'undefined'){
+        if (mainStack.length !== 0) {
+            for (var i = 0; i < mainStack.length; i++) {
+                result = mainStack[i].call(self, _routeParams);
+                if (typeof result !== true && typeof result !== 'undefined') {
                     filterError = true;
                     err = result;
                     break;
@@ -221,27 +222,27 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
             }
         }
 
-        if(filterError === false){
+        if (filterError === false) {
             return true;
-        }else{
-            (this.parentApp) ? this.parentApp.triggerMethod('filter:error',err,_routeParams) : this.triggerMethod('filter:error',err,_routeParams);
+        } else {
+            this.parentApp ? this.parentApp.triggerMethod('filter:error', err, _routeParams) : this.triggerMethod('filter:error', err, _routeParams); //jshint ignore:line
         }
     },
     //Middlewares handlers processing
-    _middlewaresProcessing: function(routeString,routeOptions,params){
+    _middlewaresProcessing: function(routeString, routeOptions, params) {
         var self = this,
             _routeParams = {
-                routeString : routeString,
-                routeOptions : routeOptions,
-                params : params
+                routeString: routeString,
+                routeOptions: routeOptions,
+                params: params
             };
 
         var mainStack = (this.parentApp) ? this.parentApp.middlewareStack : this.middlewareStack;
 
 
-        if(mainStack.length !== 0){
-            for(var i = 0; i < mainStack.length; i++){
-                mainStack[i].call(self,_routeParams);
+        if (mainStack.length !== 0) {
+            for (var i = 0; i < mainStack.length; i++) {
+                mainStack[i].call(self, _routeParams);
             }
         }
     },
@@ -256,18 +257,18 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         return handlerName;
     },
-    _use: function(type,fn){
+    _use: function(type, fn) {
         var offset = 1;
-        var fns = _.flatten(Array.prototype.slice.call(arguments,offset));
+        var fns = _.flatten(Array.prototype.slice.call(arguments, offset));
 
-        if(fns.length === 0){
+        if (fns.length === 0) {
             throw new TypeError('Application.use() requires functions');
         }
         //evaluate type of middlewares and push to their stack
-        if(type === 'routeFilters'){
-            this.filterStack = _.union(this.filterStack,fns);
-        }else if(type === 'middlewares'){
-            this.middlewareStack = _.union(this.middlewareStack,fns);
+        if (type === 'routeFilters') {
+            this.filterStack = _.union(this.filterStack, fns);
+        } else if (type === 'middlewares') {
+            this.middlewareStack = _.union(this.middlewareStack, fns);
         }
     },
     // Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).

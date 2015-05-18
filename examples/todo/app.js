@@ -1,3 +1,5 @@
+/* globals Jskeleton, Backbone */
+
 'use strict';
 
 Jskeleton.ItemView.factory('DetailBookView', {
@@ -33,9 +35,9 @@ Jskeleton.CollectionView.factory('BookCollectionView', {
     childView: 'ListItemViewBook'
 });
 
-Jskeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_channel'], function(servicioDeLibros, channel) {
+Jskeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_globalChannel'], function(servicioDeLibros, channel) {
     return {
-        template: '<span> Detalle de libro: </span> {{@component name="DetailBookView" model=context.bookModel}}',
+        template: '<span> Detalle de libro: </span> {{@component "DetailBookView" model=context.bookModel}}',
         events: {
             'action @component.DetailBookView': 'onActionClicked',
             'navigate @component.DetailBookView': 'onNavigateClicked'
@@ -46,7 +48,7 @@ Jskeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_channe
         onNavigateClicked: function() {
             channel.trigger('book:list');
         },
-        onBookShow: function(params, service) {
+        onBookShow: function(params) {
             this.context.bookModel = new Backbone.Model({
                 title: params.title,
                 id: params.id,
@@ -56,7 +58,7 @@ Jskeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_channe
     };
 });
 
-Jskeleton.ViewController.factory('ListadoDeLibros', ['_channel'], function(channel) {
+Jskeleton.ViewController.factory('ListadoDeLibros', ['_globalChannel'], function(channel) {
     return {
         events: {
             'childview:action @component.BookCollectionView': 'onNavigateClicked'
@@ -112,15 +114,15 @@ Jskeleton.ChildApplication.factory('BookCatalogue', {
             handlerName: 'ListBooks',
             viewControllerClass: 'ListadoDeLibros',
             eventListener: 'book:list',
-            template: '{{#if context.isPromise }} <span> spinner </span> {{else}} <span> Listado de libros: </span>  {{@component name="BookCollectionView" collection=context.bookCollection}} {{/if}}',
+            template: '{{#if context.isPromise }} <span> spinner </span> {{else}} <span> Listado de libros: </span>  {{@component "BookCollectionView" collection=context.bookCollection}} {{/if}}',
             requireLogin: true
         }
     },
     events: {
-        triggers: [
-            'book:details',
-            'book:list'
-        ]
+        // triggers: [
+        //     'book:details',
+        //     'book:list'
+        // ]
         // listen: [
         // 'all'
         // ]
