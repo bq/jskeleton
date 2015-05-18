@@ -3,14 +3,49 @@ layout: guide
 title:  "Getting Started"
 aside_order: 1
 ---
+#Primeros pasos
 
-Lo primero que debemos hacer para empezar a crear aplicaciones con Jskeleton es descargarlo e instalarlo.
+Poner a punto un proyecto Jskeleton para el desarrollo es realmente sencillo, simplemente basta con seguir las siguientes indicaciones:
 
-La manera mas sencilla es utilizando [el generador de Yeoman](https://github.com/bq/generator-jskeleton). Primero, debes instalar `yeoman`, `grunt-cli`, `bower` y `generator-jskeleton`:
+##Obtener Jskeleton
+
+Jskeleton está disponible como paquete bower y como paquete npm.
+
+###Bower:
+
+    {% highlight javascript %}
+
+        bower install jskeleton --save
+
+    {% endhighlight %}
+
+
+###Npm:
+
+    {% highlight javascript %}
+
+        npm install jskeleton --save
+        
+    {% endhighlight %}
+
+##Jskeleton generator
+
+Existe un generador de Yeoman para Jskeleton [generator-jskeleton](https://github.com/bq/generator-jskeleton). Primero, debes instalar `yeoman`, `grunt-cli`, `bower` y `generator-jskeleton`:
 
 {% highlight bash %}
 $ npm install -g grunt-cli bower yo generator-jskeleton
 {% endhighlight %}
+
+El generador de jskeleton proporciona un esqueleto de aplicación e incluye una serie de buenas prácticas y el workflow necesario empezar el desarrollo de una aplicación incluyendo:
+
+    -automatización
+        -deploy
+        -server y watch
+    -testing
+        -unitarios
+        -funcionales
+
+##Prepara el entorno
 
 Crea un nuevo directorio para tu aplicación:
 
@@ -30,17 +65,17 @@ Por último, instala todas las dependencias de Jskeleton:
 $ npm install && bower install
 {% endhighlight %}
 
-Vamos a comprobar que todo está OK... Inicia el servidor:
+Para comprobar que todo está OK... Inicia el servidor:
 
 {% highlight bash %}
 $ grunt serve
 {% endhighlight %}
 
-Si abres tu navegador favorito con la url: [http://127.0.0.1:8080](http://127.0.0.1:8080/) deberías ver ????????????
+Puedes abrir tu navegador favorito con la url: [http://127.0.0.1:8080](http://127.0.0.1:8080/) 
 
-Ya está! Tu nueva aplicación está lista para comenzar a crear sobre ella con Jskeleton!
+Ya está! Tu nueva aplicación está lista para ser desarrollada con Jskeleton!
 
-
+##Empieza a desarrollar
 
 <!---
 First thing you should do to start creating apps with Jskeleton is download and install.
