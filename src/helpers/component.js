@@ -2,7 +2,7 @@
      /*globals  Jskeleton, _ */
      /* jshint unused: false */
 
-     Jskeleton.registerHelper('@component', function(params, env) {
+     Jskeleton.registerHelper('@component', function(params, env, args) {
          // env.enviroment._app;
          // env.enviroment.channel;
          //env.enviroment._view, view-controller
@@ -10,7 +10,7 @@
 
          params = params || {};
 
-         var componentName = params.name,
+         var componentName = typeof args[0] === 'string' ? args[0] : params.name,
              ComponentClass,
              component,
              viewInstance = env.enviroment._view,
