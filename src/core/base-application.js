@@ -11,6 +11,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     //Default global webapp channel for communicate with other apps
     globalChannel: 'global',
     filterStack: [],
+    middlewareStack : [],
     constructor: function(options) {
         options = options || {};
 
@@ -20,7 +21,12 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         //add routeFilters middlewares to app workflow
         if(this.routeFilters){
-            this._use(this.routeFilters);
+            this._use('routeFilters',this.routeFilters);
+        }
+
+        //add middlewares to app wordflow
+        if(this.middlewares){
+            this._use('middlewares',this.middlewares);
         }
 
         //generate application id
@@ -176,6 +182,10 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     _navigateTo: function(routeString, routeOptions, params) {
         // routeFilters handlers
         if(this._routeFilterProcessing(routeString,routeOptions,params)){
+            
+            //middlewares processing before navigation
+            this._middlewaresProcessing(routeString,routeOptions,params);
+            
             var triggerValue = routeOptions.triggerNavigate === true ? true : false,
                 processedRoute = this.router._replaceRouteString(routeString, params);
             
@@ -185,7 +195,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         
         }   
     },
-    //Middlewares handlers procesor
+    //RouteFilters Middlewares handlers processor
     _routeFilterProcessing: function(routeString,routeOptions,params){
         var self = this,
             filterError = false,
@@ -197,25 +207,43 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
                 params : params
             };
 
-            var mainStack = (this.parentApp) ? this.parentApp.filterStack : this.filterStack;
+        var mainStack = (this.parentApp) ? this.parentApp.filterStack : this.filterStack;
 
 
-            if(mainStack.length !== 0){
-                for(var i = 0; i < mainStack.length; i++){
-                    result = mainStack[i].call(self,_routeParams);
-                    if(typeof result !== true && typeof result !== 'undefined'){
-                        filterError = true;
-                        err = result;
-                        break;
-                    }
+        if(mainStack.length !== 0){
+            for(var i = 0; i < mainStack.length; i++){
+                result = mainStack[i].call(self,_routeParams);
+                if(typeof result !== true && typeof result !== 'undefined'){
+                    filterError = true;
+                    err = result;
+                    break;
                 }
             }
+        }
 
-            if(filterError === false){
-                return true;
-            }else{
-                (this.parentApp) ? this.parentApp.triggerMethod('filter:error',err,_routeParams) : this.triggerMethod('filter:error',err,_routeParams);
+        if(filterError === false){
+            return true;
+        }else{
+            (this.parentApp) ? this.parentApp.triggerMethod('filter:error',err,_routeParams) : this.triggerMethod('filter:error',err,_routeParams);
+        }
+    },
+    //Middlewares handlers processing
+    _middlewaresProcessing: function(routeString,routeOptions,params){
+        var self = this,
+            _routeParams = {
+                routeString : routeString,
+                routeOptions : routeOptions,
+                params : params
+            };
+
+        var mainStack = (this.parentApp) ? this.parentApp.middlewareStack : this.middlewareStack;
+
+
+        if(mainStack.length !== 0){
+            for(var i = 0; i < mainStack.length; i++){
+                mainStack[i].call(self,_routeParams);
             }
+        }
     },
     //Internal method to retrieve the name of the view-controller method to call before render the view
     _getViewControllerHandlerName: function(routeString) {
@@ -228,14 +256,19 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         return handlerName;
     },
-    _use: function(fn){
-        var offset = 0;
+    _use: function(type,fn){
+        var offset = 1;
         var fns = _.flatten(Array.prototype.slice.call(arguments,offset));
 
         if(fns.length === 0){
-            throw new TypeError('Application.routeFilters() requires filter functions');
+            throw new TypeError('Application.use() requires functions');
         }
-        this.filterStack = _.union(this.filterStack,fns);
+        //evaluate type of middlewares and push to their stack
+        if(type === 'routeFilters'){
+            this.filterStack = _.union(this.filterStack,fns);
+        }else if(type === 'middlewares'){
+            this.middlewareStack = _.union(this.middlewareStack,fns);
+        }
     },
     // Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).
     //Ensure that don't extist a view-controller and if exist that it's not destroyed.
