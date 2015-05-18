@@ -2,46 +2,51 @@
 layout: api
 title:  "Application"
 submenu:
-  - Application.rootEl: "#rootel"
-  - Application.rootRegion: "#application-main-region"
+  - Application.el: "#el"
+  - Application.mainRegionName: "#application-main-region"
   - Application.regions: "#regions"
-  - Application.layout: "#layout"
+  - Application.viewController: "#ViewController"
   - Application.applications: "#child-applications"
   - Application.channels: "#channels"
   - Application.routes: "#routes"
+  - View controller handler: "#view-controller-handler"
 ---
+
  `JSkeleton.Application` es un contenedor donde almacenar y dividir en pequeñas partes la lógica de tu aplicación web, haciéndola más reusable, desacoplada y escalable.
 
 
 ##Application DOM
 
-###rootEl
+###el
 
 
-Todas las `Jskeleton.Application` **tienen** que tener un DOM raíz, donde se definirá la región raíz/principal de la aplicación y donde se pintará el layout de la aplicación (si se ha definido).
+Todas las `Jskeleton.Application` **tienen** que tener un DOM raíz, donde se definirá la región raíz/principal de la aplicación y donde se pintará el `Jskeleton.ViewController` de la aplicación (si se ha definido).
 
-Para definir el root raíz de una aplicación, basta con definirlo en la clase o en la instanciación:
+Para definir el root raíz de una aplicación, basta con definirlo en la clase o en tiempo de instanciación:
 
     {% highlight javascript %}
 
     var ExampleApp = Jskeleton.Application.extend({
-        rootEl: 'body'
+        el: 'body'
     });
 
 var ExampleApp = Jskeleton.Application.extend({});
-var app = new ExampleApp({rootEl: 'body'});
+var app = new ExampleApp({el: 'body'});
 
     {% endhighlight %}
 
 ###Application main region
 
-Todas las `Jskeleton.Application` tienen una región raíz/principal (por defecto, 'root'). Esta región es la que se le pasará a las child applications si no se les especifica ninguna región. Para definir una región principal:
+Todas las `Jskeleton.Application` tienen una región raíz/principal (por defecto, 'main'). Esta región es la que se le pasará a las child applications si no se les especifica ninguna región. Para definir una región principal:
 
 
     {% highlight javascript %}
     var ExampleApp = Jskeleton.Application.extend({
-        rootRegion: 'main'
+        mainRegionName: 'main'
     });
+
+    var app = new ExampleApp({region: 'main'});
+
     {% endhighlight %}
 
 ##Regions
@@ -64,21 +69,21 @@ app.addRegion({contentRegion: 'body'});
 
     {% endhighlight %}
 
-##Layout
+##ViewController
 
-Una aplicación también puede añadir regiones a través de su layout. Estas regiones se expondrán directamente a la aplicación y se destruirán cuando ésta se destruya.
+Una aplicación también puede añadir regiones a través de su `Jskeleton.ViewController`. Estas regiones se expondrán directamente a la aplicación y se destruirán cuando ésta se destruya.
 
 {% highlight javascript %}
-var Layout = Jskeleton.Layout.extend({
+var ViewController = Jskeleton.ViewController.extend({
     regions: {
         anotherRegion: '.template-dom-selector'
     }
 });
 
 var ExampleApp = Jskeleton.Application.extend({
-    layout: {
+    viewController: {
         template: '<div class="header"></div><div class="content"></div>',
-        class: Layout
+        class: ViewController
     }
 });
 {% endhighlight %}
@@ -164,7 +169,7 @@ app.globalChannel.trigger();
 
 ##Routes
 
-Cada aplicación, ya sea `Jskeleton.Application` como `Jskeleton.ChildApplication`, define sus rutas y estados.
+Cada aplicación, ya sea `Jskeleton.Application` o `Jskeleton.ChildApplication`, define sus rutas y estados.
 
     {% highlight javascript %}
     var ExampleApp = Jskeleton.ChildApplication.extend({
