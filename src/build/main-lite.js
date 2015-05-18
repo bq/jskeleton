@@ -33,6 +33,10 @@
 
     var Jskeleton = root.Jskeleton || {};
 
+    //  @include ../core/model.js
+    //  @include ../core/collection.js
+    //  @include ../core/modelStore.js
+    //  @include ../core/store.js
     //  @include ../core/router.js
     //  @include ../core/service.js
     //  @include ../core/base-application.js
