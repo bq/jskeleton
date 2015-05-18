@@ -13,5 +13,5 @@ then
   git init && \
   git add . && \
   git commit -m "deploy" && \
-  git push --force --quiet "https://${GH_OAUTH_TOKEN}@github.com/bq/jskeleton" doc:gh-pages
+  git push --force --quiet "https://${GH_OAUTH_TOKEN}@github.com/bq/jskeleton" master:gh-pages
 fi
