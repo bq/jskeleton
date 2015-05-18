@@ -172,12 +172,14 @@ var AppMain = Jskeleton.Application.extend({
         }
     },
     routeFilters: function(_routeParams) {
-        console.log('middleware llamado');
         console.log('params: ', _routeParams);
         //return {error : "error"};
     },
     onFilterError: function(err, _routeParams) {
         if (err) console.log(err);
+    },
+    middlewares:function(_routeParams){
+        console.log("middleware ejecutado");
     }
 });
 
