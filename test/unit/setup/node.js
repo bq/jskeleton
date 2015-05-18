@@ -58,6 +58,9 @@ if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     global.Jskeleton = {};
     global.Jskeleton = require('../../../dist/jskeleton.js');
     requireHelper('/core/renderer.js');
+    requireHelper('/core/model.js');
+    requireHelper('/core/collection.js');
+    requireHelper('/core/modelStore.js');
     requireHelper('/helpers/html-bars.js');
     requireHelper('/helpers/component.js');
     requireHelper('/helpers/if.js');

@@ -169,7 +169,7 @@ module.exports = function(grunt) {
                     'test/unit/marionette-comp/*.spec.js'
                 ]
             },
-            src : {
+            src: {
                 options: {
                     require: 'test/unit/setup/node.js',
                     reporter: grunt.option('mocha-reporter') || 'nyan',
@@ -332,7 +332,6 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', function(target) {
 
-
         if (target === 'src') {
             return grunt.task.run(['mochaTest:src']);
 
@@ -343,8 +342,9 @@ module.exports = function(grunt) {
         }
         // Default all
         grunt.task.run([
-            'mochaTest:tests',
-            'jshint:test'
+            'build',
+            'jshint:test',
+            'mochaTest:tests'
         ]);
     });
 
@@ -357,7 +357,6 @@ module.exports = function(grunt) {
         'mochaTest',
         'storeCoverage',
         'makeReport'
-
     ]);
 
     grunt.registerTask('build', [
