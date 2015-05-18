@@ -92,7 +92,7 @@ describe('modelStore', function() {
             };
             expect(function() {
                 Jskeleton.modelStore.add(model);
-            }).to.throw("model added must be exist and must be an instance of Jskeleton.Model");
+            }).to.throw("model added must be exist and must be an instance of Backbone.Model");
         });
     });
 
@@ -272,7 +272,7 @@ describe('modelStore', function() {
 
             expect(function() {
                 Jskeleton.modelStore.remove({});
-            }).to.throw("model added must be exist and must be an instance of Jskeleton.Model");
+            }).to.throw("model added must be exist and must be an instance of Backbone.Model");
         });
     });
 
@@ -338,4 +338,50 @@ describe('modelStore', function() {
             expect(Jskeleton.modelStore.modelExist(1, BarModel)).to.be.equal(false);
         });
     });
+
+    describe('when Collection added model instance', function() {
+        after(function() {
+            Jskeleton.modelStore.storage.reset();
+        });
+
+        it('with valid model instance object', function() {
+            var model = new BarModel({
+                id: 1,
+                title: 'bar'
+            });
+
+            var collection = new Jskeleton.Collection();
+            collection.add(model);
+            expect(Jskeleton.modelStore.storage.models[0].get('Class')).to.be.equal(model.constructor);
+            expect(Jskeleton.modelStore.storage.models[0].get('instances').models).to.have.length(1);
+        });
+
+        it('with literal object attributes', function() {
+            var attributes = {
+                id: 1,
+                title: 'test'
+            };
+            var collection = new Jskeleton.Collection();
+            collection.add(attributes);
+            expect(Jskeleton.modelStore.storage.models[0].get('instances').models).to.have.length(1);
+        });
+
+        it('with Collection.Model attribute setted', function() {
+            var model = new BarModel({
+                id: 1,
+                title: 'bar'
+            });
+
+            var CollectionBar = Jskeleton.Collection.extend({
+                model: BarModel
+            });
+
+            var collection = new CollectionBar();
+            collection.add(model);
+            expect(Jskeleton.modelStore.storage.models[0].get('Class')).to.be.equal(model.constructor);
+            expect(Jskeleton.modelStore.storage.models[0].get('instances').models).to.have.length(1);
+        });
+    });
+
+
 });

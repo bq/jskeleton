@@ -6,13 +6,13 @@
 Jskeleton.ModelStore = Marionette.Object.extend({
 
     initialize: function() {
-        this.storage = new Jskeleton.Collection();
+        this.storage = new Backbone.Collection();
     },
 
     // Add or Update model
     add: function(model) {
-        if (!(model instanceof Jskeleton.Model)) {
-            throw new Error("model added must be exist and must be an instance of Jskeleton.Model");
+        if (!(model instanceof Backbone.Model)) {
+            throw new Error("model added must be exist and must be an instance of Backbone.Model");
         }
 
         // If Class organization exist
@@ -31,7 +31,7 @@ Jskeleton.ModelStore = Marionette.Object.extend({
         } else {
             // If Class not exist, create new group and insert the first instance model
             var modelsGroup = new Backbone.Model({
-                instances: new Jskeleton.Collection(model)
+                instances: new Backbone.Collection(model)
             }).set({
                 'Class': model.constructor
             });
@@ -61,8 +61,8 @@ Jskeleton.ModelStore = Marionette.Object.extend({
 
     // remove model from store
     remove: function(model) {
-        if (!(model instanceof Jskeleton.Model)) {
-            throw new Error("model added must be exist and must be an instance of Jskeleton.Model");
+        if (!(model instanceof Backbone.Model)) {
+            throw new Error("model added must be exist and must be an instance of Backbone.Model");
         }
         _.each(this.storage.models, function(itemModel) {
             // Todo if instance model exist, update it!
