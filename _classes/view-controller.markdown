@@ -2,12 +2,12 @@
 layout: api
 title:  "ViewController"
 submenu:
-  - ViewController.channel: "#channel"
   - ViewController.region: "#region"
-  - ViewController.service: "#service"
+  - ViewController.routeMethod: "#Route method"
+  - ViewController.renderOnPromise: "#asincronia"
   - ViewController.context: "#context"
   - ViewController.components: "#components"
-  - ViewController.events: "#events"
+  - ViewController.events: "#componentEvents"
   - ViewController.template: "#template"
 ---
 
@@ -17,39 +17,11 @@ Se podría definir como un contenedor de "Componentes-UI", entendiendo como tale
 
 `Jskeleton.ViewController` extiende de `Marionette.LayoutView`. Para más información sobre las propiedades y métodos de esta clase visita [la documentación de Marionette](http://marionettejs.com/docs/v2.4.1/marionette.layoutview.html)
 
-##Channel
-El `channel` del ViewController define como se propagan los eventos del mismo a través de la aplicación. Cada vez que se crea un nuevo ViewController debemos inyectar su `channel`, que puede ser privado o global ([ver Application.channels](/api-reference/application/#channels)).
+##Route Method
 
-{% highlight javascript %}
-  _channel.trigger('some:event');
-{% endhighlight %}
+##Regions
 
-En el ejemplo anterior el evento `some:event` sería propagado por `_channel`. En el siguiente ejemplo se puede ver como se definiría dentro de un ViewController:
-
-{% highlight javascript linenos=inline %}
-   Jskeleton.ViewController.factory('MyViewController', function(_channel) {
-       return {
-           events: {
-               'myevent @component.MyComponent': 'myMethod'
-           },
-           myMethod: function() {
-               _channel.trigger('application:event');
-           }
-       };
-   });
-{% endhighlight %}
-
-En la linea 1 definimos un ViewController `MyViewController` al que le inyectamos el canal privado `_channel` de la aplicación en la que va a estar contenido.
-
-En la línea 4 creamos un nuevo evento `myevent` que afectara al componente `MyComponent` que, al ser llamado, ejecutará al método `myMethod` definido en la línea 6.
-
-A su vez, `myMethod` dispara otro evento, `application:event`, que estará siendo escuchado en el ámbito de la aplicación que contenga la instancia de `MyViewController`, gracias a que ha sido disparado a través del canal privado `_channel`.
-
-Los `channel` se basan en `Backbone.Radio`. Para mas información puedes acceder a [su documentación](https://github.com/marionettejs/backbone.radio#channels).
-
-##Region
-
-Un ViewController renderiza sus componentes sobre una región o regiones.
+Se pueden definir regiones sobre un `Jskeleton.ViewController`.
 
   {% highlight javascript linenos=inline %}
     var Layout = Jskeleton.ViewController.factory('MainViewController', {
@@ -63,13 +35,14 @@ Un ViewController renderiza sus componentes sobre una región o regiones.
     });
   {% endhighlight %}
 
+
+Para más información sobre cómo definir regiones en un `Jskeleton.ViewController` visita la página de documentación de Marionette [Marionette.LayoutView](http://marionettejs.com/docs/v2.4.1/marionette.layoutview.html).
+
 ##Context
 <!--
 Cuando se procesa un evento o ruta de navegación, un método del view-controller es invocado (para ver más información sobre que método ir a: ); tras la ejecución de dicho método, se renderiza el template asociado al view controller con el contexto del view controller. Por tanto dicho método es ideal para inflar el contexto que el template va a consumir y exponer los modelos y colecciones que los componentes del template vayan a usar.
 -->
-Cuando se procesa un evento o ruta de navegación, se invoca un método (`handler`) del ViewController que se debe especificar en la aplicación en la que estemos definiendo el ViewController ([ver Application.Routes](/api-reference/application/#routes)). Tras la ejecución de dicho método, se renderiza el template asociado al ViewController con su contexto.
-
-Por tanto, dicho método es ideal para inflar el contexto que el template va a consumir y exponer los modelos y colecciones que los componentes del template vayan a usar.
+Cuando se procesa un evento o ruta de navegación, se invoca un método (`handler`) del ViewController que se debe especificar en la aplicación en la que estemos definiendo el ViewController ([ver Application.Routes](/api-reference/application/#routes)). Tras la ejecución de dicho método, se renderiza el template asociado al ViewController con su contexto. Este método es el lugar ideal para exponer los modelos y colecciones que nuestros componentes vayan a usar.
 
   {% highlight javascript linenos=inline %}
 
@@ -89,7 +62,33 @@ En el template asociado al ViewController, tendremos total acceso al contexto cr
       <div> { { context.myModel } } </div>
   {% endhighlight %}
 
-El método podrá devolver una promesa para resolver asincronamente el renderizado...
+###Asincronía
+Podemos definir una opcion en los `Jskeleton.ViewController` para poder realizar un renderizado en "dos pasos" si hay un proceso de asincronía a la hora de exponer el contexto.
+Esa opción es `renderOnPromise`.
+
+  {% highlight javascript %}
+
+    Jskeleton.ViewController.factory('MyViewController', {
+      renderOnPromise: true //default true
+    });
+
+  {% endhighlight %}
+
+Si la opción está activada y el método de navegación devuelve una promesa, el `Jskeleton.ViewController` realizará un primer renderizado antes de la resolución de la promesa y otro después. `Jskeleton` expondrá una variable al contexto con la cuál podremos saber si hay una asincronía por resolver o no.
+
+  {% highlight html %}
+
+{ {#if context.isPromise } }
+        <div class="spinner"></div>
+{ {else} }
+        { {@component UserList collection=context.collection} }
+{ {/if} }
+
+  {% endhighlight %}
+
+Además `Jskeleton.ViewController` lanzará el evento `before:promise` cuándo se renderice por primera antes de que la promesa se complete y `after:promise` después de que la promesa se complete y se lleve a cabo el segundo renderizado.
+
+Èn caso de que la opción `renderOnPromise` sea `false` el proceso de doble renderizado no se realizará, aunque si se lanzara el evento y se expondrá la variable `isPromise` al contexto del `Jskeleton.ViewController`.
 
 ##Components
 
@@ -103,40 +102,57 @@ A su vez, una vez destruido un ViewController todos sus componentes son también
 
 Para más información sobre componentes puedes ir a [esta sección](/api-reference/components/).
 
-##Events
+###getComponent
 
-Los eventos pueden ser definidos en una clase ViewController.
-Pueden escuchar acciones propagadas a través de su `channel`, sobre su propio `template` o dentro de sus componentes.
+Para obtener el componente de un view controller se puede invocar el método `getComponent`.
+
+{% highlight javascript %}
+
+  Jskeleton.ViewController.factory('MyViewController', {
+      events: {
+         'action @component.ComponentName': 'myOtherMethod'
+      }
+  });
+
+  var viewController = new Jskeleton.ViewController();
+
+  var component = viewController.getComponent('ComponentName');
+
+{% endhighlight %}
+
+###Component Events
+
+La clase Jskeleton.ViewController te permite escuchar eventos sobre sus propios componentes.
+Estos eventos se pueden especificar de forma declarativa con el hash @component antes del nombre del componente:
 
 {% highlight javascript linenos=inline %}
-  Jskeleton.ViewController.factory('MyViewController', function(_channel) {
-      template: '<h1> My Template with components: </h1>' +
-                '<div class="panel">This is a template</div>' +
-                ' { { @component name="MyComponent" model=context.myModel } }',
+  Jskeleton.ViewController.factory('MyViewController', {
       events: {
-         'click .panel': 'myMehtod'
-         'action @component.MyComponent': 'myOtherMethod',
-         'childview:action @component.MyCollectionView': 'myAnotherMethod',
-      },
-      myMethod: function(){
-        alert('Panel clicked!')
-      },
-      myOtherMethod: function(){
-        alert('Something happened in MyComponent!')
-      },
-      myAnotherMethod: function(){
-        alert('Something happened in MyCollectionView!')
-      },
+         'action @component.ComponentName': 'myOtherMethod'
+      }
   });
 {% endhighlight %}
 
 En este ejemplo:
 
-* En la línea 6 se define un nuevo evento que escuchará la acción 'click' sobre el `<div>` con clase `panel` definido en la línea 3.
-* En la línea 7 se define un evento que esuchará la acción `action` lanzada desde el componente MyComponent.
-* En la línea 8 se define un evento que esuchará la acción `action` lanzada desde el componente MyCollectionView de la vista `childview`.
+* En la línea 7 se define un evento que esuchará la acción `action` lanzada desde el componente ComponentName.
 
-Los `events` se basan en `Backbone.Events`. Para mas información puedes acceder a [su documentación](http://backbonejs.org/#Events).
+Si un 'Jskeleton.ViewController' define varios componentes con el mismo nombre, el evento se añadirá sobre todos los componentes con ese nombre.
+
+También se pueden añadir eventos de forma explicita accediendo a la instancia del componente desde el 'Jskeleton.ViewController del siguiente modo:
+
+{% highlight javascript linenos=inline %}
+  Jskeleton.ViewController.factory('MyViewController', {
+      onRender: function(){
+        this.getComponent('ComponentName').on('action',function(){
+
+        });
+      },
+      events: {
+         'action @component.ComponentName': 'myOtherMethod'
+      }
+  });
+{% endhighlight %}
 
 ##Template
 
