@@ -56,42 +56,55 @@ Jskeleton.Di = Marionette.Object.extend({
             }
         }
 
-
         return this._resolve.apply(this, [FactoryObject].concat(Array.prototype.slice.call(arguments, 1)));
     },
     _resolve: function(FactoryObject, extendProperties /*, args..*/ ) {
         var constructorArgs = Array.prototype.slice.call(arguments, 2),
-            dependency;
+            dependency,
+            Class = FactoryObject.Class;
 
         if (!FactoryObject || !FactoryObject.Class) {
             throw new Error(Jskeleton.Di.NoDependencyError);
         }
 
         //the dependency object has dependencies
-        if (typeof FactoryObject.Class === 'function' && FactoryObject.Parent) {
+        if (typeof FactoryObject.Class === 'function' && FactoryObject.dependencies) {
 
             if (!FactoryObject.Parent) {
                 throw new Error(Jskeleton.Di.NoParentClassError);
             }
 
-            dependency = this._resolveDependencies(FactoryObject.Class, FactoryObject.Parent, extendProperties, constructorArgs);
+            dependency = this._resolveDependencies({
+                Class: Class,
+                Parent: FactoryObject.Parent,
+                extendProperties: extendProperties,
+                dependencies: FactoryObject.dependencies
+            }, constructorArgs);
 
+            //the dependency object  hasn't dependencies
         } else {
-            //the dependency object  hasnt dependencies
-            dependency = this.instantiateClass(FactoryObject.Class, extendProperties, constructorArgs);
+
+            //extend class properties
+            if (extendProperties) {
+                Class = Class.extend(extendProperties);
+            }
+
+            dependency = this.instantiateClass(Class, constructorArgs);
         }
 
 
         return dependency;
 
     },
-    _resolveDependencies: function(func, Parent, extendProperties, constructorArgs) {
+    _resolveDependencies: function(options, constructorArgs) {
 
         var deps, args = [],
-            self = this;
+            self = this,
+            func = options.Class,
+            Parent = options.Parent,
+            extendProperties = options.extendProperties || {};
 
-        deps = func.toString().match(Jskeleton.Di.FN_ARGS)[1].replace(/ /g, '').split(',');
-
+        deps = options.dependencies || Jskeleton.Di.extractDependencyNames(func);
 
         return (function() {
 
@@ -104,7 +117,7 @@ Jskeleton.Di = Marionette.Object.extend({
             var props = func.apply(this, args);
 
             //if extendProperties are expecified, extend with injected props
-            if (extendProperties) {
+            if (options.extendProperties) {
                 props = _.extend(props, extendProperties);
             }
 
@@ -112,38 +125,26 @@ Jskeleton.Di = Marionette.Object.extend({
             var InjectedClass = Parent.extend(props);
 
             //instantiate the class with constructor arguments
-            return self.instantiateClass(InjectedClass, undefined, constructorArgs);
+            return self.instantiateClass(InjectedClass, constructorArgs);
 
         })();
     },
-    instantiateClass: function(Class, extendProperties, constructorArgs) {
+    instantiateClass: function(Class, constructorArgs) {
 
-        if (extendProperties) {
-            Class = Class.extend(extendProperties);
-        }
-
-        var Temp = function() {}, // temporary constructor
+        var Child = function() {}, // temporary constructor
             inst, ret; // other vars
 
         // Give the Temp constructor the Constructor's prototype
-        Temp.prototype = Class.prototype;
+        Child.prototype = Class.prototype;
 
         // Create a new instance
-        inst = new Temp; // jshint ignore:line
+        inst = new Child; // jshint ignore:line
 
         // Call the original Constructor with the temp
         // instance as its context (i.e. its 'this' value)
         Class.apply(inst, constructorArgs);
 
         return inst;
-        // var Surrogate = function() {
-        //     this.constructor = Class;
-        // };
-
-        // Surrogate.prototype = Class.prototype;
-        // Class.prototype = new Surrogate;
-
-        // return Class.apply(Surrogate, constructorArgs);
     },
     _getDependency: function(dependencyName) {
         //Search the dependency instance in the injector cache
@@ -165,6 +166,8 @@ Jskeleton.Di = Marionette.Object.extend({
 }, {
     FN_ARGS: /^function\s*[^\(]*\(\s*([^\)]*)\)/m,
     NoDependencyError: 'Jskeleton.DI: Unknown dependency.',
-    NoParentClassError: 'Jskeleton.DI: Unknown parent class.'
-
+    NoParentClassError: 'Jskeleton.DI: Unknown parent class.',
+    extractDependencyNames: function(func) {
+        return func.toString().match(Jskeleton.Di.FN_ARGS)[1].replace(/ /g, '').split(',');
+    }
 });

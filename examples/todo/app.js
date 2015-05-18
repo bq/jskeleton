@@ -33,7 +33,7 @@ Jskeleton.CollectionView.factory('BookCollectionView', {
     childView: 'ListItemViewBook'
 });
 
-Jskeleton.ViewController.factory('DetalleDeLibro', function(ServicioDeLibros, _channel) {
+Jskeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_channel'], function(servicioDeLibros, channel) {
     return {
         template: '<span> Detalle de libro: </span> {{@component name="DetailBookView" model=context.bookModel}}',
         events: {
@@ -41,10 +41,10 @@ Jskeleton.ViewController.factory('DetalleDeLibro', function(ServicioDeLibros, _c
             'navigate @component.DetailBookView': 'onNavigateClicked'
         },
         onActionClicked: function(libro) {
-            ServicioDeLibros.bookAction(libro);
+            servicioDeLibros.buy(libro);
         },
         onNavigateClicked: function() {
-            _channel.trigger('book:list');
+            channel.trigger('book:list');
         },
         onBookShow: function(params, service) {
             this.context.bookModel = new Backbone.Model({
@@ -56,13 +56,13 @@ Jskeleton.ViewController.factory('DetalleDeLibro', function(ServicioDeLibros, _c
     };
 });
 
-Jskeleton.ViewController.factory('ListadoDeLibros', function(_channel) {
+Jskeleton.ViewController.factory('ListadoDeLibros', ['_channel'], function(channel) {
     return {
         events: {
             'childview:action @component.BookCollectionView': 'onNavigateClicked'
         },
         onNavigateClicked: function(childview, model) {
-            _channel.trigger('book:details', {
+            channel.trigger('book:details', {
                 id: model.get('id'),
                 description: model.get('description'),
                 title: model.get('title')

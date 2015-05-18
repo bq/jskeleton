@@ -21,7 +21,7 @@ factory.prototypes = {
 factory.singletons = {};
 
 //Adds an object class to the factory
-factory.add = function(key, ObjClass, ParentClass) {
+factory.add = function(key, ObjClass, ParentClass, deps) {
 
     if (this.prototypes[key]) {
         throw new Error('AlreadyDefinedFactoryObject - ' + key);
@@ -33,6 +33,10 @@ factory.add = function(key, ObjClass, ParentClass) {
 
     if (ParentClass) {
         this.prototypes[key].Parent = ParentClass;
+    }
+
+    if (deps) {
+        this.prototypes[key].dependencies = deps;
     }
 };
 
@@ -100,7 +104,7 @@ factory.getAll = function() {
 };
 
 // empty factory prototypes
-factory.empty = function(){
+factory.empty = function() {
     this.prototypes = {
         Model: {
             Class: Backbone.Model
