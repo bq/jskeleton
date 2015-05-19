@@ -81,19 +81,22 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
+
         $('#main_content').toc({
             showEffect: 'none',
             submenuTitle: "{{ page.title  }}.",
+            aClass: "class__link--index"
         });
-        $('#aside-menu').toc(
-            {
-                listType: 'ul',
-                title: "",
-                liClass: "aside-subnav__item",
-                aClass: "class-link",
-                showEffect: "none"
-            }
-            );
+
+        // $('#aside-menu').toc(
+        //     {
+        //         listType: 'ul',
+        //         title: "",
+        //         liClass: "aside-subnav__item",
+        //         aClass: "class-link-aside",
+        //         showEffect: "none"
+        //     }
+        //     );
     });
 </script>
 
