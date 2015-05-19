@@ -9,3 +9,4 @@ script:
   - grunt test
   - grunt coverage
   - grunt coveralls
+  - bash ./travis-runner.sh
