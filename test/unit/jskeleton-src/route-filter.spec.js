@@ -6,6 +6,7 @@ describe('RouteFilters', function() {
     before(function() {
 
         this.foo;
+
         this.Application = JSkeleton.Application.extend({
             routeFilters: function(_routeParams) {
                 this.foo = _routeParams;
@@ -17,9 +18,11 @@ describe('RouteFilters', function() {
                 };
             }
         });
+
+
     });
 
-    afterEach(function() {
+    after(function() {
         sandbox.restore();
     });
 
@@ -27,7 +30,7 @@ describe('RouteFilters', function() {
 
         before(function() {
             this.application = new this.Application();
-
+            this.invokeViewControllerStub = sandbox.stub(this.application, 'invokeViewControllerRender');
         });
 
         it('should be filterStack property and be Array', function() {
@@ -38,10 +41,6 @@ describe('RouteFilters', function() {
             expect(this.application.filterStack.length).to.equal(1);
         });
 
-
-
-
-
     });
 
     describe('when route change and pass filter', function() {
@@ -49,17 +48,17 @@ describe('RouteFilters', function() {
         before(function() {
             this.application = new this.Application();
             this.routeSpy = sinon.spy(this.application, '_routeFilterProcessing');
+            this.invokeViewControllerStub = sandbox.stub(this.application, 'invokeViewControllerRender');
         });
 
         it('should be called method _routeFilterProcessing', function() {
-            this.application._navigateTo('foo/bar', {}, undefined);
+            this.application._processNavigation('foo/bar', {}, undefined, undefined);
             expect(this.routeSpy).to.have.been.calledWith('foo/bar', {}, undefined);
         });
 
         it('should return true', function() {
-            this.application._navigateTo('foo/bar', {}, undefined);
+            this.application._processNavigation('foo/bar', {}, undefined, undefined);
             expect(this.routeSpy.returned(true)).to.be.true;
-
         });
 
     });
@@ -87,12 +86,12 @@ describe('RouteFilters', function() {
         });
 
         it('should notify me after filter no passing', function() {
-            this.myApp._navigateTo('foo/bar', {}, undefined);
+            this.myApp._processNavigation('foo/bar', {}, undefined, undefined);
             expect(this.triggerSpy).to.have.been.calledWith('filter:error');
         });
 
         it('should call after filter no passing', function() {
-            this.myApp._navigateTo('foo/bar', {}, undefined);
+            this.myApp._processNavigation('foo/bar', {}, undefined, undefined);
             expect(this.errorSpy).to.have.been.called;
         });
     });
