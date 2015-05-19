@@ -6,6 +6,10 @@ describe('Application object with declared events', function() {
 
     var sandbox = sinon.sandbox.create();
 
+    after(function() {
+        sandbox.restore();
+    });
+
     before(function() {
 
         this.ViewController = JSkeleton.ViewController.extend({
@@ -35,17 +39,14 @@ describe('Application object with declared events', function() {
         });
 
         this.navigationSpy = sandbox.spy(this.app, '_navigateTo');
-        this.factoryStub = sandbox.stub(this.app, 'factory');
+        this.factoryStub = sandbox.stub(this.app, '_getViewControllerInstance');
 
-        this.factoryStub.withArgs(this.ViewController).returns(this.viewController);
-        this.viewControllerRouteHandlerSpy = sandbox.spy(this.viewController, 'onRouteExample');
+        this.factoryStub.returns(this.viewController);
         this.viewControllerRenderSpy = sandbox.spy(this.viewController, 'render');
     });
 
     afterEach(function() {
         this.navigationSpy.reset();
-        this.viewControllerRouteHandlerSpy.reset();
-        sandbox.restore();
     });
 
     it('should not listen the events in global channel before start', function() {
@@ -57,16 +58,14 @@ describe('Application object with declared events', function() {
 
         before(function() {
             this.app.start();
+            this.globalChannel.trigger('example:event');
         });
 
-        it('should listen the events in global channel ', function() {
-            this.globalChannel.trigger('example:event');
+        it('should listen the events in global channel', function() {
             expect(this.navigationSpy.calledOnce).to.be.equal(true);
         });
 
         it('should process a method on the view-controller when the global event is triggered', function() {
-            this.globalChannel.trigger('example:event');
-            expect(this.viewControllerRouteHandlerSpy.calledOnce).to.be.equal(true);
             expect(this.viewControllerRenderSpy.calledOnce).to.be.equal(true);
         });
 
@@ -84,7 +83,5 @@ describe('Application object with declared events', function() {
         });
 
     });
-
-
 
 });
