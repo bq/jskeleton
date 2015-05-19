@@ -19,7 +19,7 @@ describe('item view', function() {
 
     describe('when rendering without a valid template', function() {
         beforeEach(function() {
-            this.view = new Jskeleton.ItemView();
+            this.view = new JSkeleton.ItemView();
         });
 
         it('should throw an exception because there was no valid template', function() {
@@ -32,7 +32,7 @@ describe('item view', function() {
             this.onBeforeRenderStub = this.sinon.stub();
             this.onRenderStub = this.sinon.stub();
 
-            this.View = Jskeleton.ItemView.extend({
+            this.View = JSkeleton.ItemView.extend({
                 template: false,
                 onBeforeRender: this.onBeforeRenderStub,
                 onRender: this.onRenderStub
@@ -91,7 +91,7 @@ describe('item view', function() {
         beforeEach(function() {
             this.attachElContentStub = this.sinon.stub();
 
-            this.ItemView = Jskeleton.ItemView.extend({
+            this.ItemView = JSkeleton.ItemView.extend({
                 template: this.templateStub,
                 attachElContent: this.attachElContentStub
             });
@@ -116,7 +116,7 @@ describe('item view', function() {
                 return this.isRendered;
             });
 
-            this.View = Jskeleton.ItemView.extend({
+            this.View = JSkeleton.ItemView.extend({
                 template: this.templateStub,
                 onBeforeRender: this.onBeforeRenderStub,
                 onRender: this.onRenderStub
@@ -162,7 +162,7 @@ describe('item view', function() {
 
     describe('when an item view has a model and is rendered', function() {
         beforeEach(function() {
-            this.view = new Jskeleton.ItemView({
+            this.view = new JSkeleton.ItemView({
                 template: this.templateStub,
                 model: this.model
             });
@@ -182,7 +182,7 @@ describe('item view', function() {
 
     describe('when an item view has a collection and is rendered', function() {
         beforeEach(function() {
-            this.view = new Jskeleton.ItemView({
+            this.view = new JSkeleton.ItemView({
                 template: this.templateStub,
                 collection: this.collection
             });
@@ -204,7 +204,7 @@ describe('item view', function() {
 
     describe('when an item view has a model and collection, and is rendered', function() {
         beforeEach(function() {
-            this.view = new Jskeleton.ItemView({
+            this.view = new JSkeleton.ItemView({
                 template: this.templateStub,
                 model: this.model,
                 collection: this.collection
@@ -238,7 +238,7 @@ describe('item view', function() {
                 };
             });
 
-            this.View = Jskeleton.ItemView.extend({
+            this.View = JSkeleton.ItemView.extend({
                 template: this.templateStub,
                 onBeforeDestroy: this.onBeforeDestroyStub,
                 onDestroy: this.onDestroyStub
@@ -308,7 +308,7 @@ describe('item view', function() {
         beforeEach(function() {
             this.onDomRefreshStub = this.sinon.stub();
 
-            this.View = Jskeleton.ItemView.extend({
+            this.View = JSkeleton.ItemView.extend({
                 template: this.templateStub,
                 onDomRefresh: this.onDomRefreshStub
             });
@@ -326,13 +326,13 @@ describe('item view', function() {
         });
     });
 
-    describe('has a valid inheritance chain back to Jskeleton.View', function() {
+    describe('has a valid inheritance chain back to JSkeleton.View', function() {
         beforeEach(function() {
-            this.constructorSpy = this.sinon.spy(Jskeleton, 'View');
-            this.itemView = new Jskeleton.ItemView();
+            this.constructorSpy = this.sinon.spy(JSkeleton, 'View');
+            this.itemView = new JSkeleton.ItemView();
         });
 
-        it('calls the parent Jskeleton.Views constructor function on instantiation', function() {
+        it('calls the parent JSkeleton.Views constructor function on instantiation', function() {
             expect(this.constructorSpy).to.have.been.called;
         });
     });
@@ -348,7 +348,7 @@ describe('item view', function() {
                 foo: 'baz'
             }];
 
-            this.itemView = new Jskeleton.ItemView();
+            this.itemView = new JSkeleton.ItemView();
             this.sinon.spy(this.itemView, 'serializeModel');
             this.sinon.spy(this.itemView, 'serializeCollection');
         });
@@ -419,7 +419,7 @@ describe('item view', function() {
             }, {
                 foo: 'baz'
             }];
-            this.itemView = new Jskeleton.ItemView({
+            this.itemView = new JSkeleton.ItemView({
                 collection: new Backbone.Collection(this.collectionData)
             });
         });
@@ -433,13 +433,13 @@ describe('item view', function() {
         });
     });
 
-    describe('has a valid inheritance chain back to Jskeleton.View', function() {
+    describe('has a valid inheritance chain back to JSkeleton.View', function() {
         beforeEach(function() {
-            this.constructor = this.sinon.spy(Jskeleton, 'View');
-            this.collectionView = new Jskeleton.ItemView();
+            this.constructor = this.sinon.spy(JSkeleton, 'View');
+            this.collectionView = new JSkeleton.ItemView();
         });
 
-        it('calls the parent Jskeleton.View\'s constructor function on instantiation', function() {
+        it('calls the parent JSkeleton.View\'s constructor function on instantiation', function() {
             expect(this.constructor).to.have.been.calledOnce;
         });
     });

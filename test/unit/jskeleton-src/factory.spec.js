@@ -1,8 +1,8 @@
-/*globals require,define,describe,it, Jskeleton, before */
+/*globals require,define,describe,it, JSkeleton, before */
 /* jshint unused: false */
 describe('In Factory module', function() {
 
-    var factory = Jskeleton.factory;
+    var factory = JSkeleton.factory;
     var myBackboneView = Backbone.View.extend({});
     factory.add('myBackboneView', myBackboneView);
 
@@ -115,9 +115,9 @@ describe('In Factory module', function() {
         });
     });
 
-    describe('When factory is emptied',function(){
+    describe('When factory is emptied', function() {
 
-        beforeEach(function(){
+        beforeEach(function() {
             factory.empty();
             this.defaulState = {
                 Model: {
@@ -129,7 +129,7 @@ describe('In Factory module', function() {
             };
         });
 
-        it('should be factory.prototypes emptied as defaul state', function(){
+        it('should be factory.prototypes emptied as defaul state', function() {
             expect(factory.prototypes).to.eql(this.defaulState);
         });
     });

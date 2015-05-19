@@ -1,5 +1,5 @@
 'use strict';
-/*globals Marionette, Jskeleton, _, Backbone */
+/*globals Marionette, JSkeleton, _, Backbone */
 /* jshint unused: false */
 
 
@@ -116,4 +116,4 @@ factory.empty = function() {
 };
 
 
-Jskeleton.factory = factory;
+JSkeleton.factory = factory;

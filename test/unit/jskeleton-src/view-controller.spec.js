@@ -1,14 +1,14 @@
 'use strict';
-/*globals require,define,describe,it, Jskeleton, before */
+/*globals require,define,describe,it, JSkeleton, before */
 /* jshint unused: false */
 describe('In view-controller ', function() {
     var sandbox = sinon.sandbox.create();
 
     before(function() {
 
-        this.stubNewFactory = sandbox.stub(Jskeleton.factory, 'new');
+        this.stubNewFactory = sandbox.stub(JSkeleton.factory, 'new');
 
-        this.ViewController = Jskeleton.ViewController;
+        this.ViewController = JSkeleton.ViewController;
 
         this.createViewController = function(options) {
             return new this.ViewController(options);
@@ -62,7 +62,7 @@ describe('In view-controller ', function() {
 
         beforeEach(function() {
 
-            this.ViewComponent = Jskeleton.ItemView.extend({
+            this.ViewComponent = JSkeleton.ItemView.extend({
                 template: '<strong id="view-action"> Test Title </strong>',
                 events: {
                     'click #view-action': 'onActionClicked',
@@ -72,7 +72,7 @@ describe('In view-controller ', function() {
                 }
             });
 
-            this.OtherViewComponent = Jskeleton.ItemView.extend({
+            this.OtherViewComponent = JSkeleton.ItemView.extend({
                 template: '<strong id="other-view-action"> Other Test Title </strong>',
                 events: {
                     'keypress #other-view-action': 'onActionKeypress',
@@ -82,7 +82,7 @@ describe('In view-controller ', function() {
                 }
             });
 
-            this.ViewController = Jskeleton.ViewController.extend({
+            this.ViewController = JSkeleton.ViewController.extend({
                 events: {
                     'buy @component.viewComponent': 'onLink',
                     'sell @component.otherViewComponent': 'onLink'
@@ -183,7 +183,7 @@ describe('In view-controller ', function() {
             describe(', if we refresh view-controller', function() {
 
                 beforeEach(function() {
-                    this.AnotherViewComponent = Jskeleton.ItemView.extend({
+                    this.AnotherViewComponent = JSkeleton.ItemView.extend({
                         template: '<strong id="another-view-action"> another Test Title </strong>',
                     });
 
@@ -238,7 +238,7 @@ describe('In view-controller ', function() {
                     this.def = $.Deferred();
                     this.promise = this.def.promise();
 
-                    this.ViewController = Jskeleton.ViewController.extend({
+                    this.ViewController = JSkeleton.ViewController.extend({
                         contextMethod: sandbox.stub().returns(this.promise),
                         template: '<div></div>'
                     });
@@ -247,7 +247,7 @@ describe('In view-controller ', function() {
 
                     this.promiseNoRender = this.defNoRender.promise();
 
-                    this.ViewControllerNoReRender = Jskeleton.ViewController.extend({
+                    this.ViewControllerNoReRender = JSkeleton.ViewController.extend({
                         contextMethod: sandbox.stub().returns(this.promiseNoRender),
                         renderOnPromise: false,
                         template: '<div></div>'

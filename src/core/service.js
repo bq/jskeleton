@@ -1,11 +1,11 @@
 'use strict';
-/*globals Marionette, Jskeleton, _ */
+/*globals Marionette, JSkeleton, _ */
 /* jshint unused: false */
 
 /**
  * Reusable component as a Service
  */
-Jskeleton.Service = Marionette.Object.extend({
+JSkeleton.Service = Marionette.Object.extend({
     constructor: function(opts) {
         var options = opts || {},
             // Todo serviceOptions ?
@@ -21,5 +21,5 @@ Jskeleton.Service = Marionette.Object.extend({
     }
 
 }, {
-    factory: Jskeleton.Utils.FactoryAdd
+    factory: JSkeleton.Utils.FactoryAdd
 });

@@ -1,10 +1,10 @@
 'use strict';
 
-/*globals Marionette, Jskeleton*/
+/*globals Marionette, JSkeleton*/
 
 /* jshint unused: false */
 
-Jskeleton.View = Marionette.View.extend({
+JSkeleton.View = Marionette.View.extend({
     constructor: function(options) {
         options = options || {};
 
@@ -14,5 +14,5 @@ Jskeleton.View = Marionette.View.extend({
 
     }
 }, {
-    factory: Jskeleton.Utils.FactoryAdd
+    factory: JSkeleton.Utils.FactoryAdd
 });

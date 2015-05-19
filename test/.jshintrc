@@ -10,7 +10,7 @@
     "Backbone"           : true,
     "Marionette"         : true,
     "slice"              : true,
-    "Jskeleton"          : true,
+    "JSkeleton"          : true,
 
     "jasmine"            : true,
     "describe"           : true,

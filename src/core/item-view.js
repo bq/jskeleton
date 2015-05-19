@@ -1,13 +1,13 @@
 'use strict';
 
-/*globals Marionette, Jskeleton*/
+/*globals Marionette, JSkeleton*/
 
 /* jshint unused: false */
 
-Jskeleton.ItemView = Marionette.ItemView.extend({
+JSkeleton.ItemView = Marionette.ItemView.extend({
     constructor: function(options) {
-        Jskeleton.View.apply(this, arguments);
+        JSkeleton.View.apply(this, arguments);
     }
 }, {
-    factory: Jskeleton.Utils.FactoryAdd
+    factory: JSkeleton.Utils.FactoryAdd
 });

@@ -9,7 +9,7 @@ var CFG = {
 
 describe('Common module', function() {
 
-    var backupCFG, common = Jskeleton.common;
+    var backupCFG, common = JSkeleton.common;
 
     before(function() {
         backupCFG = common.getConfig();

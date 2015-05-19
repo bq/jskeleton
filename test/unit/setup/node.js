@@ -46,7 +46,7 @@ global.slice = Array.prototype.slice;
 
 global.BackboneRadio = require('../../../bower_components/backbone.radio/src/backbone.radio.js');
 
-/*global.Jskeleton.htmlBars =  {
+/*global.JSkeleton.htmlBars =  {
     compiler: htmlbarsCompiler,
     DOMHelper: htmlbarsDomHelper.default,
     /*hooks: htmlbarsRuntime.hooks,*/
@@ -55,8 +55,8 @@ global.BackboneRadio = require('../../../bower_components/backbone.radio/src/bac
 
 if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     //Marionette.Deferred = global.Backbone.$.Deferred;
-    global.Jskeleton = {};
-    global.Jskeleton = require('../../../dist/jskeleton.js');
+    global.JSkeleton = {};
+    global.JSkeleton = require('../../../dist/jskeleton.js');
     requireHelper('/core/renderer.js');
     requireHelper('/core/model.js');
     requireHelper('/core/collection.js');

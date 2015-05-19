@@ -1,4 +1,4 @@
-/*globals require,define,describe,it, Jskeleton, before, beforeEach, after, afterEach */
+/*globals require,define,describe,it, JSkeleton, before, beforeEach, after, afterEach */
 
 /* jshint unused: false */
 
@@ -7,7 +7,7 @@ describe('Application object', function() {
     var sandbox = sinon.sandbox.create();
 
     before(function() {
-        this.Application = Jskeleton.Application.extend({
+        this.Application = JSkeleton.Application.extend({
             regions: {
                 region1: '.region1',
                 region2: '.region2'
@@ -28,7 +28,7 @@ describe('Application object', function() {
     });
 
     it('should be and JSkeleton Application class definition', function() {
-        expect(Jskeleton).to.have.property('Application').with.length(1);
+        expect(JSkeleton).to.have.property('Application').with.length(1);
     });
 
 
@@ -39,7 +39,7 @@ describe('Application object', function() {
             this.triggerSpy = sinon.spy(this.application, 'trigger');
         });
 
-        it('should be and Jskeleton Application instance', function() {
+        it('should be and JSkeleton Application instance', function() {
             expect(this.application).to.have.property('start');
         });
 
@@ -83,7 +83,7 @@ describe('Application object', function() {
         before(function() {
             $('body').append('<div class=".main"> </div>');
 
-            this.Application = Jskeleton.Application.extend({
+            this.Application = JSkeleton.Application.extend({
                 mainRegionName: 'customMain',
                 defaultEl: '.main'
             });
@@ -123,12 +123,12 @@ describe('Application object', function() {
 
         before(function() {
 
-            this.ChildApp = Jskeleton.ChildApplication.extend({});
-            this.ChildAppNotStart = Jskeleton.ChildApplication.extend({
+            this.ChildApp = JSkeleton.ChildApplication.extend({});
+            this.ChildAppNotStart = JSkeleton.ChildApplication.extend({
                 startWithParent: false
             });
 
-            this.startSpy = sandbox.spy(Jskeleton.ChildApplication.prototype, 'start');
+            this.startSpy = sandbox.spy(JSkeleton.ChildApplication.prototype, 'start');
             // this.notStartChilldAppSpy = sandbox.spy(this.ChildAppNotStart.prototype, 'start');
 
             this.AppWithSubApps = this.Application.extend({
@@ -172,7 +172,7 @@ describe('Application object', function() {
     describe('with an application view-controller', function() {
 
         before(function() {
-            this.ViewController = Jskeleton.ViewController.extend({
+            this.ViewController = JSkeleton.ViewController.extend({
                 template: '<div class="content"></div> <div class="content2"></div>',
                 render: function() {},
                 regions: {
@@ -183,7 +183,7 @@ describe('Application object', function() {
 
             this.customTemplate = '<div> <div class="content"></div> </div> <div class="content2"></div>';
 
-            this.Application = Jskeleton.Application.extend({
+            this.Application = JSkeleton.Application.extend({
                 viewController: this.ViewController
             });
 
@@ -217,7 +217,7 @@ describe('Application object', function() {
 
         it('the View-Controller template can be override', function() {
 
-            this.ApplicationTemplate = Jskeleton.Application.extend({
+            this.ApplicationTemplate = JSkeleton.Application.extend({
                 viewController: {
                     viewControllerClass: this.ViewController,
                     template: this.customTemplate

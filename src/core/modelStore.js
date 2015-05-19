@@ -1,9 +1,9 @@
 'use strict';
-/*globals Jskeleton, Backbone, Marionette _ */
+/*globals JSkeleton, Backbone, Marionette _ */
 /* jshint unused: false */
 
-//## Jskeleton.ModelStore
-Jskeleton.ModelStore = Marionette.Object.extend({
+//## JSkeleton.ModelStore
+JSkeleton.ModelStore = Marionette.Object.extend({
 
     initialize: function() {
         this.storage = new Backbone.Collection();
@@ -138,4 +138,4 @@ Jskeleton.ModelStore = Marionette.Object.extend({
 });
 
 
-Jskeleton.modelStore = new Jskeleton.ModelStore();
+JSkeleton.modelStore = new JSkeleton.ModelStore();

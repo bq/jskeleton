@@ -1,6 +1,6 @@
 'use strict';
 
-/*globals Marionette, Jskeleton, _, Backbone */
+/*globals Marionette, JSkeleton, _, Backbone */
 
 /* jshint unused: false */
 
@@ -9,7 +9,7 @@
 //  ChildApplication class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
 //  It initializes regions, events, routes and channels.
 //  It cannot contain child applications.
-Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
+JSkeleton.ChildApplication = JSkeleton.BaseApplication.extend({
     //Default parent region name where the application will be rendered
     defaultRegion: 'root',
     constructor: function(options) {
@@ -24,8 +24,8 @@ Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
         //Add the injected region as root
         this.mainRegion = options.region;
 
-        //Jskeleton.BaseApplication constructor
-        Jskeleton.BaseApplication.prototype.constructor.apply(this, arguments);
+        //JSkeleton.BaseApplication constructor
+        JSkeleton.BaseApplication.prototype.constructor.apply(this, arguments);
 
         return this;
     },
@@ -33,7 +33,7 @@ Jskeleton.ChildApplication = Jskeleton.BaseApplication.extend({
     start: function(options) {
         this.triggerMethod('before:start', options);
 
-        Jskeleton.BaseApplication.prototype.start.apply(this, arguments);
+        JSkeleton.BaseApplication.prototype.start.apply(this, arguments);
         // this._initAppEventsListeners(options);
 
         this.triggerMethod('start', options);

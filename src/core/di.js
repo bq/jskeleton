@@ -1,15 +1,15 @@
 'use strict';
 
-/*globals Marionette, Jskeleton,_ */
+/*globals Marionette, JSkeleton,_ */
 
 /* jshint unused: false */
 
 ///## Di
 //  Dependency Injection (DI) is a software design pattern that deals with how "components" get hold of their dependencies.
-//  The Jskeleton Dependency Injection subsystem is called inside constructor classes and resolves the instance dependency before
+//  The JSkeleton Dependency Injection subsystem is called inside constructor classes and resolves the instance dependency before
 //  instantiation object. This subsystem creates an clousure invoking all dependencies inside.
 
-Jskeleton.Di = Marionette.Object.extend({
+JSkeleton.Di = Marionette.Object.extend({
     globalDi: undefined,
     initialize: function(options) {
         options = options || {};
@@ -26,7 +26,7 @@ Jskeleton.Di = Marionette.Object.extend({
     },
     //Instance the object with the factory key and store the instance as a injection dependency
     store: function(factoryKey) {
-        var FactoryObject = Jskeleton.factory.get(factoryKey),
+        var FactoryObject = JSkeleton.factory.get(factoryKey),
             instance;
 
         instance = this._resolve.apply(this, [FactoryObject].concat(Array.prototype.slice.call(arguments, 1)));
@@ -43,7 +43,7 @@ Jskeleton.Di = Marionette.Object.extend({
 
         if (typeof arguments[0] === 'string') {
             //The object is referenced by a factory key string
-            FactoryObject = Jskeleton.factory.get(arguments[0]);
+            FactoryObject = JSkeleton.factory.get(arguments[0]);
         } else {
             if (!arguments[0].Class) {
                 //The object isn't a factory object (is a class reference)
@@ -64,14 +64,14 @@ Jskeleton.Di = Marionette.Object.extend({
             Class = FactoryObject.Class;
 
         if (!FactoryObject || !FactoryObject.Class) {
-            throw new Error(Jskeleton.Di.NoDependencyError);
+            throw new Error(JSkeleton.Di.NoDependencyError);
         }
 
         //the dependency object has dependencies
         if (typeof FactoryObject.Class === 'function' && FactoryObject.dependencies) {
 
             if (!FactoryObject.Parent) {
-                throw new Error(Jskeleton.Di.NoParentClassError);
+                throw new Error(JSkeleton.Di.NoParentClassError);
             }
 
             dependency = this._resolveDependencies({
@@ -104,7 +104,7 @@ Jskeleton.Di = Marionette.Object.extend({
             Parent = options.Parent,
             extendProperties = options.extendProperties || {};
 
-        deps = options.dependencies || Jskeleton.Di.extractDependencyNames(func);
+        deps = options.dependencies || JSkeleton.Di.extractDependencyNames(func);
 
         return (function() {
 
@@ -160,14 +160,14 @@ Jskeleton.Di = Marionette.Object.extend({
             dep = this.store(dependencyName);
         }
 
-        // throw new Error(Jskeleton.Di.NoDependencyError);
+        // throw new Error(JSkeleton.Di.NoDependencyError);
         return dep;
     }
 }, {
     FN_ARGS: /^function\s*[^\(]*\(\s*([^\)]*)\)/m,
-    NoDependencyError: 'Jskeleton.DI: Unknown dependency.',
-    NoParentClassError: 'Jskeleton.DI: Unknown parent class.',
+    NoDependencyError: 'JSkeleton.DI: Unknown dependency.',
+    NoParentClassError: 'JSkeleton.DI: Unknown parent class.',
     extractDependencyNames: function(func) {
-        return func.toString().match(Jskeleton.Di.FN_ARGS)[1].replace(/ /g, '').split(',');
+        return func.toString().match(JSkeleton.Di.FN_ARGS)[1].replace(/ /g, '').split(',');
     }
 });

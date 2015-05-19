@@ -12,11 +12,11 @@ describe('collection view - filter', function() {
         });
         this.collection = new Backbone.Collection();
 
-        this.EmptyView = Jskeleton.ItemView.extend({
+        this.EmptyView = JSkeleton.ItemView.extend({
             template: 'empty'
         });
 
-        this.ChildView = Jskeleton.ItemView.extend({
+        this.ChildView = JSkeleton.ItemView.extend({
             template: function(data) {
                 return data.foo;
             }
@@ -30,7 +30,7 @@ describe('collection view - filter', function() {
             return !spec.filter(child);
         });
 
-        this.CollectionView = Jskeleton.CollectionView.extend({
+        this.CollectionView = JSkeleton.CollectionView.extend({
             emptyView: this.EmptyView,
             childView: this.ChildView,
             filter: this.filter,
@@ -56,7 +56,7 @@ describe('collection view - filter', function() {
         });
 
         it('always returns true when no filter is supplied', function() {
-            var collectionView = new Jskeleton.CollectionView();
+            var collectionView = new JSkeleton.CollectionView();
             expect(collectionView._shouldAddChild(this.passModel)).to.be.true;
             expect(collectionView._shouldAddChild(this.failModel)).to.be.true;
         });
@@ -266,7 +266,7 @@ describe('collection view - filter', function() {
             });
             this.collection.reset([this.model2, this.model4, this.model3, this.model1]);
 
-            this.ChildView = Jskeleton.ItemView.extend({
+            this.ChildView = JSkeleton.ItemView.extend({
                 template: function(data) {
                     return data.bar;
                 }
@@ -358,7 +358,7 @@ describe('collection view - filter', function() {
             });
             this.collection.reset([this.model2, this.model4, this.model3, this.model1]);
 
-            this.ChildView = Jskeleton.ItemView.extend({
+            this.ChildView = JSkeleton.ItemView.extend({
                 template: function(data) {
                     return data.bar;
                 }

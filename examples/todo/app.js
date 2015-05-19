@@ -1,8 +1,8 @@
-/* globals Jskeleton, Backbone */
+/* globals JSkeleton, Backbone */
 
 'use strict';
 
-Jskeleton.ItemView.factory('DetailBookView', {
+JSkeleton.ItemView.factory('DetailBookView', {
     initialize: function() {},
     template: '<strong> Título del libro: </strong> <span class="title">{{title}}</span>' +
         '<strong> Autor del libro: </strong><span class="author">{{author}}</span>' +
@@ -19,7 +19,7 @@ Jskeleton.ItemView.factory('DetailBookView', {
     }
 });
 
-Jskeleton.ItemView.factory('ListItemViewBook', {
+JSkeleton.ItemView.factory('ListItemViewBook', {
     template: '<strong> Título del libro: </strong> <span class="title">{{title}}</span>' +
         '<strong> Autor del libro: </strong><span class="author">{{author}}</span>' +
         '<strong> Identificador del libro: </strong><span class="id">{{id}}</span> <button class="view-action"> Ver detalles </button>',
@@ -31,11 +31,11 @@ Jskeleton.ItemView.factory('ListItemViewBook', {
     }
 });
 
-Jskeleton.CollectionView.factory('BookCollectionView', {
+JSkeleton.CollectionView.factory('BookCollectionView', {
     childView: 'ListItemViewBook'
 });
 
-Jskeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_globalChannel'], function(servicioDeLibros, channel) {
+JSkeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_globalChannel'], function(servicioDeLibros, channel) {
     return {
         template: '<span> Detalle de libro: </span> {{@component "DetailBookView" model=context.bookModel}}',
         events: {
@@ -58,7 +58,7 @@ Jskeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_global
     };
 });
 
-Jskeleton.ViewController.factory('ListadoDeLibros', ['_globalChannel'], function(channel) {
+JSkeleton.ViewController.factory('ListadoDeLibros', ['_globalChannel'], function(channel) {
     return {
         events: {
             'childview:action @component.BookCollectionView': 'onNavigateClicked'
@@ -99,7 +99,7 @@ Jskeleton.ViewController.factory('ListadoDeLibros', ['_globalChannel'], function
 // {{@component name="BookCollectionView" collection=context.bookCollection}}
 //{{#each "model" in context.bookCollection}} <span> Titulo del libro: {{model.title}} Posicion en el listado: {{model.count}} </span> {{/each}}
 //
-Jskeleton.ChildApplication.factory('BookCatalogue', {
+JSkeleton.ChildApplication.factory('BookCatalogue', {
     routes: {
         'book/show/:title(/:id)': {
             viewControllerClass: 'DetalleDeLibro',
@@ -130,7 +130,7 @@ Jskeleton.ChildApplication.factory('BookCatalogue', {
 
 });
 
-Jskeleton.Service.factory('ServicioDeLibros', {
+JSkeleton.Service.factory('ServicioDeLibros', {
     initialize: function() {
         console.log('Soy my servicio');
     },
@@ -139,7 +139,7 @@ Jskeleton.Service.factory('ServicioDeLibros', {
     }
 });
 
-var Layout = Jskeleton.ViewController.factory('MainViewController', {
+var Layout = JSkeleton.ViewController.factory('MainViewController', {
     regions: {
         headerRegion: '.header',
         contentRegion: '.content',
@@ -152,7 +152,7 @@ var Layout = Jskeleton.ViewController.factory('MainViewController', {
     }
 });
 
-var AppMain = Jskeleton.Application.extend({
+var AppMain = JSkeleton.Application.extend({
     el: '.app-container',
     viewController: {
         viewControllerClass: 'MainViewController',
@@ -180,7 +180,7 @@ var AppMain = Jskeleton.Application.extend({
     onFilterError: function(err, _routeParams) {
         if (err) console.log(err);
     },
-    middlewares:function(_routeParams){
+    middlewares: function(_routeParams) {
         console.log("middleware ejecutado");
     }
 });

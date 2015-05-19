@@ -19,11 +19,11 @@
         Backbone.$ = $;
 
         var Marionette = require('backbone.marionette'),
-            Jskeleton = factory(root, $, _, Backbone, Marionette);
+            JSkeleton = factory(root, $, _, Backbone, Marionette);
 
-        module.exports = Jskeleton;
+        module.exports = JSkeleton;
     } else if (root !== undefined) {
-        root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
+        root.JSkeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
     }
 
 })(this, function(root, $, _, Backbone, Marionette) {
@@ -31,7 +31,7 @@
 
     /* jshint unused: false */
 
-    var Jskeleton = root.Jskeleton || {};
+    var JSkeleton = root.JSkeleton || {};
 
     //  @include ../core/model.js
     //  @include ../core/collection.js
@@ -59,6 +59,6 @@
     //  @include ../utils/factory.js
     //  @include ../utils/common.js
 
-    return Jskeleton;
+    return JSkeleton;
 
 });

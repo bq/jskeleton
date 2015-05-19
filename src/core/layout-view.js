@@ -1,10 +1,10 @@
 'use strict';
 
-/*globals Marionette, Jskeleton */
+/*globals Marionette, JSkeleton */
 
 /* jshint unused: false */
 
-Jskeleton.LayoutView = Marionette.LayoutView.extend({
+JSkeleton.LayoutView = Marionette.LayoutView.extend({
 
     constructor: function(options) {
         options = options || {};
@@ -12,8 +12,8 @@ Jskeleton.LayoutView = Marionette.LayoutView.extend({
         this._firstRender = true;
         this._initializeRegions(options);
 
-        Jskeleton.ItemView.call(this, options);
+        JSkeleton.ItemView.call(this, options);
     }
 }, {
-    factory: Jskeleton.Utils.FactoryAdd
+    factory: JSkeleton.Utils.FactoryAdd
 });

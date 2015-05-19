@@ -1,18 +1,18 @@
 describe('pre-compiled template rendering', function() {
-  'use strict';
+    'use strict';
 
-  describe('when rendering views with pre-compiled template functions', function() {
-    beforeEach(function() {
-      this.template = 'foobar';
-      this.View = Jskeleton.ItemView.extend({
-        template: _.template(this.template)
-      });
-      this.view = new this.View();
-      this.view.render();
-    });
+    describe('when rendering views with pre-compiled template functions', function() {
+        beforeEach(function() {
+            this.template = 'foobar';
+            this.View = JSkeleton.ItemView.extend({
+                template: _.template(this.template)
+            });
+            this.view = new this.View();
+            this.view.render();
+        });
 
-    it('should render the pre-compiled template', function() {
-      expect(this.view.$el).to.contain.$text(this.template);
+        it('should render the pre-compiled template', function() {
+            expect(this.view.$el).to.contain.$text(this.template);
+        });
     });
-  });
 });

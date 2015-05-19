@@ -1,17 +1,17 @@
 'use strict';
 
-/*globals Marionette, Jskeleton, _*/
+/*globals Marionette, JSkeleton, _*/
 
 /* jshint unused: false */
 
-Jskeleton.CollectionView = Marionette.CollectionView.extend({
+JSkeleton.CollectionView = Marionette.CollectionView.extend({
     constructor: function(options) {
 
         this.once('render', this._initialEvents);
 
         this._initChildViewStorage();
 
-        Jskeleton.View.apply(this, arguments);
+        JSkeleton.View.apply(this, arguments);
 
         this.on('show', this._onShowCalled);
 
@@ -31,9 +31,9 @@ Jskeleton.CollectionView = Marionette.CollectionView.extend({
     getChildView: function(child) {
         var childView = this.getOption('childView');
 
-        //The child view is a `Jskeleton.Factory` key string reference
+        //The child view is a `JSkeleton.Factory` key string reference
         if (typeof childView === 'string') {
-            childView = Jskeleton.factory.getClass(childView);
+            childView = JSkeleton.factory.getClass(childView);
         }
 
         if (!childView) {
@@ -47,5 +47,5 @@ Jskeleton.CollectionView = Marionette.CollectionView.extend({
         return childView;
     }
 }, {
-    factory: Jskeleton.Utils.FactoryAdd
+    factory: JSkeleton.Utils.FactoryAdd
 });

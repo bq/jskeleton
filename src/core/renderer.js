@@ -1,5 +1,5 @@
  'use strict';
- /*globals Marionette, Jskeleton, _ */
+ /*globals Marionette, JSkeleton, _ */
  /* jshint unused: false */
 
 
@@ -22,17 +22,17 @@
 
      template = typeof template === 'string' ? template : String(template);
 
-     var compiler = Jskeleton.htmlBars.compiler,
-         DOMHelper = Jskeleton.htmlBars.DOMHelper,
-         hooks = Jskeleton.htmlBars.hooks,
-         render = Jskeleton.htmlBars.render;
+     var compiler = JSkeleton.htmlBars.compiler,
+         DOMHelper = JSkeleton.htmlBars.DOMHelper,
+         hooks = JSkeleton.htmlBars.hooks,
+         render = JSkeleton.htmlBars.render;
 
      var templateSpec = compiler.compileSpec(template, {}),
          templatePreCompiled = compiler.template(templateSpec),
          env = {
              dom: new DOMHelper(),
              hooks: hooks,
-             helpers: Jskeleton._helpers,
+             helpers: JSkeleton._helpers,
              enviroment: data.enviroment,
              scope: hooks.createFreshScope() // for helper access to the enviroments
          };

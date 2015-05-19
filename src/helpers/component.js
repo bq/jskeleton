@@ -1,8 +1,8 @@
      'use strict';
-     /*globals  Jskeleton, _ */
+     /*globals  JSkeleton, _ */
      /* jshint unused: false */
 
-     Jskeleton.registerHelper('@component', function(params, env, args) {
+     JSkeleton.registerHelper('@component', function(params, env, args) {
          // env.enviroment._app;
          // env.enviroment.channel;
          //env.enviroment._view, view-controller
@@ -28,7 +28,7 @@
              _app: env.enviroment._app
          });
 
-         component = Jskeleton.factory.new(componentName, componentData);
+         component = JSkeleton.factory.new(componentName, componentData);
 
          if (!component || typeof component !== 'object') {
              throw new Error('No se ha podido crear el componente');

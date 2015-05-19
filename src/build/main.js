@@ -21,11 +21,11 @@
         Backbone.$ = $;
 
         var Marionette = require('backbone.marionette'),
-            Jskeleton = factory(root, $, _, Backbone, Marionette);
+            JSkeleton = factory(root, $, _, Backbone, Marionette);
 
-        module.exports = Jskeleton;
+        module.exports = JSkeleton;
     } else if (root !== undefined) {
-        root.Jskeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
+        root.JSkeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
     }
 
 })(this, function(root, $, _, Backbone, Marionette) {
@@ -38,9 +38,9 @@
     //  @include ../../lib/htmlbars/htmlbars-compiler.amd.js
     //  @include ../../lib/htmlbars/htmlbars-runtime.amd.js
 
-    var Jskeleton = root.Jskeleton || {};
+    var JSkeleton = root.JSkeleton || {};
 
-    Jskeleton.htmlBars = {
+    JSkeleton.htmlBars = {
         compiler: requireModule('htmlbars-compiler'),
         DOMHelper: requireModule('dom-helper').default,
         hooks: requireModule('htmlbars-runtime').hooks,
@@ -74,8 +74,8 @@
     //  @include ../core/composite-view.js
     //  @include ../core/view-controller.js
 
-    Jskeleton.di = new Jskeleton.Di();
+    JSkeleton.di = new JSkeleton.Di();
 
-    return Jskeleton;
+    return JSkeleton;
 
 });

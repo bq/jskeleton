@@ -1,8 +1,8 @@
       'use strict';
-      /*globals  Jskeleton, _, Backbone */
+      /*globals  JSkeleton, _, Backbone */
       /* jshint unused: false */
 
-      Jskeleton.registerHelper('each', function(params, env, args, options) {
+      JSkeleton.registerHelper('each', function(params, env, args, options) {
           var itemName = args[0],
               collection = args[2],
               template = options.template;

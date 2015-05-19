@@ -1,9 +1,9 @@
 'use strict';
 
-/*globals Jskeleton, Backbone, _ */
+/*globals JSkeleton, Backbone, _ */
 /* jshint unused: false */
 
-Jskeleton.Model = Backbone.Model.extend({
+JSkeleton.Model = Backbone.Model.extend({
 
 
 });

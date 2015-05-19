@@ -1,9 +1,9 @@
 'use strict';
 
-/*globals Jskeleton */
+/*globals JSkeleton */
 
 /* jshint unused: false */
 
-Jskeleton.plugin = function(name, protoFunction) {
-    return Jskeleton.factory.add(name, protoFunction);
+JSkeleton.plugin = function(name, protoFunction) {
+    return JSkeleton.factory.add(name, protoFunction);
 };

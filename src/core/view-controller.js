@@ -1,11 +1,11 @@
     'use strict';
 
-    /*globals Jskeleton, Marionette, _ */
+    /*globals JSkeleton, Marionette, _ */
 
     //## ViewController
     // The view controller object is an hybrid of View/Controller. It is responsible for render an application
     // state, build up the application context and render the application components.
-    Jskeleton.ViewController = Jskeleton.LayoutView.extend({
+    JSkeleton.ViewController = JSkeleton.LayoutView.extend({
         //re-render the view-controller when the render promise is completed
         renderOnPromise: true,
         constructor: function(options) {
@@ -17,7 +17,7 @@
             this.context = {};
             this.components = {};
             this.events = this.events || {};
-            Jskeleton.LayoutView.prototype.constructor.apply(this, arguments);
+            JSkeleton.LayoutView.prototype.constructor.apply(this, arguments);
         },
         _ensureOptions: function(options) {
             if (!options.app) {
@@ -47,13 +47,13 @@
                     //expose a isPromise flag to the template
                     that.context.isPromise = false;
 
-                    //if the `renderOnPromise` option is set to true, re-render the `Jskeleton.ViewController`
+                    //if the `renderOnPromise` option is set to true, re-render the `JSkeleton.ViewController`
                     if (that.renderOnPromise === true) {
                         that.render();
                     }
                 });
 
-                //Set up the `Jskeleton.ViewController` context
+                //Set up the `JSkeleton.ViewController` context
                 this.context.isPromise = true;
             }
 
@@ -103,7 +103,7 @@
         //Override Marionette._delegateDOMEvents to add Components listeners
         _delegateDOMEvents: function(eventsArg) {
             var events = Marionette._getValue(eventsArg || this.events, this),
-                componentEvents = Jskeleton.Utils.extractComponentEvents(events);
+                componentEvents = JSkeleton.Utils.extractComponentEvents(events);
 
             events = _.omit(events, _.keys(componentEvents));
 
@@ -133,8 +133,8 @@
                 components = this.components;
 
             _.each(this._componentEvents, function(method, eventName) {
-                var componentName = Jskeleton.Utils.normalizeComponentName(eventName),
-                    eventType = Jskeleton.Utils.normailzeEventType(eventName),
+                var componentName = JSkeleton.Utils.normalizeComponentName(eventName),
+                    eventType = JSkeleton.Utils.normailzeEventType(eventName),
                     componentArray = components[componentName];
 
                 _.each(componentArray, function(component) {
@@ -151,9 +151,9 @@
 
             _.each(this._componentEvents, function(method, eventName) {
                 //Get component name from event hash `@component.ComponentName`
-                var componentName = Jskeleton.Utils.normalizeComponentName(eventName),
+                var componentName = JSkeleton.Utils.normalizeComponentName(eventName),
                     //Get event name from event hash `click @component.ComponentName`
-                    eventType = Jskeleton.Utils.normailzeEventType(eventName),
+                    eventType = JSkeleton.Utils.normailzeEventType(eventName),
                     //Get the component instance by component name
                     componentArray = components[componentName];
 
@@ -165,7 +165,7 @@
         render: function() {
             this._destroyComponents();
 
-            Jskeleton.LayoutView.prototype.render.apply(this, arguments);
+            JSkeleton.LayoutView.prototype.render.apply(this, arguments);
 
             this.unbindComponents();
             this.bindComponents();

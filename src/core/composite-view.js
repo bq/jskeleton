@@ -1,19 +1,19 @@
 'use strict';
 
-/*globals Marionette, Jskeleton*/
+/*globals Marionette, JSkeleton*/
 
 /* jshint unused: false */
 
-Jskeleton.CompositeView = Marionette.CompositeView.extend({
+JSkeleton.CompositeView = Marionette.CompositeView.extend({
     constructor: function(options) {
-        Jskeleton.CollectionView.apply(this, arguments);
+        JSkeleton.CollectionView.apply(this, arguments);
     },
     getChildView: function(child) {
         var childView = this.getOption('childView');
 
-        //The child view is a `Jskeleton.Factory` key string reference
+        //The child view is a `JSkeleton.Factory` key string reference
         if (typeof childView === 'string') {
-            childView = Jskeleton.factory.getClass(childView);
+            childView = JSkeleton.factory.getClass(childView);
         }
 
         if (!childView) {
@@ -23,5 +23,5 @@ Jskeleton.CompositeView = Marionette.CompositeView.extend({
         return childView;
     }
 }, {
-    factory: Jskeleton.Utils.FactoryAdd
+    factory: JSkeleton.Utils.FactoryAdd
 });

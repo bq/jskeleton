@@ -1,10 +1,10 @@
-/*globals require,define,describe,it, Jskeleton, before */
+/*globals require,define,describe,it, JSkeleton, before */
 /* jshint unused: false */
 
 describe('Router', function() {
 
     var sandbox = sinon.sandbox.create(),
-        router = Jskeleton.Router.getSingleton();
+        router = JSkeleton.Router.getSingleton();
 
     afterEach(function() {
         sandbox.restore();
@@ -15,7 +15,7 @@ describe('Router', function() {
     });
 
     it('has all properties and methods', function() {
-        expect(Jskeleton.Router.prototype).to.include.keys(
+        expect(JSkeleton.Router.prototype).to.include.keys(
             'constructor',
             'routes',
             'initialize',
@@ -30,8 +30,8 @@ describe('Router', function() {
         );
     });
 
-    it('Jskeleton Router has all static methods', function() {
-        expect(Jskeleton.Router).to.include.keys(
+    it('JSkeleton Router has all static methods', function() {
+        expect(JSkeleton.Router).to.include.keys(
             'getSingleton',
             'start'
         );

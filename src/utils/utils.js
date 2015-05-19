@@ -1,5 +1,5 @@
 'use strict';
-/*globals Jskeleton, Backbone, _, Marionette */
+/*globals JSkeleton, Backbone, _, Marionette */
 /* jshint unused: false */
 
 var utils = {};
@@ -61,8 +61,8 @@ utils.normalizeComponentKeys = function(events, components) {
 var BackboneExtend = Backbone.Model.extend;
 
 // Util function to correctly set up the prototype chain for subclasses.
-// Override the Backbone extend implementation to integrate with Jskeleton.factory
-// and with Jskeleton.Di Jskeleton.di
+// Override the Backbone extend implementation to integrate with JSkeleton.factory
+// and with JSkeleton.Di JSkeleton.di
 utils.FactoryAdd = function(name /*,deps, protoProps, staticProps*/ ) {
     var areDeps = _.isArray(arguments[1]),
         ClassProperties = areDeps ? arguments[2] : arguments[1],
@@ -72,21 +72,21 @@ utils.FactoryAdd = function(name /*,deps, protoProps, staticProps*/ ) {
 
     //the object has dependencies (as a function) but doesn't have an array with explicit dependencies
     if (deps === undefined && _.isFunction(ClassProperties)) {
-        deps = Jskeleton.Di.extractDependencyNames(ClassProperties);
+        deps = JSkeleton.Di.extractDependencyNames(ClassProperties);
     }
 
     if (_.isFunction(ClassProperties)) {
-        Jskeleton.factory.add(name, ClassProperties, Parent, deps);
+        JSkeleton.factory.add(name, ClassProperties, Parent, deps);
     } else {
         //the class doesn't have dependencies
         //get the inherited class using default Backbone extend method
         Class = BackboneExtend.apply(this, Array.prototype.slice.call(arguments, 1));
-        //add the inherited class to the Jskeleton.factory
-        Jskeleton.factory.add(name, Class);
+        //add the inherited class to the JSkeleton.factory
+        JSkeleton.factory.add(name, Class);
 
         return Class;
     }
 
 };
 
-Jskeleton.Utils = utils;
+JSkeleton.Utils = utils;

@@ -1,10 +1,10 @@
     'use strict';
-    /*globals Jskeleton */
+    /*globals JSkeleton */
 
-    Jskeleton._helpers = {};
+    JSkeleton._helpers = {};
 
-    Jskeleton.registerHelper = function(name, helperFunc) {
-        Jskeleton._helpers[name] = helperFunc;
+    JSkeleton.registerHelper = function(name, helperFunc) {
+        JSkeleton._helpers[name] = helperFunc;
     };
 
 
@@ -28,7 +28,7 @@
         return out;
     }
 
-    Jskeleton.htmlBars.hooks.invokeHelper = function(morph, env, scope, visitor, _params, _hash, helper, templates, context) {
+    JSkeleton.htmlBars.hooks.invokeHelper = function(morph, env, scope, visitor, _params, _hash, helper, templates, context) {
         var params = normalizeArray(env, _params);
         var hash = normalizeObject(env, _hash);
         return {

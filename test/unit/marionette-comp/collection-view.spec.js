@@ -5,7 +5,7 @@ describe('collection view', function() {
         // Shared View Definitions
         // -----------------------
 
-        this.ChildView = Jskeleton.ItemView.extend({
+        this.ChildView = JSkeleton.ItemView.extend({
             tagName: 'span',
             render: function() {
                 this.$el.html(this.model.get('foo'));
@@ -14,7 +14,7 @@ describe('collection view', function() {
             onRender: function() {}
         });
 
-        this.MockCollectionView = Jskeleton.CollectionView.extend({
+        this.MockCollectionView = JSkeleton.CollectionView.extend({
             childView: this.ChildView,
             onBeforeRender: function() {
                 return this.isRendered;
@@ -82,7 +82,7 @@ describe('collection view', function() {
 
     describe('when rendering a collection view with no "childView" specified', function() {
         beforeEach(function() {
-            this.NoChildView = Jskeleton.CollectionView.extend();
+            this.NoChildView = JSkeleton.CollectionView.extend();
 
             this.collection = new Backbone.Collection([{
                 foo: 'bar'
@@ -293,7 +293,7 @@ describe('collection view', function() {
             this.collection = new Backbone.Collection([{
                 foo: 'bar'
             }]);
-            this.collectionView = new Jskeleton.CollectionView({
+            this.collectionView = new JSkeleton.CollectionView({
                 childView: this.ChildView,
                 collection: this.collection
             });
@@ -333,7 +333,7 @@ describe('collection view', function() {
         });
 
         it('should not update the order of children when "sort" is set to "false" as a property on a class', function() {
-            this.CollectionView = Jskeleton.CollectionView.extend({
+            this.CollectionView = JSkeleton.CollectionView.extend({
                 childView: this.ChildView,
                 sort: false
             });
@@ -348,7 +348,7 @@ describe('collection view', function() {
         });
 
         it('should not update the order of children when "sort" is set to "false" inside options', function() {
-            this.CollectionView = Jskeleton.CollectionView.extend({
+            this.CollectionView = JSkeleton.CollectionView.extend({
                 childView: this.ChildView,
             });
             this.collectionView = new this.CollectionView({
@@ -365,7 +365,7 @@ describe('collection view', function() {
 
     describe('when instantiating a view with a different sort option than in the view\'s definition', function() {
         it('should maintain the instantiated sort option', function() {
-            this.CollectionView = Jskeleton.CollectionView.extend({
+            this.CollectionView = JSkeleton.CollectionView.extend({
                 sort: false
             });
             this.newCollectionView = new this.CollectionView({
@@ -466,11 +466,11 @@ describe('collection view', function() {
                 foo: 'bar'
             });
 
-            this.EmptyView = Jskeleton.ItemView.extend({
+            this.EmptyView = JSkeleton.ItemView.extend({
                 render: function() {}
             });
 
-            this.CollectionView = Jskeleton.CollectionView.extend({
+            this.CollectionView = JSkeleton.CollectionView.extend({
                 childView: this.ChildView,
                 emptyView: this.EmptyView,
 
@@ -569,7 +569,7 @@ describe('collection view', function() {
 
     describe('when destroying a collection view', function() {
         beforeEach(function() {
-            this.EventedView = Jskeleton.CollectionView.extend({
+            this.EventedView = JSkeleton.CollectionView.extend({
                 childView: this.ChildView,
                 someCallback: function() {},
                 onBeforeDestroy: function() {
@@ -725,7 +725,7 @@ describe('collection view', function() {
 
     describe('when removing a childView that does not have a "destroy" method', function() {
         beforeEach(function() {
-            this.collectionView = new Jskeleton.CollectionView({
+            this.collectionView = new JSkeleton.CollectionView({
                 childView: Backbone.View,
                 collection: new Backbone.Collection([{
                     id: 1
@@ -752,7 +752,7 @@ describe('collection view', function() {
 
     describe('when destroying all children', function() {
         beforeEach(function() {
-            this.collectionView = new Jskeleton.CollectionView({
+            this.collectionView = new JSkeleton.CollectionView({
                 childView: Backbone.View,
                 collection: new Backbone.Collection([{
                     id: 1
@@ -787,7 +787,7 @@ describe('collection view', function() {
 
     describe('when override attachHtml', function() {
         beforeEach(function() {
-            this.PrependHtmlView = Jskeleton.CollectionView.extend({
+            this.PrependHtmlView = JSkeleton.CollectionView.extend({
                 childView: this.ChildView,
 
                 attachHtml: function(collectionView, childView) {
@@ -883,7 +883,7 @@ describe('collection view', function() {
             this.collection = new Backbone.Collection([this.model]);
 
             this.collectionView = new this.MockCollectionView({
-                childView: Jskeleton.ItemView.extend({
+                childView: JSkeleton.ItemView.extend({
                     template: '{{foo}}'
                 }),
                 collection: this.collection
@@ -1001,7 +1001,7 @@ describe('collection view', function() {
 
     describe('when a child view is added to a collection view, after the collection view has been shown', function() {
         beforeEach(function() {
-            this.ChildView = Jskeleton.ItemView.extend({
+            this.ChildView = JSkeleton.ItemView.extend({
                 onBeforeShow: function() {},
                 onShow: function() {},
                 onDomRefresh: function() {},
@@ -1009,7 +1009,7 @@ describe('collection view', function() {
                 template: '{{ foo }}'
             });
 
-            this.CollectionView = Jskeleton.CollectionView.extend({
+            this.CollectionView = JSkeleton.CollectionView.extend({
                 childView: this.ChildView,
                 onShow: function() {}
             });
@@ -1091,7 +1091,7 @@ describe('collection view', function() {
 
     describe('when setting a childView in the constructor options', function() {
         beforeEach(function() {
-            this.ItemView = Jskeleton.ItemView.extend({
+            this.ItemView = JSkeleton.ItemView.extend({
                 template: ' ',
                 MyItemView: true
             });
@@ -1099,7 +1099,7 @@ describe('collection view', function() {
             this.collection = new Backbone.Collection([{
                 a: 'b'
             }]);
-            this.collectionView = new Jskeleton.CollectionView({
+            this.collectionView = new JSkeleton.CollectionView({
                 childView: this.ItemView,
                 collection: this.collection
             });
@@ -1222,7 +1222,7 @@ describe('collection view', function() {
 
     describe('calling childEvents via the childEvents hash with a string of a nonexistent function name', function() {
         beforeEach(function() {
-            this.CollectionView = Jskeleton.CollectionView.extend({
+            this.CollectionView = JSkeleton.CollectionView.extend({
                 childView: this.ChildView,
                 childEvents: {
                     'render': 'nonexistentFn'
@@ -1241,13 +1241,13 @@ describe('collection view', function() {
         });
     });
 
-    describe('has a valid inheritance chain back to Jskeleton.View', function() {
+    describe('has a valid inheritance chain back to JSkeleton.View', function() {
         beforeEach(function() {
-            this.constructor = this.sinon.spy(Jskeleton, 'View');
-            this.collectionView = new Jskeleton.CollectionView();
+            this.constructor = this.sinon.spy(JSkeleton, 'View');
+            this.collectionView = new JSkeleton.CollectionView();
         });
 
-        it('calls the parent Jskeleton.Views constructor function on instantiation', function() {
+        it('calls the parent JSkeleton.Views constructor function on instantiation', function() {
             expect(this.constructor).to.have.been.called;
         });
     });
@@ -1256,14 +1256,14 @@ describe('collection view', function() {
         beforeEach(function() {
             var suite = this;
 
-            this.ItemView = Jskeleton.ItemView.extend({
+            this.ItemView = JSkeleton.ItemView.extend({
                 template: '<div>hi mom</div>',
                 onShow: function() {
                     suite.isBuffering = suite.collectionView.isBuffering;
                 }
             });
 
-            this.CollectionView = Jskeleton.CollectionView.extend({
+            this.CollectionView = JSkeleton.CollectionView.extend({
                 childView: this.ItemView
             });
 
@@ -1316,7 +1316,7 @@ describe('collection view', function() {
             this.Collection = Backbone.Collection.extend({
                 model: this.Model
             });
-            this.CollectionView = Jskeleton.CollectionView.extend({
+            this.CollectionView = JSkeleton.CollectionView.extend({
                 childView: this.ChildView,
                 tagName: 'ul'
             });
@@ -1373,7 +1373,7 @@ describe('collection view', function() {
                 foo: 'bar'
             });
 
-            this.CollectionView = Jskeleton.CollectionView.extend({
+            this.CollectionView = JSkeleton.CollectionView.extend({
                 childView: this.ChildView
             });
 

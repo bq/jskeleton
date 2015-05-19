@@ -1,5 +1,5 @@
      'use strict';
-     /*globals  Jskeleton, _ */
+     /*globals  JSkeleton, _ */
      /* jshint unused: false */
      var shouldDisplay = function(param, param2, operator) {
          var result;
@@ -47,7 +47,7 @@
      };
 
 
-     Jskeleton.registerHelper('if', function(params, env, args, options) {
+     JSkeleton.registerHelper('if', function(params, env, args, options) {
 
          var condition = shouldDisplay(args[0], args[2], args[1]),
              truthyTemplate = options.template || '',

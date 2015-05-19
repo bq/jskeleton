@@ -1,13 +1,13 @@
 'use strict';
 
-/*globals Marionette, Jskeleton, _, Backbone */
+/*globals Marionette, JSkeleton, _, Backbone */
 
 /* jshint unused: false */
 
 //## BaseApplication
-//  BaseApplication Class that other `Jskeleton.Applications` can extend from.
+//  BaseApplication Class that other `JSkeleton.Applications` can extend from.
 //  It contains common application behavior as router/events initialization, application channels set up, common get methods...
-Jskeleton.BaseApplication = Marionette.Application.extend({
+JSkeleton.BaseApplication = Marionette.Application.extend({
     //Default global webapp channel for communicate with other apps
     globalChannel: 'global',
     filterStack: [],
@@ -15,8 +15,8 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     constructor: function(options) {
         options = options || {};
 
-        this.di = new Jskeleton.Di({
-            globalDi: Jskeleton.di
+        this.di = new JSkeleton.Di({
+            globalDi: JSkeleton.di
         });
 
         //add routeFilters middlewares to app workflow
@@ -31,7 +31,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         //generate application id
         this.aid = this.getAppId();
 
-        this.router = Jskeleton.Router.getSingleton();
+        this.router = JSkeleton.Router.getSingleton();
 
         //application scope to share common data inside the application
         this.scope = {};
@@ -49,7 +49,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         this._initCallbacks.run(options, this);
 
         this._initCallbacks.run(options, this);
-        //Add routes listeners to the Jskeleton.router
+        //Add routes listeners to the JSkeleton.router
         this._initRoutes(options);
 
         //Add app proxy events
@@ -65,11 +65,10 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         var viewController = routeObject._viewController = this._getViewControllerInstance(routeObject);
 
         this.triggerMethod('onNavigate', viewController);
-        // hook.processBefore();
 
-        if (typeof viewController[handlerName] !== 'function') {
-            throw new Error('El metodo ' + handlerName + ' del view controller no existe');
-        }
+        // if (typeof viewController[handlerName] !== 'function') {
+        //     throw new Warning('El metodo ' + handlerName + ' del view controller no existe');
+        // }
 
         this._showControllerView(viewController, handlerName, args);
     },
@@ -97,7 +96,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     },
     //Factory hook method
     getHook: function() {
-        return new Jskeleton.Hook();
+        return new JSkeleton.Hook();
     },
     //Generate unique app id using underscore uniqueId method
     getAppId: function() {
@@ -144,7 +143,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
                     region: self.region
                 }, routeObject.viewControllerOptions);
 
-                //add the route handler to Jskeleton.Router
+                //add the route handler to JSkeleton.Router
                 self._addAppRoute(routeName, routeObject);
                 //add the event handler to the app globalChannel
                 self._addAppEventListener(routeName, routeObject);
@@ -273,7 +272,7 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
     },
     // Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).
     //Ensure that don't extist a view-controller and if exist that it's not destroyed.
-    //The view controller is instantiated using the `Jskeleton.Di` to resolve the view-controller dependencies.
+    //The view controller is instantiated using the `JSkeleton.Di` to resolve the view-controller dependencies.
     _getViewControllerInstance: function(routeObject) {
         var self = this,
             //get the view-controller instance (if it exists)
@@ -302,10 +301,11 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
 
         //the view controller class is a factory key string
         if (typeof options.viewControllerClass === 'string') {
-            ViewController = Jskeleton.factory.get(options.viewControllerClass);
+            ViewController = JSkeleton.factory.get(options.viewControllerClass);
         } else {
             //the view controller class is a class reference
-            ViewController = options.viewControllerClass || Jskeleton.ViewController;
+            //If no view controller class is specified, a default JSkeleton.ViewController is retrieved
+            ViewController = options.viewControllerClass || JSkeleton.ViewController;
         }
 
         return ViewController;
@@ -376,5 +376,5 @@ Jskeleton.BaseApplication = Marionette.Application.extend({
         }
     }
 }, {
-    factory: Jskeleton.Utils.FactoryAdd
+    factory: JSkeleton.Utils.FactoryAdd
 });

@@ -1,9 +1,9 @@
 'use strict';
-/*globals Jskeleton, Backbone _ */
+/*globals JSkeleton, Backbone _ */
 /* jshint unused: false */
 
-//## Jskeleton.store
-Jskeleton.store = function(classConstructor, attributes) {
+//## JSkeleton.store
+JSkeleton.store = function(classConstructor, attributes) {
     if (!classConstructor || typeof classConstructor !== 'function') {
         throw new Error("classConstructor must be exist");
     }
@@ -24,8 +24,8 @@ Jskeleton.store = function(classConstructor, attributes) {
                 modelId = objectId[classConstructor.prototype.idAttribute];
 
             // Check if model exist into store
-            if (Jskeleton.modelStore.modelExist(modelId, classConstructor)) {
-                var model = Jskeleton.modelStore.get(modelId, classConstructor);
+            if (JSkeleton.modelStore.modelExist(modelId, classConstructor)) {
+                var model = JSkeleton.modelStore.get(modelId, classConstructor);
                 if (model) {
                     model.set(attributes);
                 }
@@ -36,6 +36,6 @@ Jskeleton.store = function(classConstructor, attributes) {
 
     // Create model instance
     var model = new classConstructor(attributes);
-    Jskeleton.modelStore.add(model);
+    JSkeleton.modelStore.add(model);
     return model;
 };

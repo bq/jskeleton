@@ -1,4 +1,4 @@
-/*globals require,define,describe,it, Jskeleton, before, beforeEach, after, afterEach */
+/*globals require,define,describe,it, JSkeleton, before, beforeEach, after, afterEach */
 /* jshint unused: false */
 describe('In Component module', function() {
 
@@ -31,7 +31,7 @@ describe('In Component module', function() {
             '<button class="return-action"> Return Book </button>' +
             '<button class="back-action"> Come Back </button>';
 
-        ViewComponent = Jskeleton.ItemView.extend({
+        ViewComponent = JSkeleton.ItemView.extend({
             template: templateComponent,
             model: modelTest,
             ui: {
@@ -57,7 +57,7 @@ describe('In Component module', function() {
             }
         });
 
-        stubNewFactory = sandbox.stub(Jskeleton.factory, 'new', function() {
+        stubNewFactory = sandbox.stub(JSkeleton.factory, 'new', function() {
             return new ViewComponent();
         }).withArgs('ViewComponent');
 
@@ -66,7 +66,7 @@ describe('In Component module', function() {
             onRender: function() {}
         });
 
-        ViewControllerComponent = Jskeleton.ViewController.extend({
+        ViewControllerComponent = JSkeleton.ViewController.extend({
             context: {
                 model: 'modelComponent'
             },
@@ -76,7 +76,7 @@ describe('In Component module', function() {
             onEventComponent: function() {}
         });
 
-        var ChildApp = Jskeleton.ChildApplication.extend({
+        var ChildApp = JSkeleton.ChildApplication.extend({
             routes: {
                 '': {
                     viewControllerClass: ViewControllerComponent,
@@ -91,13 +91,13 @@ describe('In Component module', function() {
             }
         });
 
-        var ViewController = Jskeleton.ViewController.extend({
+        var ViewController = JSkeleton.ViewController.extend({
             regions: {
                 content: '.content'
             }
         });
 
-        MainApp = Jskeleton.Application.extend({
+        MainApp = JSkeleton.Application.extend({
             viewController: {
                 viewControllerClass: ViewController,
                 template: '<div class="content"></div>'

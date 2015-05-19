@@ -1,4 +1,4 @@
-/*globals require,define,describe,it, Jskeleton, before */
+/*globals require,define,describe,it, JSkeleton, before */
 /* jshint unused: false */
 
 describe('In Plugin module', function() {
@@ -11,9 +11,9 @@ describe('In Plugin module', function() {
 
         this.spy = sinon.spy();
 
-        this.factory = Jskeleton.factory;
+        this.factory = JSkeleton.factory;
 
-        this.plugin = Jskeleton.plugin;
+        this.plugin = JSkeleton.plugin;
 
         this.pluginFunction = function() {
             self.spy();
@@ -65,7 +65,7 @@ describe('In Plugin module', function() {
 
             expect(this.spy.calledOnce).to.be.true;
             expect(this.newSpy.calledOnce).to.be.true;
-            Jskeleton.di.store('myTestPlugin', undefined, {});
+            JSkeleton.di.store('myTestPlugin', undefined, {});
         });
 
         it.skip('they are functions', function() {

@@ -1,9 +1,9 @@
 'use strict';
 
-/* globals _, Jskeleton */
+/* globals _, JSkeleton */
 
 // Application global config and params
-var common = Jskeleton.common = {
+var common = JSkeleton.common = {
     config: {
         mode: undefined,
         version: '0.0.1',

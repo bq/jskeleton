@@ -1,6 +1,6 @@
 'use strict';
 
-/*globals Jskeleton, Backbone, _ */
+/*globals JSkeleton, Backbone, _ */
 
 /* jshint unused: false */
 
@@ -13,7 +13,7 @@ var paramsNames = /:\w(\_|\w|\d)*/g;
 //escapeRegExp = /[\-{}\[\]+?.,\\\^$|#\s]/g;
 
 //## Router
-Jskeleton.Router = Backbone.Router.extend({
+JSkeleton.Router = Backbone.Router.extend({
     routes: {},
 
     initialize: function() {
@@ -71,7 +71,7 @@ Jskeleton.Router = Backbone.Router.extend({
             routeString = routeString.replace(/:(\w)+/, function(x) {
                 //remove : character
                 x = x.substr(1, x.length - 1);
-                return params[x] ? Jskeleton.Utils.replaceSpecialChars(String(params[x])) : '';
+                return params[x] ? JSkeleton.Utils.replaceSpecialChars(String(params[x])) : '';
             });
 
             // find splats
@@ -165,13 +165,13 @@ Jskeleton.Router = Backbone.Router.extend({
 
         function getInstance() {
             if (!instance) {
-                instance = new Jskeleton.Router();
+                instance = new JSkeleton.Router();
             }
             return instance;
         }
 
-        Jskeleton.router = getInstance();
-        return Jskeleton.router;
+        JSkeleton.router = getInstance();
+        return JSkeleton.router;
     },
 
     // Initialize Backbone.history.start
