@@ -43,7 +43,14 @@ describe('In Extension module', function() {
                 'NoClass', {
                     foo: 'bar'
                 }
-            )).to.throw(Error);
+            )).to.throw('You must specify a existent JSkeleton Class');
+        });
+
+        it('throws error if the extension is not correct', function() {
+            expect(this.extension.bind(this,
+                'MyExtension',
+                'Application'
+            )).to.throw('You must spefify a correct extension object');
         });
 
         it('overrides the Class if the Class already exists', function() {
