@@ -365,10 +365,6 @@ module.exports = function(grunt) {
         'makeReport'
     ]);
 
-    grunt.registerTask('coveralls', [
-        'coveralls'
-    ]);
-
     grunt.registerTask('build', [
         'jshint:all',
         'clean:dist',
