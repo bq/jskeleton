@@ -1,6 +1,10 @@
 # JSkeleton
 
-[![Build Status](https://travis-ci.org/bq/jskeleton.svg)](https://travis-ci.org/bq/jskeleton)
+[![Build Status](https://travis-ci.org/bq/jskeleton.svg)](https://travis-ci.org
+/bq/jskeleton)
+[![Dependency status](https://david-dm.org/bq/jskeleton/status.png)](https://david-dm.org/bq/jskeleton#info=dependencies&view=table)
+[![Dev Dependency Status](https://david-dm.org/bq/jskeleton/dev-status.png)](https://david-dm.org/bq/jskeleton#info=devDependencies&view=table)
+[![Coverage Status](https://coveralls.io/repos/bq/jskeleton/badge.svg?branch=master)](https://coveralls.io/r/bq/jskeleton?branch=master)
 
 Framework for building webapps based in Backbone-Marionette
 
