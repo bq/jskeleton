@@ -360,7 +360,7 @@ module.exports = function(grunt) {
         'preprocess',
         'env:coverage',
         'instrument',
-        'mochaTest',
+        'mochaTest:src',
         'storeCoverage',
         'makeReport'
     ]);
