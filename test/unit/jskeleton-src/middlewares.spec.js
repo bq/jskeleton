@@ -2,6 +2,8 @@
 
 describe('Application Middlewares', function() {
 
+    var sandbox = sinon.sandbox.create();
+
     describe('when run one middleware', function() {
 
         before(function() {
@@ -14,10 +16,12 @@ describe('Application Middlewares', function() {
 
             this.myApp = new this.Application();
 
+            this.invokeViewControllerStub = sandbox.stub(this.myApp, 'invokeViewControllerRender');
+
         });
 
         it('should be called middleware once', function() {
-            this.myApp._navigateTo('foo/bar', {}, undefined);
+            this.myApp._processNavigation('foo/bar', {}, undefined, undefined);
             expect(this.myApp.calls[0]).to.equal(1);
         });
     });
@@ -27,6 +31,7 @@ describe('Application Middlewares', function() {
         before(function() {
             this.Application = JSkeleton.Application.extend({
                 middlewares: [
+
                     function() {
                         this.calls.push(1);
                     },
@@ -39,10 +44,11 @@ describe('Application Middlewares', function() {
 
             this.myApp = new this.Application();
 
+            this.invokeViewControllerStub = sandbox.stub(this.myApp, 'invokeViewControllerRender');
         });
 
         it('should be called middlewares twice', function() {
-            this.myApp._navigateTo('foo/bar', {}, undefined);
+            this.myApp._processNavigation('foo/bar', {}, undefined, undefined);
             expect(this.myApp.calls.length).to.equal(2);
         });
     });
@@ -52,6 +58,7 @@ describe('Application Middlewares', function() {
         before(function() {
             this.Application = JSkeleton.Application.extend({
                 middlewares: [
+
                     function() {
                         this.calls.push(1);
                     },
@@ -67,10 +74,12 @@ describe('Application Middlewares', function() {
 
             this.myApp = new this.Application();
 
+            this.invokeViewControllerStub = sandbox.stub(this.myApp, 'invokeViewControllerRender');
+
         });
 
         it('should be called middlewares three times', function() {
-            this.myApp._navigateTo('foo/bar', {}, undefined);
+            this.myApp._processNavigation('foo/bar', {}, undefined, undefined);
             expect(this.myApp.calls.length).to.equal(3);
         });
 

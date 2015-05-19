@@ -159,41 +159,55 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
             triggerEvent: routeObject.triggerEvent,
             handlerName: routeObject.handlerName || this._getViewControllerHandlerName(routeString)
         }, function(args, handlerName) {
-            self.invokeViewControllerRender(routeObject, args, handlerName);
+            self._processNavigation(routeString, routeObject, handlerName, args);
         });
     },
-    //Add listen to a global event changing the url with the event parameters and calling to the view-controller
+    //Add listen to a global event changing the url with the event parameters and calling to the view-controller.
+    //This method is called for every.
+    //Recieves a routeString to update the navigation url and the declared application route object
     _addAppEventListener: function(routeString, routeObject) {
+        //If a eventListener is defined for this route
         if (routeObject.eventListener) {
             var self = this,
                 handlerName = routeObject.handlerName || this._getViewControllerHandlerName(routeString);
 
+            //Add the event listener to the global channel
             this.listenTo(this.globalChannel, routeObject.eventListener, function(args) {
-                if (!routeObject.navigate) {
-                    //update the url
-                    self._navigateTo.call(self, routeString, routeObject, args);
-                }
-
-                self.invokeViewControllerRender(routeObject, args, handlerName);
+                self._processNavigation(routeString, routeObject, handlerName, args);
             });
         }
     },
-    //Update the url with the specified parameters
-    _navigateTo: function(routeString, routeOptions, params) {
+    //Process a navigation (either event or route navigation).
+    //Check if the navigation should be completed (if all the filters success).
+    //Also call to the declared middlewares before navigate.
+    _processNavigation: function(routeString, routeObject, handlerName, args) {
         // routeFilters handlers
-        if (this._routeFilterProcessing(routeString, routeOptions, params)) {
+        if (this._routeFilterProcessing(routeString, routeObject, args)) {
 
             //middlewares processing before navigation
-            this._middlewaresProcessing(routeString, routeOptions, params);
+            this._middlewaresProcessing(routeString, routeObject, args);
 
-            var triggerValue = routeOptions.triggerNavigate === true ? true : false,
-                processedRoute = this.router._replaceRouteString(routeString, params);
+            //check if the navigate option is set to false to prevent from change the navigation url
+            if (routeObject.navigate !== false) {
+                //update the url
+                this._navigateTo.call(this, routeString, routeObject, args);
+            }
 
-            this.router.navigate(processedRoute, {
-                trigger: triggerValue
-            });
-
+            this.invokeViewControllerRender(routeObject, args, handlerName);
         }
+
+    },
+    //Update the url with the specified parameters.
+    //If triggerNavigate option is set to true, the route callback will be fired adding an entry to the history.
+    _navigateTo: function(routeString, routeOptions, params) {
+
+        var triggerValue = routeOptions.triggerNavigate === true ? true : false,
+            processedRoute = this.router._replaceRouteString(routeString, params);
+
+        this.router.navigate(processedRoute, {
+            trigger: triggerValue
+        });
+
     },
     //RouteFilters Middlewares handlers processor
     _routeFilterProcessing: function(routeString, routeOptions, params) {
