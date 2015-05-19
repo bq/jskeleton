@@ -304,6 +304,12 @@ module.exports = function(grunt) {
                     'metrics': ['src/**/*.js', 'test/**/*.js']
                 }
             }
+        },
+
+        coveralls: {
+            'default': {
+                src: 'coverage/lcov.info'
+            }
         }
         // end - code coverage settings
     });
@@ -359,6 +365,10 @@ module.exports = function(grunt) {
         'makeReport'
     ]);
 
+    grunt.registerTask('coveralls', [
+        'coveralls'
+    ]);
+
     grunt.registerTask('build', [
         'jshint:all',
         'clean:dist',
@@ -378,6 +388,4 @@ module.exports = function(grunt) {
         'test',
         'build'
     ]);
-
-
 };

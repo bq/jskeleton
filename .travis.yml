@@ -7,3 +7,5 @@ before_script:
   - bower install
 script:
   - grunt test
+  - grunt coverage
+  - grunt coveralls
