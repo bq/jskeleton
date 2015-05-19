@@ -277,10 +277,12 @@
 .class-link {
   display: block;
   padding: 8px 12px;
+    &.active {
+        border-left: 2px solid $brand-color;
+    }
 }
 
 .class__link--index {
-    display: block;
     color: #4695cb;
     text-decoration: underline;
     padding: 1px;

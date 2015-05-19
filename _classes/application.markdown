@@ -7,9 +7,16 @@ submenu:
   - Application.regions: "#regions"
   - Application.viewController: "#ViewController"
   - Application.applications: "#child-applications"
-  - Application.channels: "#channels"
   - Application.routes: "#routes"
-  - View controller handler: "#view-controller-handler"
+  - Application.di: "#application-di"
+  - Application channels: "#channels"
+  - navigate: "#ravigate"
+  - triggerNavigate: "#triggerNavigate"
+  - handlerName; "#handlerName"
+  - Middleware:
+  - Filters
+  - template
+  - viewController
 ---
 
  `JSkeleton.Application` es un contenedor donde almacenar y dividir en pequeñas partes la lógica de tu aplicación web, haciéndola más reusable, desacoplada y escalable.
@@ -167,9 +174,9 @@ app.globalChannel.trigger();
     {% endhighlight %}
 
 
-##Routes
+##routes
 
-Cada aplicación, ya sea `Jskeleton.Application` o `Jskeleton.ChildApplication`, define sus rutas y estados.
+Cada aplicación, ya sea `Jskeleton.Application` o `Jskeleton.ChildApplication`, define sus rutas y estados a través de la propiedad **_routes_**.
 
     {% highlight javascript %}
     var ExampleApp = Jskeleton.ChildApplication.extend({
@@ -188,7 +195,7 @@ Cada aplicación, ya sea `Jskeleton.Application` o `Jskeleton.ChildApplication`,
 
 Las rutas y eventos de una aplicación no se inician hasta que no se hace un _start()_ de la misma.
 
-Es posible especificar un `Jskeleton.ViewController` para cada ruta. Si no se define ningún `Jskeleton.ViewController`, se inyectará uno por defecto usando el template de la ruta. Es recomendable el uso de _jskeleton dependency injection_ para definir dependencias.
+Es posible especificar un `Jskeleton.ViewController` para cada ruta. Si no se define ningún `Jskeleton.ViewController`, se inyectará uno por defecto usando el template especificado para dicha ruta.
 
     {% highlight javascript %}
     var ExampleApp = Jskeleton.ChildApplication.extend({
@@ -201,11 +208,17 @@ Es posible especificar un `Jskeleton.ViewController` para cada ruta. Si no se de
     });
     {% endhighlight %}
 
-El `Jskeleton.ViewController` es _renderizado_ en la región definida para la aplicación. En el caso de tratarse de una `Jskeleton.Application`, el `Jskeleton.ViewController` se renderizará en la región principal para esa aplicación.
+Si no se especifica ningun template en la ruta, el `Jskeleton.ViewController` declarado para dicha ruta tiene que tener un template asociado. 
 
-Si se trata de una `Jskeleton.ChildApplication` se renderizará en la región de la aplicación padre que nosotros le hayamos especificado al declararla como aplicación hija.
+Es recomendable el uso de _jskeleton dependency injection_ para definir dependencias.
 
-Para cada ruta podemos definir el evento de navegación que va a provocar esa ruta. De este modo, cuándo otra aplicación lance dicho evento a nivel global, nuestra aplicación lo procesará como si de una ruta se tratase. Ésto conllevará el renderizado del `Jskeleton.ViewController` (con el template y la región especificada) y la actualización de la ruta de forma automática (mapeando los parámetros que recibimos a través del evento con los parametros que se han definido en la ruta).
+El `Jskeleton.ViewController` es _renderizado_ en la región de la aplicación en la que es usado. 
+
+En el caso de tratarse de una `Jskeleton.Application`, el `Jskeleton.ViewController` se renderizará en la región principal de esa aplicación.
+
+Si se trata de una `Jskeleton.ChildApplication` se renderizará en la región de la aplicación padre que nosotros le hayamos especificado al declararla como aplicación hija (por defecto la región principal de la aplicación padre).
+
+Para cada ruta podemos definir el evento de navegación que va a provocar esa ruta. De este modo, cuándo otra aplicación lance dicho evento por el canal global, nuestra aplicación lo procesará como si de una ruta se tratase. Ésto conllevará el renderizado del `Jskeleton.ViewController` y la actualización de la ruta de forma automática (mapeando los parámetros que recibimos a través del evento con los parametros que se han definido en la ruta).
 
     {% highlight javascript %}
     var ExampleApp = Jskeleton.ChildApplication.extend({
@@ -228,4 +241,123 @@ Para cada ruta podemos definir el evento de navegación que va a provocar esa ru
 
     //La aplicación ExampleApp procesaría el evento como si de una ruta se tratase, y actualizaría la ruta del navegador con los parámetros obtenidos del evento:
     // 'backbone/route/ejemplo/15'
+    {% endhighlight %}
+
+###navigate
+
+Si se especifica la opción **_navigate_** a false (por defecto a true) dentro de la ruta de la aplicación, cuándo se procese un evento asociado a esa ruta, no se actualizará la url del navegador con dicha ruta.
+    
+    {% highlight javascript %}
+    
+    var ExampleApp = Jskeleton.ChildApplication.extend({
+        routes: {
+            'backbone/route/:with/:params': {
+                'template': '<div></div>'
+                viewController: ViewControllerClass,
+                eventListener: 'backbone:navigate:event',
+                navigate: false
+            }
+        }
+    });
+
+    {% endhighlight %}
+
+###triggerNavigate
+
+Si se especifica la opción **_triggerNavigate_** a true (por defecto a false) dentro de la ruta de la aplicación, cuándo se procese un evento asociado a esa ruta, se actualizará la ruta lanzando el route callback y añadiendo una entrada nueva en el historial de navegación.
+    
+    {% highlight javascript %}
+    
+    var ExampleApp = Jskeleton.ChildApplication.extend({
+        routes: {
+            'backbone/route/:with/:params': {
+                'template': '<div></div>'
+                viewController: ViewControllerClass,
+                eventListener: 'backbone:navigate:event',
+                navigate: false
+            }
+        }
+    });
+
+    {% endhighlight %}
+
+
+###handlerName
+
+Como opción de ruta se puede especificar el nombre del método del `Jskeleton.ViewController` que se quiere invocar antes de renderizar el `Jskeleton.ViewController`. 
+
+    {% highlight javascript %}
+
+    var ViewControllerClass = JSkeleton.ViewController.extend({
+        inflateContext: function(){
+            //expose models and collections to the context
+        }
+    });
+    
+    var ExampleApp = Jskeleton.ChildApplication.extend({
+        routes: {
+            'backbone/route/:with/:params': {
+                viewController: ViewControllerClass,
+                handlerName: 'inflateContext'
+            }
+        }
+    });
+
+    {% endhighlight %}
+
+Si no se especifica el nombre del método, por defecto `JSkeleton` invocará el método en camel case resultante de parsear la ruta desde su primer parametro hasta el principio de la ruta, ejemplo:
+
+    {% highlight javascript %}
+
+    var ViewControllerClass = JSkeleton.ViewController.extend({
+        onBackboneRoute: function(){
+            //expose models and collections to the context
+        }
+    });
+    
+    var ExampleApp = Jskeleton.ChildApplication.extend({
+        routes: {
+            'backbone/route/:with/:params': {
+                viewController: ViewControllerClass,
+            }
+        }
+    });
+
+    {% endhighlight %}
+
+##Application Di
+
+Cada aplicación resuelve su propias dependencias a través de su inyector, de tal forma que aquellas dependencias que sean instanciadas dentro de una aplicación (`Jskeleton.ViewController`, `Jskeleton` Components etc.) serán resueltas como las dependencias de la aplicación.
+
+Estas dependencias son:
+
+-   **_app**: La aplicación que está usando dicho objeto
+-   **_privateChannel**: El canal privado `Backbone.Radio` para esa aplicación
+-   **_globalChannel**: El canal global `Backbone.Radio` para esa aplicación
+-   **_scope**: Un objeto javascript para compartir variables dentro de una aplicación.
+
+
+
+Ejemplo:
+
+{% highlight javascript %}
+
+    var ViewControllerClass = JSkeleton.ViewController.factory('ViewController',function(_app,_privateChannel,_scope){
+        return {
+            onBackboneRoute: function(){
+                _scope.hello = "hello";
+                //expose models and collections to the context
+            }
+        }
+    });
+    
+    var ExampleApp = Jskeleton.ChildApplication.extend({
+        routes: {
+            'backbone/route/:with/:params': {
+                viewController: ViewControllerClass,
+                template: '<div></div>'
+            }
+        }
+    });
+
     {% endhighlight %}
