@@ -18,7 +18,6 @@ module.exports = function(grunt) {
     require('load-grunt-tasks')(grunt);
 
 
-
     // Configurable paths
     var config = {
         src: 'src',
@@ -310,8 +309,47 @@ module.exports = function(grunt) {
             'default': {
                 src: 'coverage/lcov.info'
             }
-        }
+        },
         // end - code coverage settings
+        /*jshint camelcase: false */
+        dom_munger: {
+            annotated: {
+              options: {
+                callback: function($){
+                    var container = $('#container');
+                    $('html').replaceWith(container);
+                    $('#container').html($('#container').html().replace('{{','{ {'));
+                }
+              },
+              src: './docs/<%= pkg.name %>_lite.html',
+              dest: './docs/annotated.html'
+            }
+        },
+        /*jshint camelcase: true */
+        bump: {
+            options: {
+                files: ['bower.json'],
+                updateConfigs: ['bw'],
+                commit: true,
+                commitMessage: 'Release v%VERSION%',
+                commitFiles: ['bower.json', 'CHANGELOG.md'],
+                createTag: true,
+                tagName: 'v%VERSION%',
+                tagMessage: 'Version %VERSION%',
+                push: true,
+                pushTo: '<%= bw.repository.url %>',
+                gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d',
+                globalReplace: false,
+                prereleaseName: false,
+                regExp: false
+            }
+        },
+        changelog: {
+            options: {
+                version: '<%= bw.version %>',
+                repository: '<%= bw.repository.url %>'
+            }
+        },
     });
 
 
@@ -378,6 +416,30 @@ module.exports = function(grunt) {
     grunt.registerTask('metrics', [
         'plato'
     ]);
+
+    grunt.registerTask('_commit', [
+        'changelog',
+        'bump-commit'
+    ]);
+
+    grunt.registerTask('annotated', [
+        'docco',
+        'dom_munger'
+        ]);
+
+    grunt.registerTask('release', function(version) {
+        var semVer = /\bv?(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?\b/ig;
+
+        if (!semVer.test(version)) {
+            grunt.option('setversion', false);
+            grunt.task.run('bump-only:' + version);
+        } else {
+            grunt.option('setversion', version);
+            grunt.task.run('bump-only');
+        }
+
+        grunt.task.run('_commit');
+    });
 
     grunt.registerTask('default', [
         'newer:jshint',
