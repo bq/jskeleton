@@ -249,13 +249,19 @@ describe('Helper "if" when', function() {
         });
     });
 
-    it('uses an invalid operator', function() {
-
+    it('it uses an invalid operator', function() {
         var html = '{{#if 1 "=" 1}}true{{else}}false{{/if}}';
-
         var template = Marionette.Renderer.render(html, {});
-
         expect(template.textContent).to.equal('false');
+    });
+
+    it('it uses a valid operator but not second parameter', function(){
+        var html = '{{#if 1 "==="}}true{{else}}false{{/if}}';
+        var error = 'If template helper error: If you define a operator, you must define a second parameter.';
+
+        expect(function () {
+            return Marionette.Renderer.render(html, {});
+        }).to.throw(error);
     });
 
 });

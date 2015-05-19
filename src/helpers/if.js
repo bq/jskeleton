@@ -7,7 +7,7 @@
          if (operator) {
 
              if (!param2) {
-                 throw new Error('If template helper error: If you define a operator, you must define a second parammeter');
+                 throw new Error('If template helper error: If you define a operator, you must define a second parameter.');
              }
 
              switch (operator) {
