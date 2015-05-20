@@ -1,3 +1,6 @@
+/*globals require,define,describe,it, JSkeleton, before */
+/* jshint unused: false */
+
 describe('Dependency Injector', function() {
     'use strict';
     var sandbox = sinon.sandbox.create();
@@ -82,6 +85,13 @@ describe('Dependency Injector', function() {
             expect(spy.calledOnce).to.be.equal(true);
         });
 
+        it('should be called create method of DI with first param is a string', function() {
+            //var spy = sandbox.spy(this.DI, 'create');
+            var factoryObj = this.DI.create('fooService', undefined, {});
+            expect(factoryObj instanceof JSkeleton.Service).to.be.equal(true);
+        });
+
+
         it('should be called _resolve method of DI with parameters', function() {
             var spy = sandbox.spy(this.DI, '_resolve');
             this.DI.create({
@@ -98,6 +108,114 @@ describe('Dependency Injector', function() {
             expect(spy.calledOnce).to.be.equal(true);
         });
 
+    });
+
+    describe('when store method is called', function() {
+        // empty factory
+        JSkeleton.factory.empty();
+
+        JSkeleton.Service.factory('fooService', {
+            say: function() {
+                return 'hello';
+            }
+        });
+
+        it('should be called store method of DI with factoryKey', function() {
+            this.DI = new JSkeleton.Di();
+            var instance = this.DI.store('fooService');
+            expect(instance instanceof JSkeleton.Service).to.be.equal(true);
+        });
+
+    });
+
+    describe('when _resolve method is called', function() {
+
+        beforeEach(function() {
+            this.DI = new JSkeleton.Di();
+        });
+
+        // empty factory
+        JSkeleton.factory.empty();
+
+        JSkeleton.Service.factory('fooService', {
+
+            say: function() {
+                return 'hello';
+            }
+        });
+
+        it('should be called _resolve method of DI without parameters', function() {
+            var that = this;
+            expect(function() {
+                that.DI._resolve();
+            }).to.throw('JSkeleton.DI: Unknown dependency');
+        });
+
+        it('should be called _resolve method of DI with dependencies', function() {
+            var fooServiceObj = JSkeleton.factory.get('fooService'),
+                that = this;
+
+            fooServiceObj.dependencies = [{
+                key: 1
+            }];
+
+            expect(function() {
+                that.DI._resolve(fooServiceObj);
+            }).to.throw('JSkeleton.DI: Unknown parent class.');
+        });
+
+        it('should be called _resolveDependencies method', function() {
+            var fooServiceObj = JSkeleton.factory.get('fooService');
+            fooServiceObj.dependencies = [{
+                key: 1
+            }];
+
+            fooServiceObj.Parent = 1;
+
+
+            var stub = sandbox.stub(this.DI, '_resolveDependencies');
+            this.DI._resolve(fooServiceObj);
+
+            expect(stub.calledOnce).to.be.equal(true);
+        });
+
+    });
+
+
+    describe('when _resolveDependencies is called', function() {
+
+        beforeEach(function() {
+            this.DI = new JSkeleton.Di();
+        });
+
+        // empty factory
+        JSkeleton.factory.empty();
+
+        JSkeleton.Service.factory('fooService', {
+
+            say: function() {
+                return 'hello';
+            }
+        });
+
+        it('intance has all properties and methods', function() {
+            expect(JSkeleton.Di).to.include.keys(
+                'extractDependencyNames'
+            );
+        });
+
+        it('should be called extractDependencyNames method', function() {
+            var options = {
+                Class: JSkeleton.factory.get('fooService').constructor,
+                Parent: Marionette.Object,
+                dependencies: [{
+                    key: 1
+                }]
+            };
+
+            var stub = sandbox.stub(this.DI, '_getDependency');
+            expect(this.DI._resolveDependencies(options, {})).to.be.an('object');
+        });
     });
 
 });

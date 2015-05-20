@@ -59,13 +59,14 @@ JSkeleton.Di = Marionette.Object.extend({
         return this._resolve.apply(this, [FactoryObject].concat(Array.prototype.slice.call(arguments, 1)));
     },
     _resolve: function(FactoryObject, extendProperties /*, args..*/ ) {
+        if (!FactoryObject || !FactoryObject.Class) {
+            throw new Error(JSkeleton.Di.NoDependencyError);
+        }
+
         var constructorArgs = Array.prototype.slice.call(arguments, 2),
             dependency,
             Class = FactoryObject.Class;
 
-        if (!FactoryObject || !FactoryObject.Class) {
-            throw new Error(JSkeleton.Di.NoDependencyError);
-        }
 
         //the dependency object has dependencies
         if (typeof FactoryObject.Class === 'function' && FactoryObject.dependencies) {
