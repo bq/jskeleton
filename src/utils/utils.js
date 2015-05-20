@@ -49,13 +49,13 @@ utils.extractComponentEvents = function(events) {
 // a given key for triggers and events
 // swaps the @component with the associated component object.
 // Returns a new, parsed components event hash, and mutate the object events hash.
-utils.normalizeComponentKeys = function(events, components) {
-    return _.reduce(events, function(memo, val, key) {
-        var normalizedKey = Marionette.normalizeComponentString(key, components);
-        memo[normalizedKey] = val;
-        return memo;
-    }, {});
-};
+// utils.normalizeComponentKeys = function(events, components) {
+//     return _.reduce(events, function(memo, val, key) {
+//         var normalizedKey = Marionette.normalizeComponentString(key, components);
+//         memo[normalizedKey] = val;
+//         return memo;
+//     }, {});
+// };
 
 
 var BackboneExtend = Backbone.Model.extend;
