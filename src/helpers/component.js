@@ -17,7 +17,7 @@
              componentData;
 
          if (!componentName) {
-             throw new Error('Tienes que definir un nombre de clase');
+             throw new Error('You must define a Component Class Name.');
          }
 
          //omit component factory name
@@ -31,7 +31,7 @@
          component = JSkeleton.factory.new(componentName, componentData);
 
          if (!component || typeof component !== 'object') {
-             throw new Error('No se ha podido crear el componente');
+             throw new Error('It is not possible create the component.');
          }
 
          viewInstance.addComponent(componentName, component);
