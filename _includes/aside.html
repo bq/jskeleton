@@ -46,7 +46,7 @@
 
         {% for class in aside %}
             {% if class.title %}
-                <li class="aside-nav__item {% if page.title == class.title %} active {% endif %}">
+                <li class="aside-nav__item {% if page.title == class.title %} active{% endif %}" {% if page.title == class.title %} id="active-menu-li" {% endif %}">
                     <a class="class-link" href="{{ class.url | prepend: site.baseurl }}">{{ class.title }}</a>
 
                     {% if page.title == class.title %}
