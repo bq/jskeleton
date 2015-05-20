@@ -3,18 +3,15 @@
 describe('In Component module', function() {
 
     var sandbox = sinon.sandbox.create(),
-        stubNewFactory,
         modelTest,
-        ModelComponent,
         ViewComponent,
         ViewListComponent,
         ViewControllerComponent,
-        MainApp,
-        testApp;
+        ViewController;
 
     beforeEach(function() {
 
-        ModelComponent = Backbone.Model.extend({
+        var ModelComponent = Backbone.Model.extend({
             title: '',
             author: ''
         });
@@ -57,7 +54,7 @@ describe('In Component module', function() {
             }
         });
 
-        stubNewFactory = sandbox.stub(JSkeleton.factory, 'new', function() {
+        var stubNewFactory = sandbox.stub(JSkeleton.factory, 'new', function() {
             return new ViewComponent();
         }).withArgs('ViewComponent');
 
@@ -76,57 +73,97 @@ describe('In Component module', function() {
             onEventComponent: function() {}
         });
 
-        var ChildApp = JSkeleton.ChildApplication.extend({
-            routes: {
-                '': {
-                    viewControllerClass: ViewControllerComponent,
-                    template: '{{@component name="ViewComponent" model=context.model}}'
-                },
-
-                'book/list': {
-                    viewControllerClass: ViewControllerComponent,
-                    template: '{{@component name="ViewListComponent"}}',
-                    eventListener: 'come:back'
-                }
-            }
-        });
-
-        var ViewController = JSkeleton.ViewController.extend({
+        ViewController = JSkeleton.ViewController.extend({
             regions: {
                 content: '.content'
             }
-        });
-
-        MainApp = JSkeleton.Application.extend({
-            viewController: {
-                viewControllerClass: ViewController,
-                template: '<div class="content"></div>'
-            },
-            applications: {
-                'chilApp': {
-                    applicationClass: ChildApp,
-                    region: 'content'
-                }
-            }
-        });
-
+        });        
     });
 
     afterEach(function() {
         sandbox.restore();
     });
 
+    describe('when define a new component ', function () {
+
+        var MainErrorApp;
+
+        beforeEach(function(){
+            var templateErrorClassName ='{{@component model=context.model}}';
+            var ChildAppError = JSkeleton.ChildApplication.extend({
+                routes: {
+                    '': {
+                        viewControllerClass: ViewControllerComponent,
+                        template: templateErrorClassName
+                    }
+                }
+            });
+            MainErrorApp = JSkeleton.Application.extend({
+                viewController: {
+                    viewControllerClass: ViewController,
+                    template: '<div class="content"></div>'
+                },
+                applications: {
+                    'chilApp': {
+                        applicationClass: ChildAppError,
+                        region: 'content'
+                    }
+                }
+            });
+        });
+
+        it('but without Class Name Component', function(){
+            var error = 'You must define a Component Class Name.';
+            var testErrorApp = new MainErrorApp();
+
+            expect(function () {
+                return testErrorApp.start();
+            }).to.throw(error);
+        });
+    });
+
     describe('when define a new component,', function() {
         var renderSpy,
             eventComponentSpy,
             eventViewControllerSpy,
-            eventChannelSpy;
+            eventChannelSpy,
+            MainApp,
+            testApp;
 
         beforeEach(function() {
             renderSpy = sinon.spy(ViewComponent.prototype, 'onRender');
             eventComponentSpy = sinon.spy(ViewComponent.prototype, 'onActionBuy');
             eventViewControllerSpy = sinon.spy(ViewControllerComponent.prototype, 'onEventComponent');
             eventChannelSpy = sinon.spy(ViewListComponent.prototype, 'onRender');
+
+            var templateCorrectComponent = '{{@component name="ViewComponent" model=context.model}}';
+            var ChildApp = JSkeleton.ChildApplication.extend({
+                routes: {
+                    '': {
+                        viewControllerClass: ViewControllerComponent,
+                        template: templateCorrectComponent
+                    },
+
+                    'book/list': {
+                        viewControllerClass: ViewControllerComponent,
+                        template: '{{@component name="ViewListComponent"}}',
+                        eventListener: 'come:back'
+                    }
+                }
+            });
+
+            MainApp = JSkeleton.Application.extend({
+                viewController: {
+                    viewControllerClass: ViewController,
+                    template: '<div class="content"></div>'
+                },
+                applications: {
+                    'chilApp': {
+                        applicationClass: ChildApp,
+                        region: 'content'
+                    }
+                }
+            });
 
             testApp = new MainApp();
             testApp.start();
