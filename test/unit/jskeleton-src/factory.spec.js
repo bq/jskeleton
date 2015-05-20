@@ -34,10 +34,36 @@ describe('In Factory module', function() {
             expect(factory.getClass('myBackboneView')).to.be.equal(myBackboneView);
         });
 
+        it('we cannot get an object no registered using getClass', function() {
+            expect(function(){
+                factory.getClass('noBackboneView');
+            }).to.throw('UndefinedFactoryObject - noBackboneView');
+        });
+
+        it('we cannot get an object no registered using get', function() {
+            expect(function(){
+                factory.get('noBackboneView');
+            }).to.throw('UndefinedFactoryObject - noBackboneView');
+        });
+
         it('we can instantiate', function() {
             var myBackboneModel = Backbone.Model.extend({});
             expect(factory.add('myBBModel', myBackboneModel));
             expect(factory.new('myBBModel')).to.be.an('object');
+        });
+
+        it('we can instantiate using a function', function() {
+            var myBackboneModel = Backbone.Model.extend({});
+            expect(factory.new(function(){
+                factory.add('myBBModel2', myBackboneModel);
+            })).to.be.an('object');
+        });
+
+        it('we cannot register and object already registered', function() {
+            var myBackboneModel = Backbone.Model.extend({});
+            expect(function(){
+                factory.add('myBBModel', myBackboneModel);
+            }).to.throw('AlreadyDefinedFactoryObject - myBBModel');
         });
 
         it('list all objects classes', function() {
