@@ -103,8 +103,8 @@ describe('Common module', function() {
 
     it('can retrieve setted fields', function() {
 
-        common.setConfig(CFG);
-        expect(common.get('test')).to.be.equal('TEST');
+        common.set('test', 'TEST-SETTED');
+        expect(common.get('test')).to.be.equal('TEST-SETTED');
 
     });
 
