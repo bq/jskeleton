@@ -8,27 +8,31 @@
             'underscore',
             'backbone',
             'backbone.marionette',
+            'es6-promise',
             'backbone.radio'
-        ], function($, _, Backbone, Marionette) {
-            return factory.call(root, root, $, _, Backbone, Marionette);
+        ], function($, _, Backbone, Marionette, Promise) {
+            Promise.polyfill();
+            return factory.call(root, root, $, _, Backbone, Marionette, Promise);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         var $ = require('jquery'),
             _ = require('underscore'),
             Backbone = require('backbone'),
+            Promise = require('es6-promise'),
             radio = require('backbone.radio');
 
         Backbone.$ = $;
+        Promise.polyfill();
 
         var Marionette = require('backbone.marionette'),
-            JSkeleton = factory(root, $, _, Backbone, Marionette);
+            JSkeleton = factory(root, $, _, Backbone, Marionette, Promise);
 
         module.exports = JSkeleton;
     } else if (root !== undefined) {
-        root.JSkeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
+        root.JSkeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette, root.Promise);
     }
 
-})(this, function(root, $, _, Backbone, Marionette) {
+})(this, function(root, $, _, Backbone, Marionette, Promise) {
     'use strict';
     /*globals require,requireModule */
     /* jshint unused: false */
@@ -47,13 +51,14 @@
         render: requireModule('htmlbars-runtime').render
     };
 
+    JSkeleton.Promise = Promise;
+
     //  @include ../core/renderer.js
     //  @include ../helpers/html-bars.js
     //  @include ../helpers/component.js
     //  @include ../helpers/if.js
     //  @include ../helpers/each.js
     //  @include ../utils/utils.js
-    //  @include ../utils/plugin.js
     //  @include ../utils/extension.js
     //  @include ../utils/factory.js
     //  @include ../utils/common.js
@@ -75,6 +80,7 @@
     //  @include ../core/view-controller.js
 
     JSkeleton.di = new JSkeleton.Di();
+    JSkeleton.extension = new JSkeleton.Extension();
 
     return JSkeleton;
 
