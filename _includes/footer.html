@@ -82,11 +82,11 @@
 <script type="text/javascript">
     $(document).ready(function() {
 
-        $('#main_content').toc({
-            showEffect: 'none',
-            submenuTitle: "{{ page.title  }}.",
-            aClass: "class__link--index"
-        });
+        // $('#main_content').toc({
+        //     showEffect: 'none',
+        //     submenuTitle: "{{ page.title  }}.",
+        //     aClass: "class__link--index"
+        // });
 
         // $('#aside-menu').toc(
         //     {
@@ -97,6 +97,59 @@
         //         showEffect: "none"
         //     }
         //     );
+
+      var title = {{ page.title | jsonify}};
+      var submenu = {{ page.submenu | jsonify }};
+
+      var asideClasses = {
+        ul: "",
+        li: "aside-subnav__item",
+        a: "class-link-aside"
+      };
+      var textClasses = {
+        ul: "",
+        li: "",
+        a: "class__link--index"
+      }
+
+      function createLi(html, href, classes){
+          var li = document.createElement("li");
+          var anchor = document.createElement("a");
+
+          anchor.setAttribute("href", href);
+          anchor.innerHTML = html;
+
+          asideUl.className = classes.ul;
+          li.className = classes.li;
+          anchor.className = classes.a;
+
+          li.appendChild(anchor);
+
+          return li;
+      };
+
+      var asideUl = document.createElement("ul");
+        $.each(submenu, function(key,value){
+
+            if (typeof value === "string"){
+              var li = createLi(key, value, asideClasses)
+
+              asideUl.appendChild(li);
+            }else{
+              var li = createLi(key, value[0], asideClasses);
+              asideUl.appendChild(li);
+
+              var textUl = document.createElement("ul");
+
+              $.each(value[1], function(textKey,textValue){
+                  var textLi = createLi(textKey, textValue, textClasses);
+
+                  textUl.appendChild(textLi);
+              });
+              $(value[0]).after(textUl);
+            }
+        document.getElementById("active-menu-li").appendChild(asideUl);
+        });
     });
 </script>
 

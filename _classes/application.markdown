@@ -2,21 +2,22 @@
 layout: api
 title:  "Application"
 submenu:
-  - Application.el: "#el"
-  - Application.mainRegionName: "#application-main-region"
-  - Application.regions: "#regions"
-  - Application.viewController: "#ViewController"
-  - Application.applications: "#child-applications"
-  - Application.routes: "#routes"
-  - Application.di: "#application-di"
-  - Application channels: "#channels"
-  - navigate: "#ravigate"
-  - triggerNavigate: "#triggerNavigate"
-  - handlerName; "#handlerName"
-  - Middleware:
-  - Filters
-  - template
-  - viewController
+  Application.el: "#el"
+  Application.mainRegionName: "#application-main-region"
+  Application.regions: "#regions"
+  Application.viewController: "#ViewController"
+  Application.applications: "#child-applications"
+  Application.routes: "#routes"
+  Application.di: "#application-di"
+  Application channels:
+    - "#channels"
+    - navigate: "#navigate"
+      triggerNavigate: "#triggerNavigate"
+      handlerName: "#handlerName"
+  Middleware: ""
+  Filters: ""
+  template: ""
+  viewController: ""
 ---
 
  `JSkeleton.Application` es un contenedor donde almacenar y dividir en pequeñas partes la lógica de tu aplicación web, haciéndola más reusable, desacoplada y escalable.
@@ -61,7 +62,7 @@ Todas las `Jskeleton.Application` tienen una región raíz/principal (por defect
 Cada aplicación puede definir regiones de forma declarativa o de forma dinámica:
 
     {% highlight javascript %}
-        
+
         //Declarative Way
 var ExampleApp = Jskeleton.Application.extend({
     regions: {
@@ -144,7 +145,7 @@ app.start(); //explicit start (the child application chat will be started to but
 A su vez, es posible añadir aplicaciones bajo demanda. Por defecto, esta nueva aplicación se iniciará al añadirse, a no ser que tenga flag `startWithParent: false`, que habrá que arrancarla de forma explícita.
 
     {% highlight javascript %}
-    
+
     var app = new ExampleApp();
 
 var ChildApp = Jskeleton.ChildApplication.extend({});
@@ -208,11 +209,11 @@ Es posible especificar un `Jskeleton.ViewController` para cada ruta. Si no se de
     });
     {% endhighlight %}
 
-Si no se especifica ningun template en la ruta, el `Jskeleton.ViewController` declarado para dicha ruta tiene que tener un template asociado. 
+Si no se especifica ningun template en la ruta, el `Jskeleton.ViewController` declarado para dicha ruta tiene que tener un template asociado.
 
 Es recomendable el uso de _jskeleton dependency injection_ para definir dependencias.
 
-El `Jskeleton.ViewController` es _renderizado_ en la región de la aplicación en la que es usado. 
+El `Jskeleton.ViewController` es _renderizado_ en la región de la aplicación en la que es usado.
 
 En el caso de tratarse de una `Jskeleton.Application`, el `Jskeleton.ViewController` se renderizará en la región principal de esa aplicación.
 
@@ -246,9 +247,9 @@ Para cada ruta podemos definir el evento de navegación que va a provocar esa ru
 ###navigate
 
 Si se especifica la opción **_navigate_** a false (por defecto a true) dentro de la ruta de la aplicación, cuándo se procese un evento asociado a esa ruta, no se actualizará la url del navegador con dicha ruta.
-    
+
     {% highlight javascript %}
-    
+
     var ExampleApp = Jskeleton.ChildApplication.extend({
         routes: {
             'backbone/route/:with/:params': {
@@ -265,9 +266,9 @@ Si se especifica la opción **_navigate_** a false (por defecto a true) dentro d
 ###triggerNavigate
 
 Si se especifica la opción **_triggerNavigate_** a true (por defecto a false) dentro de la ruta de la aplicación, cuándo se procese un evento asociado a esa ruta, se actualizará la ruta lanzando el route callback y añadiendo una entrada nueva en el historial de navegación.
-    
+
     {% highlight javascript %}
-    
+
     var ExampleApp = Jskeleton.ChildApplication.extend({
         routes: {
             'backbone/route/:with/:params': {
@@ -284,7 +285,7 @@ Si se especifica la opción **_triggerNavigate_** a true (por defecto a false) d
 
 ###handlerName
 
-Como opción de ruta se puede especificar el nombre del método del `Jskeleton.ViewController` que se quiere invocar antes de renderizar el `Jskeleton.ViewController`. 
+Como opción de ruta se puede especificar el nombre del método del `Jskeleton.ViewController` que se quiere invocar antes de renderizar el `Jskeleton.ViewController`.
 
     {% highlight javascript %}
 
@@ -293,7 +294,7 @@ Como opción de ruta se puede especificar el nombre del método del `Jskeleton.V
             //expose models and collections to the context
         }
     });
-    
+
     var ExampleApp = Jskeleton.ChildApplication.extend({
         routes: {
             'backbone/route/:with/:params': {
@@ -314,7 +315,7 @@ Si no se especifica el nombre del método, por defecto `JSkeleton` invocará el 
             //expose models and collections to the context
         }
     });
-    
+
     var ExampleApp = Jskeleton.ChildApplication.extend({
         routes: {
             'backbone/route/:with/:params': {
@@ -350,7 +351,7 @@ Ejemplo:
             }
         }
     });
-    
+
     var ExampleApp = Jskeleton.ChildApplication.extend({
         routes: {
             'backbone/route/:with/:params': {
