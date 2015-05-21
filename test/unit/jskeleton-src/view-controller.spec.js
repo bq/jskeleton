@@ -128,6 +128,11 @@ describe('In view-controller ', function() {
                 this.mainRegion.show(this.viewController);
             });
 
+            it('but view-controller does not have a region where rendering ', function() {
+                    var error = 'You must to define a region where the view-controller will be rendered.';
+                    expect(this.viewController.show.bind(this.viewController, undefined, 'contextMethod')).to.throw(error);
+            });
+
             it('it is rendered', function() {
                 expect(this.viewController.isRendered).to.be.true;
             });
@@ -275,6 +280,7 @@ describe('In view-controller ', function() {
                     $('.test-layer').remove();
                 });
 
+                
                 it('view-controller is re-render ', function(done) {
                     var that = this;
 

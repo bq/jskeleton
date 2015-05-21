@@ -21,7 +21,7 @@
         },
         _ensureOptions: function(options) {
             if (!options.app) {
-                throw new Error('El view-controller necesita tener la referencia a su application');
+                throw new Error('View-controller needs to have the reference to its application');
             }
         },
         //Show the view-controller in a specified region.
@@ -117,7 +117,7 @@
             var handler = this[handlerName];
 
             if (!handler || typeof handler !== 'function') {
-                throw new Error('Tienes que definir un método valido como handler del evento de la vista');
+                throw new Error('You have to define a valid method as handler of event view');
             }
 
             if (component && component.isDestroyed !== true) {
