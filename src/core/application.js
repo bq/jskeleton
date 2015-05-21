@@ -168,7 +168,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
 
         //Start child application
         if (startWithParent === true) {
-            this.startChildApp(instance, instanceOptions.startOptions);
+            this.startChildApplication(instance, instanceOptions.startOptions);
         }
     },
     //Get the region where a `JSkeleton.ChildApplication` will be rendered when process a route or an event
@@ -194,11 +194,11 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         return region;
     },
     //Method to explicit start a child app instance
-    startChildApp: function(childApp, options) {
+    startChildApplication: function(childApp, options) {
         childApp.start(options);
     },
     //Get child app instance by name
-    getChildApp: function(appName) {
+    getChildApplication: function(appName) {
         return this._childApps[appName];
     }
 });

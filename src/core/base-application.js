@@ -29,7 +29,7 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
             this._use('middlewares', this.middlewares);
         }
         //generate application id
-        this.aid = this.getAppId();
+        this.aid = this._getAppId();
 
         this.router = JSkeleton.Router.getSingleton();
 
@@ -99,7 +99,7 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
         return new JSkeleton.Hook();
     },
     //Generate unique app id using underscore uniqueId method
-    getAppId: function() {
+    _getAppId: function() {
         return _.uniqueId('a');
     },
     _addApplicationDependencies: function() {

@@ -151,8 +151,8 @@ describe('Application object', function() {
         });
 
         it('can get all it`s child applications instances by name', function() {
-            this.childAppStart = this.application.getChildApp('childAppStart');
-            this.childAppNotStart = this.application.getChildApp('childAppNotStart');
+            this.childAppStart = this.application.getChildApplication('childAppStart');
+            this.childAppNotStart = this.application.getChildApplication('childAppNotStart');
 
             expect(this.childAppStart).to.be.instanceof(this.ChildApp);
             expect(this.childAppNotStart).to.be.instanceof(this.ChildAppNotStart);
