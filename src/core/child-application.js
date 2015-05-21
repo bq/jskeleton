@@ -18,7 +18,7 @@ JSkeleton.ChildApplication = JSkeleton.BaseApplication.extend({
         this.parentApp = options.parentApp;
 
         if (!options.region) {
-            throw new Error('La child app tiene que tener una region específica');
+            throw new Error('Child App must have a specific region.');
         }
 
         //Add the injected region as root
@@ -51,7 +51,7 @@ JSkeleton.ChildApplication = JSkeleton.BaseApplication.extend({
     //Private method to ensure that parent region exists
     _ensureMainRegion: function() {
         if (!this.mainRegion || typeof this.mainRegion.show !== 'function') {
-            throw new Error('Tienes que definir una region para la Child Application');
+            throw new Error('It is necessary to define a region for Child App.');
         }
     }
 });

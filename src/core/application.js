@@ -73,7 +73,8 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
     _ensureEl: function() {
         if (!this.$el) {
             if (!this.el) {
-                throw new Error('Tienes que definir una el para la Main App');
+
+                throw new Error('It is necessary to define a \'el\' for Main App');
             }
             this.$el = $(this.el);
         }
@@ -188,7 +189,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
 
         //the region must exists
         if (!region) {
-            throw new Error('The region must exists in the Application.');
+            throw new Error('The region must exist in the Application.');
         }
 
         return region;
