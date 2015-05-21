@@ -12,10 +12,10 @@ submenu:
   - modelStore.modelExist: "#modelExist"
 ---
 
-El objeto `JSkeleton.ModelStore` define un `storage` o almacén de modelos organizados por su clase además de determinados métodos accesorios para poder manipular nuestro almacén de modelos.
+El objeto `JSkeleton.ModelStore` define un `storage` o almacén de modelos organizados por su clase, además de determinados métodos extra para poder manipular dicho almacén de modelos.
 
 ##storage
-El attributo `storage` es una collección de Backbone, nuestro "almacén" de modelos organizados por clase con la siguiente estructura:
+El atributo `storage` es una collección de modelos de Backbone organizados por sus clases. Su estructura es la siguiente:
 
 {% highlight javascript %}
 * storage
@@ -34,10 +34,10 @@ El attributo `storage` es una collección de Backbone, nuestro "almacén" de mod
             *    ...
 {% endhighlight %}
 
-Tendremos acceso a nuestro storage mediante nuestra instancia de ModelStore,  `JSkeleton.modelStore.storage`
+Tendremos acceso a nuestro storage mediante nuestra instancia de `ModelStore`, `JSkeleton.modelStore.storage`.
 
 ##add
-Agregar o actualizar un modelo en el `storage`
+Agregar o actualizar un modelo al `storage`.
 {% highlight javascript %}
 var model = new FooModel({id:1, title:'foo'});
 /**
@@ -47,7 +47,7 @@ JSkeleton.modelStore.add(model);
 {% endhighlight %}
 
 ##get
-Obtener un modelo del `storage`
+Obtener un modelo almacenado en el `storage`.
 {% highlight javascript %}
 
 /**
@@ -61,7 +61,7 @@ var model = JSkeleton.modelStore.get(1, FooModel);
 {% endhighlight %}
 
 ##remove
-Eliminar un modelo del `storage`
+Eliminar un modelo del `storage`.
 {% highlight javascript %}
 
 var foomodel = new FooModel();
@@ -86,8 +86,8 @@ var models = JSkeleton.modelStore.getAll(FooModel);
 {% endhighlight %}
 
 ##classExist
-Comprueba si existe una organización de clase en el  `storage`
-`*param` puede ser una Clase de modelo Ej: `FooModel` o una instancia
+Comprueba si existe una organización de clase en el  `storage`. El parámetro que se le pasa puede ser una clase de modelo (por ejemplo, 'FooModel') o una instancia cualquiera.
+
 {% highlight javascript %}
 /**
  * @param model instance or model Class
@@ -101,7 +101,7 @@ if(JSkeleton.modelStore.classExist(FooModel)){
 {% endhighlight %}
 
 ##modelExist
-Comprueba si existe un modelo en una determinada organización de clase en el `storage`
+Comprueba si existe un modelo en una determinada organización de clase en el `storage`.
 {% highlight javascript %}
 /**
  * @param modelId
@@ -114,4 +114,3 @@ if(JSkeleton.modelStore.modelExist(1, FooModel)){
     ...
 }
 {% endhighlight %}
-
