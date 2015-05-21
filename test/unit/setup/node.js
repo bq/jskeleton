@@ -75,11 +75,11 @@ if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     requireHelper('/core/base-application.js');
     requireHelper('/core/application.js');
     requireHelper('/core/child-application.js');
-    requireHelper('/core/view.js');
     requireHelper('/core/di.js');
+    requireHelper('/core/view.js');
     requireHelper('/core/item-view.js');
+    requireHelper('/core/layout-view.js');
     requireHelper('/core/collection-view.js');
     requireHelper('/core/composite-view.js');
     requireHelper('/core/view-controller.js');
-    requireHelper('/core/layout-view.js');
 }

@@ -5,9 +5,11 @@
 /* jshint unused: false */
 
 JSkeleton.CompositeView = Marionette.CompositeView.extend({
+
     constructor: function(options) {
         JSkeleton.CollectionView.apply(this, arguments);
     },
+
     getChildView: function(child) {
         var childView = this.getOption('childView');
 

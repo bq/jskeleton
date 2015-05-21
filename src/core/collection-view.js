@@ -5,8 +5,8 @@
 /* jshint unused: false */
 
 JSkeleton.CollectionView = Marionette.CollectionView.extend({
-    constructor: function(options) {
 
+    constructor: function(options) {
         this.once('render', this._initialEvents);
 
         this._initChildViewStorage();
@@ -17,6 +17,7 @@ JSkeleton.CollectionView = Marionette.CollectionView.extend({
 
         this.initRenderBuffer();
     },
+
     //override Marionette method to inject dependencies (as application channel, application reference ...) into child views
     buildChildView: function(child, ChildViewClass, childViewOptions) {
         var options = _.extend({
@@ -25,9 +26,9 @@ JSkeleton.CollectionView = Marionette.CollectionView.extend({
             _app: this._app
         }, childViewOptions);
 
-
         return new ChildViewClass(options);
     },
+
     getChildView: function(child) {
         var childView = this.getOption('childView');
 
@@ -42,10 +43,9 @@ JSkeleton.CollectionView = Marionette.CollectionView.extend({
                 message: 'A "childView" must be specified'
             });
         }
-
-
         return childView;
     }
+
 }, {
     factory: JSkeleton.Utils.FactoryAdd
 });
