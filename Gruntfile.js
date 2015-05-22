@@ -194,8 +194,8 @@ module.exports = function(grunt) {
         uglify: {
             dist: {
                 files: {
-                    '<%= config.src %>/build/jskeleton.min.js': [
-                        '<%= config.src %>/build/jskeleton.js'
+                    '<%= config.dist %>/jskeleton.min.js': [
+                        '<%= config.dist %>/jskeleton.js'
                     ]
                 }
             }
@@ -314,15 +314,15 @@ module.exports = function(grunt) {
         /*jshint camelcase: false */
         dom_munger: {
             annotated: {
-              options: {
-                callback: function($){
-                    var container = $('#container');
-                    $('html').replaceWith(container);
-                    $('#container').html($('#container').html().replace('{{','{ {'));
-                }
-              },
-              src: './docs/<%= pkg.name %>_lite.html',
-              dest: './docs/annotated.html'
+                options: {
+                    callback: function($) {
+                        var container = $('#container');
+                        $('html').replaceWith(container);
+                        $('#container').html($('#container').html().replace('{{', '{ {'));
+                    }
+                },
+                src: './docs/<%= pkg.name %>_lite.html',
+                dest: './docs/annotated.html'
             }
         },
         /*jshint camelcase: true */
@@ -425,7 +425,7 @@ module.exports = function(grunt) {
     grunt.registerTask('annotated', [
         'docco',
         'dom_munger'
-        ]);
+    ]);
 
     grunt.registerTask('release', function(version) {
         var semVer = /\bv?(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)\.(?:0|[1-9][0-9]*)(?:-[\da-z\-]+(?:\.[\da-z\-]+)*)?(?:\+[\da-z\-]+(?:\.[\da-z\-]+)*)?\b/ig;
