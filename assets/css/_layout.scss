@@ -35,14 +35,10 @@
 }
 
 .title__logo {
-  width: 2.3em;
-  height: 2.3em;
-  border-radius: 32px;
-  margin-right: 0.25em;
-  padding: 0 .3em .2em;
+  width: 2em;
+  border-radius: 100%;
   display: inline-block;
-  vertical-align: middle;
-  background-color: #FFD873;
+  vertical-align: baseline;
   span {
     font-weight: bold;
   }
@@ -92,10 +88,10 @@
   }
 
   &.header__nav__link--active {
-    color: #FFD873;
+    color: #e96421;
 
     &:hover {
-      color: #FFD873;
+      color: #e96421;
       cursor: default;
     }
 
@@ -250,6 +246,9 @@
   border: 1px solid $grey-color-light;
   border-radius: 2px;
   list-style-type: none;
+  ul {
+    padding: 0 3px 3px;
+  }
 }
 
 .aside-nav__item {

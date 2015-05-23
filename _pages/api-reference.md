@@ -1,6 +1,6 @@
 ---
 layout: api
-title: Api reference
+title: API reference
 order: 2
 permalink: /api-reference/
 ---

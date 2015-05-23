@@ -1,6 +1,9 @@
+.DS_Store
+.tmp
+.sass-cache
 node_modules
 bower_components
-_site/
-.DS_Store
+Gemfile.lock
+_site
 .idea
-.sass-cache
+*.log

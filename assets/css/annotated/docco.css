@@ -379,11 +379,15 @@ span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
 github.com style (c) Vasily Polovnyov <vast@whiteants.net>
 
 */
-
+.highlight {
+    background-color: transparent;;
+}
 pre code {
   display: block; padding: 0.5em;
-  color: #000;
-  background: #f8f8ff
+}
+pre, code {
+    background-color: transparent;
+    border: none;
 }
 
 pre .hljs-comment,
