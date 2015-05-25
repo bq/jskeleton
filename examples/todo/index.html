@@ -46,13 +46,18 @@
         <script src="../../dist/jskeleton.js"></script>
         <script>
 
-            JSkeleton.common.set('corbel',{
-                urlBase: 'https://{{module}}-qa.bqws.io/v1.0/'
+            JSkeleton.common.setConfig({
+                'corbel': {
+                    urlBase: 'https://{{module}}-qa.bqws.io/v1.0/'
+                },
+                 'i18n': {
+                }
             });
 
         </script>
         <script src="../../bower_components/corbel-js/dist/corbel.js"></script>
         <script src="../../bower_components/jskeleton-corbel/src/main.js"></script>
+        <script src="../../bower_components/jskeleton-i18n/src/i18n.js"></script>
         <script src="app.js"></script>
         <!-- endbuild -->
 </body>

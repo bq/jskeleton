@@ -21,6 +21,7 @@ describe('Application object with declared events', function() {
 
 
         this.Application = JSkeleton.Application.extend({
+            waitBeforeStartHooks: false,
             el: 'body',
             routes: {
                 '/route/example': {
