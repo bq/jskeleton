@@ -82,6 +82,8 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         //trigger before:start event and call to onBeforeStart method if it's defined in the application object
         this.triggerMethod('before:start', options);
 
+        this._initializeRegions();
+
         //initialize and start child applications defined in the application object
         this._initChildApplications(options);
 
