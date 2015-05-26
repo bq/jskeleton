@@ -33,12 +33,20 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
 
         this.router = JSkeleton.Router.getSingleton();
 
+
         //application scope to share common data inside the application
         this.scope = {};
 
-        Marionette.Application.prototype.constructor.apply(this, arguments);
+        // Marionette.Application.prototype.constructor.apply(this, arguments);
+        this._initCallbacks = new Marionette.Callbacks();
+        this.submodules = {};
+        _.extend(this, options);
+        this._initChannel();
+        Marionette.Object.call(this, options);
 
         this._addApplicationDependencies();
+
+
 
     },
     start: function(options) {
