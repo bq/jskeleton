@@ -1,5 +1,4 @@
 .tmp
-dist/
 docs/
 metrics/
 .log
