@@ -5,32 +5,45 @@
 JSkeleton.Extension = Marionette.Object.extend({
     constructor: function() {
         this.extensions = {};
+        this.promises = [];
     },
     // Add extension to JSkeleton.
     //
     //
     //
-    add: function(name, options, protoFunction) {
+    add: function(name, options) {
+        options = options || {};
 
         var extension = this.extensions[name] = _.extend(options, {
             //Extension class function
-            proto: protoFunction,
-            //A resolved flag to indicate if the extension async is resolved
+            proto: options.extensionClass,
+            //A resolved flag to indicate if the extension asynchronous is resolved.
             resolved: options.async === true ? false : true,
             //The value returned by the async resolver function
-            resolvedValue: undefined
+            resolvedValue: undefined,
+            //A promise to resolve the async. It has to be resolved when the extension be ready for use it.
+            promise: options.promise
         });
 
-        if (extension.async === true && !extension.resolver) {
-            throw new Error('You must to define a resolve function to resolve the async for ' + name + ' extension.');
+        if (options.async === true && !options.promise instanceof Promise) {
+            throw new Error('If the extension is asynchronous you have to provide a promise to resolve the async.');
         }
 
-        if (options.factory !== false) {
-            JSkeleton.factory.add(name, protoFunction);
+        //If the extension factory flag is set to true and has a function class, add the extension class to the `JSkeleton.factory`
+        if (options.factory !== false && typeof options.extensionClass === 'function') {
+            JSkeleton.factory.add(name, options.extensionClass);
         }
 
-        if (options.initialize === true) {
-            return this.wait(name);
+        if (options.async === true) {
+            this.promises.push(options.promise);
+            //if an option beforeStartHook it's set to true, add a beforeStartHook to JSKeleton namespace that will be processed when a `JSkeleton.Application` starts
+            if (options.beforeStartHook === true) {
+
+                JSkeleton.Utils.addBeforeStartHook(JSkeleton, function() {
+                    return options.promise;
+                });
+
+            }
         }
     },
     //
@@ -65,6 +78,21 @@ JSkeleton.Extension = Marionette.Object.extend({
 
         });
 
+    },
+    waitAll: function() {
+        var numPromises = this.promises.length;
+
+        return new JSkeleton.Promise(function(resolve) {
+
+            if (numPromises === 0) {
+                resolve();
+            }
+
+            JSkeleton.Promise.all(this.promises).then(function() {
+                resolve();
+            });
+
+        });
     },
     //
     //

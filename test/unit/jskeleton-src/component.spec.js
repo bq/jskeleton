@@ -77,19 +77,19 @@ describe('In Component module', function() {
             regions: {
                 content: '.content'
             }
-        });        
+        });
     });
 
     afterEach(function() {
         sandbox.restore();
     });
 
-    describe('when define a new component ', function () {
+    describe('when define a new component ', function() {
 
         var MainErrorApp;
 
-        beforeEach(function(){
-            var templateErrorClassName ='{{@component model=context.model}}';
+        beforeEach(function() {
+            var templateErrorClassName = '{{@component model=context.model}}';
             var ChildAppError = JSkeleton.ChildApplication.extend({
                 routes: {
                     '': {
@@ -99,6 +99,7 @@ describe('In Component module', function() {
                 }
             });
             MainErrorApp = JSkeleton.Application.extend({
+                waitBeforeStartHooks: false,
                 viewController: {
                     viewControllerClass: ViewController,
                     template: '<div class="content"></div>'
@@ -112,11 +113,11 @@ describe('In Component module', function() {
             });
         });
 
-        it('but without Class Name Component', function(){
+        it('but without Class Name Component', function() {
             var error = 'You must define a Component Class Name.';
             var testErrorApp = new MainErrorApp();
 
-            expect(function () {
+            expect(function() {
                 return testErrorApp.start();
             }).to.throw(error);
         });
@@ -153,6 +154,7 @@ describe('In Component module', function() {
             });
 
             MainApp = JSkeleton.Application.extend({
+                waitBeforeStartHooks: false,
                 viewController: {
                     viewControllerClass: ViewController,
                     template: '<div class="content"></div>'

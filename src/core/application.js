@@ -16,6 +16,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
     defaultEl: 'body',
     //Main region name. Will be 'main' by default
     mainRegionName: 'main',
+    waitBeforeStartHooks: true,
     constructor: function(options) {
 
         options = options || {};
@@ -30,16 +31,57 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
 
         this.applications = options.applications || this.applications || {};
 
+        this._beforeStartHooks = _.clone(this.beforeStartHooks);
+
         //private object instances of applications
         this._childApps = {};
 
         return this;
 
     },
-    //Method to start the application, start the `ChildApplications` and start listening routes/events
+    //Method to start the application, start the `ChildApplications` and start listening routes/events.
+    //This method will wait until the beforeStartHooks defined in the application will be completed (with a promise).
+    //If an option waitBeforeStartHooks it's set to false, the application won't wait hooks before start.
     start: function(options) {
+
+        // this.renderInitialState();s
+
+        //Wait for all the JSkeleton.extensions
+        if (this.waitBeforeStartHooks) {
+
+            this.triggerMethod('before:extension:start', options);
+
+            var self = this;
+
+            this._waitBeforeStartHooks().then(function() {
+
+                self.triggerMethod('extension:start', options);
+
+                //
+                //
+                self._startApplication(options);
+            });
+
+        } else {
+            //
+            this._startApplication(options);
+        }
+
+    },
+    //Method to start listening the `Backbone.Router`
+    //Only a `JSkeleton.Application' can start a `JSkeleton.Router` instance.
+    //The JSkeleton.Router is created by the `JSkeleton.Application` objects and injected to the `JSkeleton.ChildApplication`.
+    startRouter: function() {
+        this.router.start();
+    },
+    //
+    //
+    //
+    _startApplication: function(options) {
+
         //trigger before:start event and call to onBeforeStart method if it's defined in the application object
         this.triggerMethod('before:start', options);
+
         //initialize and start child applications defined in the application object
         this._initChildApplications(options);
 
@@ -50,12 +92,29 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
 
         //trigger start event and call to onStart method if it's defined in the application object
         this.triggerMethod('start', options);
+
     },
-    //Method to start listening the `Backbone.Router`
-    //Only a `JSkeleton.Application' can start a `JSkeleton.Router` instance.
-    //The JSkeleton.Router is created by the `JSkeleton.Application` objects and injected to the `JSkeleton.ChildApplication`.
-    startRouter: function() {
-        this.router.start();
+    //Method to wait for all before start hooks defined inside the application object and inside `JSkeleton` namespace.
+    // The beforeStartHooks have to be an array with methods that return promises.
+    // These promises will be the wait condition.
+    _waitBeforeStartHooks: function() {
+
+        //get the beforeStart application Hooks and ensure that the Hooks are an array
+        var beforeStartHooks = _.isArray(this._beforeStartHooks) ? this._beforeStartHooks : [this._beforeStartHooks],
+            //get the beforeStart JSkeleton global Hooks and ensure that the Hooks are an array
+            lookUpHooks = _.isArray(JSkeleton.beforeStartHooks) ? JSkeleton.beforeStartHooks : [JSkeleton.beforeStartHooks],
+            //Concat the hooks to iterate over them
+            hooks = lookUpHooks.concat(beforeStartHooks),
+            self = this,
+            promises = [];
+
+        _.each(hooks, function(fnHook) {
+            if (typeof fnHook === 'function') {
+                promises.push(fnHook.call(self));
+            }
+        });
+
+        return JSkeleton.Promise.Promise.all(promises);
     },
     //Private method to initialize the application regions
     _initializeRegions: function() {
@@ -151,6 +210,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
     //Start child application with it's dependencies injected
     _initChildApplication: function(appName, appOptions) {
         appOptions = appOptions || {};
+
         //get application class definition (could be either a factory key string or an application class)
         var appClass = appOptions.applicationClass, //DI: this.getClass(appOptions.applicationClass)
             startWithParent = appOptions.startWithParent !== undefined ? appOptions.startWithParent : true;
