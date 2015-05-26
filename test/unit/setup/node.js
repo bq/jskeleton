@@ -58,6 +58,8 @@ if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     //Marionette.Deferred = global.Backbone.$.Deferred;
     global.JSkeleton = {};
     global.JSkeleton = require('../../../dist/jskeleton.js');
+    // Promise polyfill fix
+    global.JSkeleton.Promise = global.JSkeleton.Promise.Promise;
     requireHelper('/core/renderer.js');
     requireHelper('/core/model.js');
     requireHelper('/core/collection.js');

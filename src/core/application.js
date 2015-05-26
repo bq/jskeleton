@@ -114,7 +114,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
             }
         });
 
-        return JSkeleton.Promise.Promise.all(promises);
+        return JSkeleton.Promise.all(promises);
     },
     //Private method to initialize the application regions
     _initializeRegions: function() {
