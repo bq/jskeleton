@@ -36,6 +36,7 @@
     //  @include ../core/model.js
     //  @include ../core/collection.js
     //  @include ../core/modelStore.js
+    //  @include ../core/region.js
     //  @include ../core/store.js
     //  @include ../core/router.js
     //  @include ../core/service.js

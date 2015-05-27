@@ -63,6 +63,7 @@ if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     requireHelper('/core/model.js');
     requireHelper('/core/collection.js');
     requireHelper('/core/modelStore.js');
+    requireHelper('/core/region.js');
     requireHelper('/helpers/html-bars.js');
     requireHelper('/helpers/component.js');
     requireHelper('/helpers/if.js');

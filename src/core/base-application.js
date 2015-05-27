@@ -49,7 +49,6 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
 
         this._initCallbacks.run(options, this);
 
-        this._initCallbacks.run(options, this);
         //Add routes listeners to the JSkeleton.router
         this._initRoutes(options);
 
@@ -70,7 +69,7 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
         // if (typeof viewController[handlerName] !== 'function') {
         //     throw new Warning('El metodo ' + handlerName + ' del view controller no existe');
         // }
-
+        //
         this._showControllerView(viewController, handlerName, args);
     },
     //Factory method to instance objects from Class references or from factory key strings
@@ -115,10 +114,21 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
     },
     //Show the controller view instance in the application region
     _showControllerView: function(viewController, handlerName, args) {
+
         if (this.mainRegion && this.mainRegion.currentView !== viewController) {
-            viewController.show(this.mainRegion, handlerName, args);
+            this.mainRegion.show(viewController, {
+                handlerOptions: args,
+                handlerName: handlerName
+            });
         } else {
-            viewController.render();
+            // view already rendered, update view
+            if (this.mainRegion) {
+                this.mainRegion.show(viewController, {
+                    handlerOptions: args,
+                    handlerName: handlerName,
+                    forceShow: true
+                });
+            }
         }
     },
     //Internal method to create an application private channel and set the global channel
@@ -134,6 +144,7 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
         if (this.routes) {
             _.each(this.routes, function(routeObject, routeName) {
                 routeObject = routeObject || {};
+
                 //get view controller class object (it could be a view controller class asigned to the route or a default view controller if no class is specified)
                 routeObject._ViewController = self._getViewControllerClass(routeObject);
 
@@ -141,7 +152,8 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
                 routeObject._viewControllerOptions = _.extend({
                     app: self,
                     service: self.service,
-                    region: self.region
+                    region: self.region,
+                    handlerName: routeObject.handlerName || self._getViewControllerHandlerName(routeName)
                 }, routeObject.viewControllerOptions);
 
                 //add the route handler to JSkeleton.Router
@@ -150,6 +162,7 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
                 self._addAppEventListener(routeName, routeObject);
             });
         }
+
     },
     //
     _addAppRoute: function(routeString, routeObject) {
@@ -158,7 +171,7 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
         this.router.route(routeString, {
             viewControllerHandler: true,
             triggerEvent: routeObject.triggerEvent,
-            handlerName: routeObject.handlerName || this._getViewControllerHandlerName(routeString)
+            handlerName: routeObject.handlerName
         }, function(args, handlerName) {
             self._processNavigation(routeString, routeObject, handlerName, args);
         });
@@ -182,7 +195,7 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
     //Check if the navigation should be completed (if all the filters success).
     //Also call to the declared middlewares before navigate.
     _processNavigation: function(routeString, routeObject, handlerName, args) {
-        // routeFilters handlers
+
         if (this._routeFilterProcessing(routeString, routeObject, args)) {
 
             //middlewares processing before navigation
@@ -295,11 +308,12 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
             //get the view-controller class
             ViewControllerClass = routeObject._ViewController,
             //get the view-controller options
-            viewControllerOptions = routeObject._viewControllerOptions || {},
-            //get the view-controller template
-            viewControllerExtendTemplate = routeObject.template ? {
-                template: routeObject.template
-            } : undefined;
+            viewControllerOptions = routeObject._viewControllerOptions || {};
+
+        //get the view-controller template
+        var viewControllerExtendTemplate = routeObject.template ? {
+            template: routeObject.template
+        } : undefined;
 
         if (!viewController || viewController.isDestroyed === true) {
             viewController = this.factory(ViewControllerClass, viewControllerExtendTemplate, viewControllerOptions);

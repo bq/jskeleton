@@ -57,26 +57,22 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
 
                 self.triggerMethod('extension:start', options);
 
-                //
-                //
                 self._startApplication(options);
             });
 
         } else {
-            //
             this._startApplication(options);
         }
 
     },
+
     //Method to start listening the `Backbone.Router`
     //Only a `JSkeleton.Application' can start a `JSkeleton.Router` instance.
     //The JSkeleton.Router is created by the `JSkeleton.Application` objects and injected to the `JSkeleton.ChildApplication`.
     startRouter: function() {
         this.router.start();
     },
-    //
-    //
-    //
+
     _startApplication: function(options) {
 
         //trigger before:start event and call to onBeforeStart method if it's defined in the application object
@@ -97,6 +93,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         this.triggerMethod('start', options);
 
     },
+
     //Method to wait for all before start hooks defined inside the application object and inside `JSkeleton` namespace.
     // The beforeStartHooks have to be an array with methods that return promises.
     // These promises will be the wait condition.
@@ -119,6 +116,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
 
         return JSkeleton.Promise.all(promises);
     },
+
     //Private method to initialize the application regions
     _initializeRegions: function() {
         //ensure initial root DOM reference is available
@@ -129,6 +127,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         // Create root region on root DOM reference
         this._createMainRegion();
     },
+
     //Private method to ensure that the main application has a dom reference where create the root webapp region
     _ensureEl: function() {
         if (!this.$el) {
@@ -139,6 +138,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
             this.$el = $(this.el);
         }
     },
+
     //Add the root region to the main application
     _createMainRegion: function() {
 
@@ -153,6 +153,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
             this.addRegions(mainRegion);
         }
     },
+
     //Create a layout for the Application to have more regions availables.
     //The application expose the layout regions to the application object as own properties.
     _createApplicationViewController: function() {
@@ -178,13 +179,14 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
             this._viewController = this.factory(ViewController, viewControllerExtendTemplate, viewControllerOptions);
 
             //Show the view-controller in the application main region
-            this._viewController.show(this[this.mainRegionName], handlerName);
+            this[this.mainRegionName].show(this._viewController);
 
             //expose the view-controller regions to the application object
             this._addViewControllerRegions();
         }
 
     },
+
     //Expose view-controller regions to the application namespace
     _addViewControllerRegions: function() {
         var self = this;
@@ -194,6 +196,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
             });
         }
     },
+
     //Iterate over child applications to start each one
     _initChildApplications: function() {
         if (!this.isChildApp) {
@@ -208,6 +211,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
             this.triggerMethod('applications:start');
         }
     },
+
     //Start child application with it's dependencies injected
     _initChildApplication: function(appName, appOptions) {
         appOptions = appOptions || {};
@@ -233,6 +237,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
             this.startChildApplication(instance, instanceOptions.startOptions);
         }
     },
+
     //Get the region where a `JSkeleton.ChildApplication` will be rendered when process a route or an event
     _getChildAppRegion: function(appOptions) {
         var region,
@@ -255,10 +260,12 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
 
         return region;
     },
+
     //Method to explicit start a child app instance
     startChildApplication: function(childApp, options) {
         childApp.start(options);
     },
+
     //Get child app instance by name
     getChildApplication: function(appName) {
         return this._childApps[appName];

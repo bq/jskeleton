@@ -16,7 +16,7 @@ describe('Application object with declared events', function() {
             onRouteExample: function() {
 
             },
-            template: '<div></div>'
+            template: '<div></div>',
         });
 
 
@@ -24,10 +24,13 @@ describe('Application object with declared events', function() {
             waitBeforeStartHooks: false,
             el: 'body',
             routes: {
-                '/route/example': {
+                'route/example': {
                     eventListener: 'example:event',
                     viewController: this.ViewController
                 }
+            },
+            regions: {
+                mainRegion: 'body'
             }
         });
 
@@ -44,6 +47,7 @@ describe('Application object with declared events', function() {
 
         this.factoryStub.returns(this.viewController);
         this.viewControllerRenderSpy = sandbox.spy(this.viewController, 'render');
+        this.viewControllerRouteHandlerSpy = sandbox.spy(this.viewController, 'onRouteExample');
     });
 
     afterEach(function() {
@@ -66,10 +70,13 @@ describe('Application object with declared events', function() {
             expect(this.navigationSpy.calledOnce).to.be.equal(true);
         });
 
-        it('should process a method on the view-controller when the global event is triggered', function() {
+        it('should process a render method on the view-controller when the global event is triggered', function() {
             expect(this.viewControllerRenderSpy.calledOnce).to.be.equal(true);
         });
 
+        it('should process a handler method on the view-controller when the global event is triggered', function() {
+            expect(this.viewControllerRouteHandlerSpy.calledOnce).to.be.equal(true);
+        });
     });
 
     describe('when application stop', function() {

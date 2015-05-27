@@ -1,5 +1,5 @@
 'use strict';
-/*globals require,define,describe,it, JSkeleton, before */
+/*globals require,define,describe,it, JSkeleton, Marionette, before */
 /* jshint unused: false */
 describe('In view-controller ', function() {
     var sandbox = sinon.sandbox.create();
@@ -128,10 +128,6 @@ describe('In view-controller ', function() {
                 this.mainRegion.show(this.viewController);
             });
 
-            it('but view-controller does not have a region where rendering ', function() {
-                    var error = 'You must to define a region where the view-controller will be rendered.';
-                    expect(this.viewController.show.bind(this.viewController, undefined, 'contextMethod')).to.throw(error);
-            });
 
             it('it is rendered', function() {
                 expect(this.viewController.isRendered).to.be.true;
@@ -260,7 +256,8 @@ describe('In view-controller ', function() {
 
                     this.viewController = new this.ViewController({
                         app: {},
-                        region: {}
+                        region: {},
+                        handlerName: 'contextMethod'
                     });
 
                     this.viewControllerNoReRender = new this.ViewControllerNoReRender({
@@ -280,11 +277,12 @@ describe('In view-controller ', function() {
                     $('.test-layer').remove();
                 });
 
-                
+
                 it('view-controller is re-render ', function(done) {
                     var that = this;
-
-                    this.viewController.show(this.region, 'contextMethod');
+                    this.region.show(this.viewController, {
+                        handlerName: 'contextMethod'
+                    });
 
                     expect(this.renderSpy.calledOnce).to.be.equal(true);
 
@@ -294,14 +292,12 @@ describe('In view-controller ', function() {
                         expect(that.renderSpy.calledTwice).to.be.equal(true);
                         done();
                     });
-
                 });
 
                 it('view-controller is not re-render if renderOnPromise is false', function(done) {
                     var that = this;
 
-                    this.viewControllerNoReRender.show(this.region, 'contextMethod');
-
+                    this.region.show(this.viewControllerNoReRender, 'contextMethod');
                     expect(this.noRenderSpy.calledOnce).to.be.equal(true);
 
                     this.defNoRender.resolve();
