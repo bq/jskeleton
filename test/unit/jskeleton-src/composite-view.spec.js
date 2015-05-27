@@ -42,7 +42,6 @@ describe('JSkeleton.CompositeView', function() {
         expect(child.cid).to.be.defined;
 
         var Child = colView.getChildView(child);
-        console.log(child.constructor === Child);
     });
 
 });

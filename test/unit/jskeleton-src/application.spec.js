@@ -218,6 +218,7 @@ describe('Application object', function() {
         it('the View-Controller template can be override', function() {
 
             this.ApplicationTemplate = JSkeleton.Application.extend({
+                waitBeforeStartHooks: false,
                 viewController: {
                     viewControllerClass: this.ViewController,
                     template: this.customTemplate
@@ -230,9 +231,7 @@ describe('Application object', function() {
 
             this.app.start();
 
-            expect(this.factorySpy.calledWith(this.ViewController, {
-                template: this.customTemplate
-            })).to.be.equal(true);
+            expect(this.app._viewController.template).to.be.equal(this.customTemplate);
 
         });
 

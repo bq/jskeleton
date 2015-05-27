@@ -69,7 +69,7 @@ describe('JSkeleton.CollectionView', function() {
 
 
         var Child = colView.getChildView(child);
-        console.log(child.constructor === Child);
+
     });
 
 });

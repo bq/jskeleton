@@ -1,4 +1,4 @@
-/*! jskeleton - v0.0.1 - 2015-05-26 
+/*! jskeleton - v0.0.1 - 2015-05-27 
  */(function(root, factory) {
     'use strict';
     /*globals require,define */
@@ -11921,6 +11921,7 @@
          var shouldDisplay = function(param, param2, operator) {
              var result;
     
+    
              if (operator) {
     
                  if (!param2) {
@@ -11963,20 +11964,27 @@
              return result;
          };
     
-    
          JSkeleton.registerHelper('if', function(params, env, args, options) {
-    
+            if (!options.template && !options.inverse){
+                // <strong  class="{{if assertion "result" "alternative"}}">
+                // true --> <strong  class="result">
+                // false --> <strong  class="alternative">
+                return args[0] ? args[1] : args[2];
+            } else {
              var condition = shouldDisplay(args[0], args[2], args[1]),
                  truthyTemplate = options.template || '',
                  falsyTemplate = options.inverse || '';
-    
              var template = condition ? truthyTemplate : falsyTemplate;
     
              if (template && typeof template.render === 'function') {
                  return template.render(undefined, env);
              }
+            }
     
          });
+    
+    
+    
           'use strict';
           /*globals  JSkeleton, _, Backbone */
           /* jshint unused: false */
@@ -13060,6 +13068,7 @@
     
             this.router = JSkeleton.Router.getSingleton();
     
+    
             //application scope to share common data inside the application
             this.scope = {};
     
@@ -13503,6 +13512,9 @@
             //trigger before:start event and call to onBeforeStart method if it's defined in the application object
             this.triggerMethod('before:start', options);
     
+            // Create a layout for the application if a viewController its defined
+            this._createApplicationViewController();
+    
             //initialize and start child applications defined in the application object
             this._initChildApplications(options);
     
@@ -13535,7 +13547,7 @@
                 }
             });
     
-            return JSkeleton.Promise.Promise.all(promises);
+            return JSkeleton.Promise.all(promises);
         },
         //Private method to initialize the application regions
         _initializeRegions: function() {
@@ -13546,8 +13558,6 @@
     
             // Create root region on root DOM reference
             this._createMainRegion();
-            // Create a layout for the application if a layoutView its defined
-            this._createApplicationViewController();
         },
         //Private method to ensure that the main application has a dom reference where create the root webapp region
         _ensureEl: function() {
@@ -13684,7 +13694,6 @@
             return this._childApps[appName];
         }
     });
-    
     'use strict';
     
     /*globals Marionette, JSkeleton, _, Backbone */

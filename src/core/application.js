@@ -82,7 +82,8 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         //trigger before:start event and call to onBeforeStart method if it's defined in the application object
         this.triggerMethod('before:start', options);
 
-        this._initializeRegions();
+        // Create a layout for the application if a viewController its defined
+        this._createApplicationViewController();
 
         //initialize and start child applications defined in the application object
         this._initChildApplications(options);
@@ -127,8 +128,6 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
 
         // Create root region on root DOM reference
         this._createMainRegion();
-        // Create a layout for the application if a layoutView its defined
-        this._createApplicationViewController();
     },
     //Private method to ensure that the main application has a dom reference where create the root webapp region
     _ensureEl: function() {
