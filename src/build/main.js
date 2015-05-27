@@ -12,7 +12,7 @@
             'backbone.radio'
         ], function($, _, Backbone, Marionette, Promise) {
             Promise.polyfill();
-            return factory.call(root, root, $, _, Backbone, Marionette, Promise);
+            return factory.call(root, root, $, _, Backbone, Marionette);
         });
     } else if (typeof module !== 'undefined' && module.exports) {
         var $ = require('jquery'),
@@ -25,14 +25,14 @@
         Promise.polyfill();
 
         var Marionette = require('backbone.marionette'),
-            JSkeleton = factory(root, $, _, Backbone, Marionette, Promise);
+            JSkeleton = factory(root, $, _, Backbone, Marionette);
 
         module.exports = JSkeleton;
     } else if (root !== undefined) {
-        root.JSkeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette, root.Promise);
+        root.JSkeleton = factory.call(root, root, root.$, root._, root.Backbone, root.Marionette);
     }
 
-})(this, function(root, $, _, Backbone, Marionette, Promise) {
+})(this, function(root, $, _, Backbone, Marionette) {
     'use strict';
     /*globals require,requireModule */
     /* jshint unused: false */
