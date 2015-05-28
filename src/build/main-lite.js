@@ -58,6 +58,8 @@
     //  @include ../utils/utils.js
     //  @include ../utils/factory.js
     //  @include ../utils/common.js
+    //  @include ../utils/behaviors.js
+
 
     return JSkeleton;
 

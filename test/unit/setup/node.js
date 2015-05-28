@@ -72,6 +72,7 @@ if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     requireHelper('/utils/common.js');
     requireHelper('/utils/factory.js');
     requireHelper('/utils/extension.js');
+    requireHelper('/utils/behaviors.js');
     requireHelper('/core/router.js');
     requireHelper('/core/service.js');
     requireHelper('/core/base-application.js');

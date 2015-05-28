@@ -62,6 +62,7 @@
     //  @include ../utils/extension.js
     //  @include ../utils/factory.js
     //  @include ../utils/common.js
+    //  @include ../utils/behaviors.js
     //  @include ../core/model.js
     //  @include ../core/collection.js
     //  @include ../core/modelStore.js
