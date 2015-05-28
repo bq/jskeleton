@@ -215,6 +215,164 @@
     
     JSkeleton.modelStore = new JSkeleton.ModelStore();
     'use strict';
+    /*globals JSkeleton, Backbone, Marionette _ */
+    /* jshint unused: false */
+    
+    //## JSkeleton.Region
+    JSkeleton.Region = Marionette.Region.extend({
+    
+        // Displays a backbone view instance inside of the region.
+        // Handles calling the `render` method for you. Reads content
+        // directly from the `el` attribute. Also calls an optional
+        // `onShow` and `onDestroy` method on your view, just after showing
+        // or just before destroying the view, respectively.
+        // The `preventDestroy` option can be used to prevent a view from
+        // the old view being destroyed on show.
+        // The `forceShow` option can be used to force a view to be
+        // re-rendered if it's already shown in the region.
+        show: function(view, options) {
+    
+            if (!this._ensureElement()) {
+                return;
+            }
+    
+            this._ensureViewIsIntact(view);
+    
+            var showOptions = options || {};
+            var isDifferentView = view !== this.currentView;
+            var preventDestroy = !!showOptions.preventDestroy;
+            var forceShow = !!showOptions.forceShow;
+            var handlerOptions = showOptions.handlerOptions;
+            var handlerName = showOptions.handlerName || '';
+    
+            // We are only changing the view if there is a current view to change to begin with
+            var isChangingView = !!this.currentView;
+    
+            // Only destroy the current view if we don't want to `preventDestroy` and if
+            // the view given in the first argument is different than `currentView`
+            var _shouldDestroyView = isDifferentView && !preventDestroy;
+    
+            // Only show the view given in the first argument if it is different than
+            // the current view or if we want to re-show the view. Note that if
+            // `_shouldDestroyView` is true, then `_shouldShowView` is also necessarily true.
+            var _shouldShowView = isDifferentView || forceShow;
+    
+            if (isChangingView) {
+                this.triggerMethod('before:swapOut', this.currentView, this, options);
+            }
+    
+            if (this.currentView) {
+                delete this.currentView._parent;
+            }
+    
+            if (_shouldDestroyView) {
+                this.empty();
+    
+                // A `destroy` event is attached to the clean up manually removed views.
+                // We need to detach this event when a new view is going to be shown as it
+                // is no longer relevant.
+            } else if (isChangingView && _shouldShowView) {
+                this.currentView.off('destroy', this.empty, this);
+            }
+    
+            if (_shouldShowView) {
+    
+                // We need to listen for if a view is destroyed
+                // in a way other than through the region.
+                // If this happens we need to remove the reference
+                // to the currentView since once a view has been destroyed
+                // we can not reuse it.
+                view.once('destroy', this.empty, this);
+    
+    
+                if (handlerName) {
+                    this._processHandler(view, handlerName, handlerOptions);
+                }
+                view.render();
+    
+    
+                view._parent = this;
+    
+                if (isChangingView) {
+                    this.triggerMethod('before:swap', view, this, options);
+                }
+    
+                this.triggerMethod('before:show', view, this, options);
+                Marionette.triggerMethodOn(view, 'before:show', view, this, options);
+    
+                if (isChangingView) {
+                    this.triggerMethod('swapOut', this.currentView, this, options);
+                }
+    
+                // An array of views that we're about to display
+                var attachedRegion = Marionette.isNodeAttached(this.el);
+    
+                // The views that we're about to attach to the document
+                // It's important that we prevent _getNestedViews from being executed unnecessarily
+                // as it's a potentially-slow method
+                var displayedViews = [];
+    
+                var triggerBeforeAttach = showOptions.triggerBeforeAttach || this.triggerBeforeAttach;
+                var triggerAttach = showOptions.triggerAttach || this.triggerAttach;
+    
+                if (attachedRegion && triggerBeforeAttach) {
+                    displayedViews = this._displayedViews(view);
+                    this._triggerAttach(displayedViews, 'before:');
+                }
+    
+                this.attachHtml(view);
+                this.currentView = view;
+    
+                if (attachedRegion && triggerAttach) {
+                    displayedViews = this._displayedViews(view);
+                    this._triggerAttach(displayedViews);
+                }
+    
+                if (isChangingView) {
+                    this.triggerMethod('swap', view, this, options);
+                }
+    
+                this.triggerMethod('show', view, this, options);
+                Marionette.triggerMethodOn(view, 'show', view, this, options);
+    
+                return this;
+            }
+    
+            return this;
+        },
+    
+        _processHandler: function(view, handlerName, args) {
+            var promise;
+            view.context.isPromise = false;
+    
+            if (view[handlerName] && typeof view[handlerName] === 'function') {
+                promise = view[handlerName].call(view, args);
+            }
+    
+            //the result of the "render"
+            //method invocation is a promise and will be resolved later
+            if (promise && typeof promise.then === 'function') {
+                promise.then(function() {
+                    //expose a isPromise flag to the template
+                    view.context.isPromise = false;
+                    //if the `renderOnPromise` option is set to true, re-render the `JSkeleton.ViewController`
+                    if (view.renderOnPromise === true) {
+                        view.render();
+                        //JSkeleton.LayoutView.prototype.render.apply(this, arguments);
+                    }
+                });
+    
+                //Set up the `JSkeleton.ViewController` context
+                view.context.isPromise = true;
+            }
+        }
+    });
+    
+    
+    Marionette.Region.prototype.show = JSkeleton.Region.prototype.show;
+    Marionette.Region.prototype._processHandler = JSkeleton.Region.prototype._processHandler;
+    
+    'use strict';
     /*globals JSkeleton, Backbone _ */
     /* jshint unused: false */
     
@@ -512,7 +670,6 @@
     
             this._initCallbacks.run(options, this);
     
-            this._initCallbacks.run(options, this);
             //Add routes listeners to the JSkeleton.router
             this._initRoutes(options);
     
@@ -533,7 +690,7 @@
             // if (typeof viewController[handlerName] !== 'function') {
             //     throw new Warning('El metodo ' + handlerName + ' del view controller no existe');
             // }
-    
+            //
             this._showControllerView(viewController, handlerName, args);
         },
         //Factory method to instance objects from Class references or from factory key strings
@@ -578,10 +735,21 @@
         },
         //Show the controller view instance in the application region
         _showControllerView: function(viewController, handlerName, args) {
+    
             if (this.mainRegion && this.mainRegion.currentView !== viewController) {
-                viewController.show(this.mainRegion, handlerName, args);
+                this.mainRegion.show(viewController, {
+                    handlerOptions: args,
+                    handlerName: handlerName
+                });
             } else {
-                viewController.render();
+                // view already rendered, update view
+                if (this.mainRegion) {
+                    this.mainRegion.show(viewController, {
+                        handlerOptions: args,
+                        handlerName: handlerName,
+                        forceShow: true
+                    });
+                }
             }
         },
         //Internal method to create an application private channel and set the global channel
@@ -597,6 +765,7 @@
             if (this.routes) {
                 _.each(this.routes, function(routeObject, routeName) {
                     routeObject = routeObject || {};
+    
                     //get view controller class object (it could be a view controller class asigned to the route or a default view controller if no class is specified)
                     routeObject._ViewController = self._getViewControllerClass(routeObject);
     
@@ -604,7 +773,8 @@
                     routeObject._viewControllerOptions = _.extend({
                         app: self,
                         service: self.service,
-                        region: self.region
+                        region: self.region,
+                        handlerName: routeObject.handlerName || self._getViewControllerHandlerName(routeName)
                     }, routeObject.viewControllerOptions);
     
                     //add the route handler to JSkeleton.Router
@@ -613,6 +783,7 @@
                     self._addAppEventListener(routeName, routeObject);
                 });
             }
+    
         },
         //
         _addAppRoute: function(routeString, routeObject) {
@@ -621,7 +792,7 @@
             this.router.route(routeString, {
                 viewControllerHandler: true,
                 triggerEvent: routeObject.triggerEvent,
-                handlerName: routeObject.handlerName || this._getViewControllerHandlerName(routeString)
+                handlerName: routeObject.handlerName
             }, function(args, handlerName) {
                 self._processNavigation(routeString, routeObject, handlerName, args);
             });
@@ -645,7 +816,7 @@
         //Check if the navigation should be completed (if all the filters success).
         //Also call to the declared middlewares before navigate.
         _processNavigation: function(routeString, routeObject, handlerName, args) {
-            // routeFilters handlers
+    
             if (this._routeFilterProcessing(routeString, routeObject, args)) {
     
                 //middlewares processing before navigation
@@ -758,11 +929,12 @@
                 //get the view-controller class
                 ViewControllerClass = routeObject._ViewController,
                 //get the view-controller options
-                viewControllerOptions = routeObject._viewControllerOptions || {},
-                //get the view-controller template
-                viewControllerExtendTemplate = routeObject.template ? {
-                    template: routeObject.template
-                } : undefined;
+                viewControllerOptions = routeObject._viewControllerOptions || {};
+    
+            //get the view-controller template
+            var viewControllerExtendTemplate = routeObject.template ? {
+                template: routeObject.template
+            } : undefined;
     
             if (!viewController || viewController.isDestroyed === true) {
                 viewController = this.factory(ViewControllerClass, viewControllerExtendTemplate, viewControllerOptions);
@@ -856,6 +1028,7 @@
     }, {
         factory: JSkeleton.Utils.FactoryAdd
     });
+    
     'use strict';
     
     /*globals Marionette, JSkeleton, _, Backbone */
@@ -915,26 +1088,22 @@
     
                     self.triggerMethod('extension:start', options);
     
-                    //
-                    //
                     self._startApplication(options);
                 });
     
             } else {
-                //
                 this._startApplication(options);
             }
     
         },
+    
         //Method to start listening the `Backbone.Router`
         //Only a `JSkeleton.Application' can start a `JSkeleton.Router` instance.
         //The JSkeleton.Router is created by the `JSkeleton.Application` objects and injected to the `JSkeleton.ChildApplication`.
         startRouter: function() {
             this.router.start();
         },
-        //
-        //
-        //
+    
         _startApplication: function(options) {
     
             //trigger before:start event and call to onBeforeStart method if it's defined in the application object
@@ -955,6 +1124,7 @@
             this.triggerMethod('start', options);
     
         },
+    
         //Method to wait for all before start hooks defined inside the application object and inside `JSkeleton` namespace.
         // The beforeStartHooks have to be an array with methods that return promises.
         // These promises will be the wait condition.
@@ -977,6 +1147,7 @@
     
             return JSkeleton.Promise.all(promises);
         },
+    
         //Private method to initialize the application regions
         _initializeRegions: function() {
             //ensure initial root DOM reference is available
@@ -987,6 +1158,7 @@
             // Create root region on root DOM reference
             this._createMainRegion();
         },
+    
         //Private method to ensure that the main application has a dom reference where create the root webapp region
         _ensureEl: function() {
             if (!this.$el) {
@@ -997,6 +1169,7 @@
                 this.$el = $(this.el);
             }
         },
+    
         //Add the root region to the main application
         _createMainRegion: function() {
     
@@ -1011,6 +1184,7 @@
                 this.addRegions(mainRegion);
             }
         },
+    
         //Create a layout for the Application to have more regions availables.
         //The application expose the layout regions to the application object as own properties.
         _createApplicationViewController: function() {
@@ -1036,13 +1210,14 @@
                 this._viewController = this.factory(ViewController, viewControllerExtendTemplate, viewControllerOptions);
     
                 //Show the view-controller in the application main region
-                this._viewController.show(this[this.mainRegionName], handlerName);
+                this[this.mainRegionName].show(this._viewController);
     
                 //expose the view-controller regions to the application object
                 this._addViewControllerRegions();
             }
     
         },
+    
         //Expose view-controller regions to the application namespace
         _addViewControllerRegions: function() {
             var self = this;
@@ -1052,6 +1227,7 @@
                 });
             }
         },
+    
         //Iterate over child applications to start each one
         _initChildApplications: function() {
             if (!this.isChildApp) {
@@ -1066,6 +1242,7 @@
                 this.triggerMethod('applications:start');
             }
         },
+    
         //Start child application with it's dependencies injected
         _initChildApplication: function(appName, appOptions) {
             appOptions = appOptions || {};
@@ -1091,6 +1268,7 @@
                 this.startChildApplication(instance, instanceOptions.startOptions);
             }
         },
+    
         //Get the region where a `JSkeleton.ChildApplication` will be rendered when process a route or an event
         _getChildAppRegion: function(appOptions) {
             var region,
@@ -1113,15 +1291,18 @@
     
             return region;
         },
+    
         //Method to explicit start a child app instance
         startChildApplication: function(childApp, options) {
             childApp.start(options);
         },
+    
         //Get child app instance by name
         getChildApplication: function(appName) {
             return this._childApps[appName];
         }
     });
+    
     'use strict';
     
     /*globals Marionette, JSkeleton, _, Backbone */
@@ -1331,49 +1512,16 @@
                 this.context = {};
                 this.components = {};
                 this.events = this.events || {};
+                this.handlerName = options.handlerName || {};
                 JSkeleton.LayoutView.prototype.constructor.apply(this, arguments);
             },
+    
             _ensureOptions: function(options) {
                 if (!options.app) {
                     throw new Error('View-controller needs to have the reference to its application');
                 }
             },
-            //Show the view-controller in a specified region.
-            //The method call a specified view-controller method to create a template context before render itself in the region.
-            //The template context is used by the view-controller components defined inside the template.
-            show: function(region, handlerName) {
-                var promise, that = this;
     
-                this.context.isPromise = false;
-    
-                if (!region) {
-                    throw new Error('You must to define a region where the view-controller will be rendered.');
-                }
-    
-                //if the method exists, it is called by the view-controller before render to create a context
-                if (this[handlerName] && typeof this[handlerName] === 'function') {
-                    promise = this[handlerName].apply(this, Array.prototype.slice.call(arguments, 2));
-                }
-    
-                //the result of the "render" method invocation is a promise and will be resolved later
-                if (promise && typeof promise.then === 'function') {
-                    promise.then(function() {
-                        //expose a isPromise flag to the template
-                        that.context.isPromise = false;
-    
-                        //if the `renderOnPromise` option is set to true, re-render the `JSkeleton.ViewController`
-                        if (that.renderOnPromise === true) {
-                            that.render();
-                        }
-                    });
-    
-                    //Set up the `JSkeleton.ViewController` context
-                    this.context.isPromise = true;
-                }
-    
-                region.show(this);
-    
-            },
             //expose application enviroment, ViewController context and `Marionette.templateHelpers` to the view-controller template
             mixinTemplateHelpers: function(target) {
                 target = target || {};
@@ -1395,10 +1543,12 @@
     
                 return templateContext;
             },
+    
             addComponent: function(name, instance) {
                 this.components[name] = this.components[name] || [];
                 this.components[name].push(instance);
             },
+    
             _destroyComponents: function() {
                 var component;
     
@@ -1414,6 +1564,7 @@
                     }
                 });
             },
+    
             //Override Marionette._delegateDOMEvents to add Components listeners
             _delegateDOMEvents: function(eventsArg) {
                 var events = Marionette._getValue(eventsArg || this.events, this),
@@ -1423,9 +1574,9 @@
     
                 this._componentEvents = componentEvents;
     
-    
                 return Marionette.View.prototype._delegateDOMEvents.call(this, events);
             },
+    
             //Bind event to the specified component using listenTo method
             _delegateComponentEvent: function(component, event, handlerName) {
                 var handler = this[handlerName];
@@ -1438,10 +1589,12 @@
                     this.listenTo(component, event, handler);
                 }
             },
+    
             //Bind off event to the specified component using off method
             _undelegateComponentEvent: function(component, event, handler) {
                 this.off(event, handler);
             },
+    
             unbindComponents: function() {
                 var self = this,
                     components = this.components;
@@ -1458,6 +1611,7 @@
                     });
                 });
             },
+    
             //Attach events to the controller-view components to listenTo those events with `@component.ComponentName` event notation
             bindComponents: function() {
                 var self = this,
@@ -1476,21 +1630,25 @@
                     });
                 });
             },
+    
             render: function() {
                 this._destroyComponents();
     
                 JSkeleton.LayoutView.prototype.render.apply(this, arguments);
     
                 this.unbindComponents();
+    
                 this.bindComponents();
     
                 return this;
             },
+    
             destroy: function() {
                 this._destroyComponents();
                 return Marionette.LayoutView.prototype.destroy.apply(this, arguments);
             }
         });
+    
      'use strict';
      /*globals Marionette, JSkeleton, _ */
      /* jshint unused: false */
@@ -1617,75 +1775,73 @@
     
              return component.render().$el.get(0);
          });
-         'use strict';
-         /*globals  JSkeleton, _ */
-         /* jshint unused: false */
-         var shouldDisplay = function(param, param2, operator) {
-             var result;
+     'use strict';
+     /*globals  JSkeleton, _ */
+     /* jshint unused: false */
+     var shouldDisplay = function(param, param2, operator) {
+         var result;
     
+         if (operator) {
     
-             if (operator) {
-    
-                 if (!param2) {
-                     throw new Error('If template helper error: If you define a operator, you must define a second parameter.');
-                 }
-    
-                 switch (operator) {
-                     case '===':
-                         result = param === param2;
-                         break;
-                     case '==':
-                         result = param == param2; // jshint ignore:line
-                         break;
-                     case '>':
-                         result = param > param2;
-                         break;
-                     case '>=':
-                         result = param >= param2;
-                         break;
-                     case '<':
-                         result = param < param2;
-                         break;
-                     case '<=':
-                         result = param <= param2;
-                         break;
-                     case '!=':
-                         result = param != param2; // jshint ignore:line
-                         break;
-                     case '!==':
-                         result = param !== param2;
-                         break;
-                     default:
-                         result = false;
-                 }
-    
-             } else {
-                 result = !!param;
+             switch (operator) {
+                 case '===':
+                     result = param === param2;
+                     break;
+                 case '==':
+                     result = param == param2; // jshint ignore:line
+                     break;
+                 case '>':
+                     result = param > param2;
+                     break;
+                 case '>=':
+                     result = param >= param2;
+                     break;
+                 case '<':
+                     result = param < param2;
+                     break;
+                 case '<=':
+                     result = param <= param2;
+                     break;
+                 case '!=':
+                     result = param != param2; // jshint ignore:line
+                     break;
+                 case '!==':
+                     result = param !== param2;
+                     break;
+                 default:
+                     result = false;
              }
     
-             return result;
-         };
+         } else {
+             result = !!param;
+         }
     
-         JSkeleton.registerHelper('if', function(params, env, args, options) {
-            if (!options.template && !options.inverse){
-                // <strong  class="{{if assertion "result" "alternative"}}">
-                // true --> <strong  class="result">
-                // false --> <strong  class="alternative">
-                return args[0] ? args[1] : args[2];
-            } else {
+         return result;
+     };
+    
+     JSkeleton.registerHelper('if', function(params, env, args, options) {
+         if (!options.template && !options.inverse) {
+             // <strong  class="{{if assertion "result" "alternative"}}">
+             // true --> <strong  class="result">
+             // false --> <strong  class="alternative">
+             var condition = args[0],
+                 truthyStr = args[1] || '',
+                 falsyStr = args[2] || '';
+    
+             return condition ? truthyStr : falsyStr;
+         } else {
              var condition = shouldDisplay(args[0], args[2], args[1]),
                  truthyTemplate = options.template || '',
                  falsyTemplate = options.inverse || '';
+    
              var template = condition ? truthyTemplate : falsyTemplate;
     
              if (template && typeof template.render === 'function') {
                  return template.render(undefined, env);
              }
-            }
+         }
     
-         });
-    
-    
+     });
     
           'use strict';
           /*globals  JSkeleton, _, Backbone */
@@ -2132,6 +2288,81 @@
     common.set = function(field, value) {
         this.config[field] = value;
     };
+    'use strict';
+    /* globals JSkeleton */
+    
+    
+    /**
+     * Module to manage Marionette behaviors
+     * @exports behaviors
+     * @namespace
+     * @memberof app
+     */
+    var behaviors = {
+    
+        /**
+         * Defines a behaviors lookup namespace
+         * @type {Object}
+         */
+        lookup: {},
+    
+        /**
+         * Storages only defaults behaviors
+         * @type {Object}
+         */
+        defaults: {}
+    
+    };
+    
+    /**
+     * Adds a behavior
+     * @param {Object} params
+     * @param {String} params.name
+     * @param {Marionette.Behavior} params.behaviorClass
+     * @param {Object} params.isDefault
+     */
+    behaviors.add = function(params) {
+        if (params.isDefault) {
+            this.defaults[params.name] = {};
+        }
+        this.lookup[params.name] = params.behaviorClass;
+    };
+    
+    /**
+     * Gets a specific behavior
+     * @param  {Object} params
+     * @param  {String} params.name
+     * @param  {Object} params.options  Behavior options
+     * @return {Object} Behavior config for Marionette.View.behaviors function
+     */
+    behaviors.get = function(params) {
+    
+        if (behaviors.lookup[params.name]) {
+            var behavior = {};
+            behavior[params.name] = params.options || {};
+            return behavior;
+        }
+        throw new Error('behaviors:behavior:undefined');
+    };
+    
+    /**
+     * Gets defaults behaviors
+     * @param  {Object} options  Behavior options
+     * @return {Object} Behavior config for Marionette.View.behaviors function
+     */
+    behaviors.getDefaults = function(options) {
+        return _.extend(_.clone(this.defaults), options);
+    };
+    
+    // Tell Marionette where to lookup for behaviors
+    Marionette.Behaviors.behaviorsLookup = function() {
+        return behaviors.lookup;
+    };
+    
+    
+    JSkeleton.behaviors = behaviors;
+    
+
 
     return JSkeleton;
 
