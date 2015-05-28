@@ -654,7 +654,6 @@
     
             this.router = JSkeleton.Router.getSingleton();
     
-    
             //application scope to share common data inside the application
             this.scope = {};
     
@@ -694,7 +693,7 @@
             this._showControllerView(viewController, handlerName, args);
         },
         //Factory method to instance objects from Class references or from factory key strings
-        factory: function(Class, extendProperties, options) {
+        getInstance: function(Class, extendProperties, options) {
             options = options || {};
             options.parentApp = this;
     
@@ -858,7 +857,6 @@
     
             var mainStack = (this.parentApp) ? this.parentApp.filterStack : this.filterStack;
     
-    
             if (mainStack.length !== 0) {
                 for (var i = 0; i < mainStack.length; i++) {
                     result = mainStack[i].call(self, _routeParams);
@@ -886,7 +884,6 @@
                 };
     
             var mainStack = (this.parentApp) ? this.parentApp.middlewareStack : this.middlewareStack;
-    
     
             if (mainStack.length !== 0) {
                 for (var i = 0; i < mainStack.length; i++) {
@@ -937,7 +934,7 @@
             } : undefined;
     
             if (!viewController || viewController.isDestroyed === true) {
-                viewController = this.factory(ViewControllerClass, viewControllerExtendTemplate, viewControllerOptions);
+                viewController = this.getInstance(ViewControllerClass, viewControllerExtendTemplate, viewControllerOptions);
                 this.listenTo(viewController, 'destroy', this._removeViewController.bind(this, routeObject, viewController));
             }
     
@@ -1035,7 +1032,6 @@
     
     /* jshint unused: false */
     
-    
     //## Application
     //  Application class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
     //  It initializes `regions, events, routes, channels and child applications`.
@@ -1053,7 +1049,6 @@
             options = options || {};
     
             this.el = options.el || this.el || this.defaultEl;
-    
     
             this._region = options.region || this.mainRegionName;
     
@@ -1207,7 +1202,7 @@
                 });
     
                 //create the view-controller instance
-                this._viewController = this.factory(ViewController, viewControllerExtendTemplate, viewControllerOptions);
+                this._viewController = this.getInstance(ViewController, viewControllerExtendTemplate, viewControllerOptions);
     
                 //Show the view-controller in the application main region
                 this[this.mainRegionName].show(this._viewController);
@@ -1258,7 +1253,7 @@
             //Ommit instanciate config options
             var instanceOptions = _.omit(appOptions, 'applicationClass', 'startWithParent'),
                 //Instance the `JSkeleton.ChildApplication` class with the `JSkeleton.ChildApplication` options specified
-                instance = this.factory(appClass, {}, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
+                instance = this.getInstance(appClass, {}, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
     
             //expose the child application instance
             this._childApps[appName] = instance;
@@ -1308,7 +1303,6 @@
     /*globals Marionette, JSkeleton, _, Backbone */
     
     /* jshint unused: false */
-    
     
     //## ChildApplication
     //  ChildApplication class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
@@ -1360,7 +1354,6 @@
             }
         }
     });
-    
     'use strict';
     
     /*globals Marionette, JSkeleton*/
@@ -2038,6 +2031,20 @@
         return text;
     };
     
+    Utils.stringToObject = function(string) {
+        var start = (string ? string.indexOf('{') : -1),
+            options = {};
+    
+        if (start !== -1) {
+            try {
+                /*jslint evil: true */
+                options = (new Function('', 'var json = ' + string.substr(start) + '; return JSON.parse(JSON.stringify(json));'))();
+            } catch (e) {}
+        }
+    
+        return options;
+    };
+    
     Utils.normalizeComponentName = function(eventString) {
         var name = /@component\.[a-zA-Z_$0-9]*/g.exec(String(eventString))[0].slice(11);
     
@@ -2118,14 +2125,13 @@
     
         namespace.beforeStartHooks.push(hook);
     };
+    
     'use strict';
     /*globals Marionette, JSkeleton, _, Backbone */
     /* jshint unused: false */
     
-    
     //Application object factory
     var factory = {};
-    
     
     //Default available factory objects
     factory.prototypes = {
@@ -2160,10 +2166,10 @@
         }
     };
     
-    
     //Creates a new object.
     //Can recieve an object class or a string object factory key.
-    factory.new = function(obj, options) {
+    //It resolves the object dependencies with the global dependency injector JSkeleton.di
+    factory.new = function(obj, options /* ,more constructor args */ ) {
         options = options || {};
     
         var FactoryObject;
@@ -2174,17 +2180,13 @@
             FactoryObject = this.prototypes[obj];
         }
     
-        //resolve dependencies
-    
-    
         if (!FactoryObject) {
             throw new Error('UndefinedFactoryObject - ' + obj);
         }
     
-        return FactoryObject.Class ? new FactoryObject.Class(options) : new FactoryObject(options);
+        //resolve dependencies
+        return JSkeleton.di.create.apply(JSkeleton.di, [FactoryObject, undefined].concat(Array.prototype.slice.call(arguments, 1)));
     };
-    
-    
     
     //Creates a new singleton object o retrieves the created one
     factory.singleton = function(obj, options) {
@@ -2196,7 +2198,6 @@
     
         return this.singletons[obj];
     };
-    
     
     //Retrieves an Object reference
     factory.get = function(obj) {
@@ -2234,7 +2235,6 @@
             }
         };
     };
-    
     
     JSkeleton.factory = factory;
     'use strict';

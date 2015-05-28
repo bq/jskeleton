@@ -21,6 +21,20 @@ Utils.replaceSpecialChars = function(text) {
     return text;
 };
 
+Utils.stringToObject = function(string) {
+    var start = (string ? string.indexOf('{') : -1),
+        options = {};
+
+    if (start !== -1) {
+        try {
+            /*jslint evil: true */
+            options = (new Function('', 'var json = ' + string.substr(start) + '; return JSON.parse(JSON.stringify(json));'))();
+        } catch (e) {}
+    }
+
+    return options;
+};
+
 Utils.normalizeComponentName = function(eventString) {
     var name = /@component\.[a-zA-Z_$0-9]*/g.exec(String(eventString))[0].slice(11);
 
