@@ -4,7 +4,6 @@
 
 /* jshint unused: false */
 
-
 //## ChildApplication
 //  ChildApplication class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
 //  It initializes regions, events, routes and channels.

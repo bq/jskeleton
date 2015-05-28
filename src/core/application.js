@@ -4,7 +4,6 @@
 
 /* jshint unused: false */
 
-
 //## Application
 //  Application class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
 //  It initializes `regions, events, routes, channels and child applications`.
@@ -22,7 +21,6 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         options = options || {};
 
         this.el = options.el || this.el || this.defaultEl;
-
 
         this._region = options.region || this.mainRegionName;
 
@@ -176,7 +174,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
             });
 
             //create the view-controller instance
-            this._viewController = this.factory(ViewController, viewControllerExtendTemplate, viewControllerOptions);
+            this._viewController = this.getInstance(ViewController, viewControllerExtendTemplate, viewControllerOptions);
 
             //Show the view-controller in the application main region
             this[this.mainRegionName].show(this._viewController);
@@ -227,7 +225,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         //Ommit instanciate config options
         var instanceOptions = _.omit(appOptions, 'applicationClass', 'startWithParent'),
             //Instance the `JSkeleton.ChildApplication` class with the `JSkeleton.ChildApplication` options specified
-            instance = this.factory(appClass, {}, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
+            instance = this.getInstance(appClass, {}, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
 
         //expose the child application instance
         this._childApps[appName] = instance;
