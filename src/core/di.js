@@ -24,7 +24,7 @@ JSkeleton.Di = Marionette.Object.extend({
     inject: function(deps) {
         this.dependencies = _.extend(this.dependencies, deps);
     },
-    //Instance the object with the factory key and store the instance as a injection dependency
+    //Instantiate the object with the factory key and store the instance in the instances cache
     store: function(factoryKey) {
         var FactoryObject = JSkeleton.factory.get(factoryKey),
             instance;
@@ -36,8 +36,8 @@ JSkeleton.Di = Marionette.Object.extend({
         return instance;
 
     },
-    //Instance the object with the factory key or the factory object.
-    //The object can be a factory key string reference, the object class or the factory object
+    //Instantiate the object with the factory key or the factory object.
+    //The object can be a factory key string reference, the object class or the factory object.
     create: function( /*factoryKey||Class||FactoryObject, args..*/ ) {
         var FactoryObject;
 
@@ -67,7 +67,6 @@ JSkeleton.Di = Marionette.Object.extend({
             dependency,
             Class = FactoryObject.Class;
 
-
         //the dependency object has dependencies
         if (typeof FactoryObject.Class === 'function' && FactoryObject.dependencies) {
 
@@ -92,7 +91,6 @@ JSkeleton.Di = Marionette.Object.extend({
 
             dependency = this.instantiateClass(Class, constructorArgs);
         }
-
 
         return dependency;
 

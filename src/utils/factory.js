@@ -2,10 +2,8 @@
 /*globals Marionette, JSkeleton, _, Backbone */
 /* jshint unused: false */
 
-
 //Application object factory
 var factory = {};
-
 
 //Default available factory objects
 factory.prototypes = {
@@ -40,10 +38,10 @@ factory.add = function(key, ObjClass, ParentClass, deps) {
     }
 };
 
-
 //Creates a new object.
 //Can recieve an object class or a string object factory key.
-factory.new = function(obj, options) {
+//It resolves the object dependencies with the global dependency injector JSkeleton.di
+factory.new = function(obj, options /* ,more constructor args */ ) {
     options = options || {};
 
     var FactoryObject;
@@ -54,17 +52,13 @@ factory.new = function(obj, options) {
         FactoryObject = this.prototypes[obj];
     }
 
-    //resolve dependencies
-
-
     if (!FactoryObject) {
         throw new Error('UndefinedFactoryObject - ' + obj);
     }
 
-    return FactoryObject.Class ? new FactoryObject.Class(options) : new FactoryObject(options);
+    //resolve dependencies
+    return JSkeleton.di.create.apply(JSkeleton.di, [FactoryObject, undefined].concat(Array.prototype.slice.call(arguments, 1)));
 };
-
-
 
 //Creates a new singleton object o retrieves the created one
 factory.singleton = function(obj, options) {
@@ -76,7 +70,6 @@ factory.singleton = function(obj, options) {
 
     return this.singletons[obj];
 };
-
 
 //Retrieves an Object reference
 factory.get = function(obj) {
@@ -114,6 +107,5 @@ factory.empty = function() {
         }
     };
 };
-
 
 JSkeleton.factory = factory;

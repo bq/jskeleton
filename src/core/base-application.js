@@ -33,7 +33,6 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
 
         this.router = JSkeleton.Router.getSingleton();
 
-
         //application scope to share common data inside the application
         this.scope = {};
 
@@ -74,7 +73,7 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
         this._showControllerView(viewController, handlerName, args);
     },
     //Factory method to instance objects from Class references or from factory key strings
-    factory: function(Class, extendProperties, options) {
+    getInstance: function(Class, extendProperties, options) {
         options = options || {};
         options.parentApp = this;
 
@@ -224,7 +223,6 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
 
         var mainStack = (this.parentApp) ? this.parentApp.filterStack : this.filterStack;
 
-
         if (mainStack.length !== 0) {
             for (var i = 0; i < mainStack.length; i++) {
                 result = mainStack[i].call(self, _routeParams);
@@ -252,7 +250,6 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
             };
 
         var mainStack = (this.parentApp) ? this.parentApp.middlewareStack : this.middlewareStack;
-
 
         if (mainStack.length !== 0) {
             for (var i = 0; i < mainStack.length; i++) {
@@ -302,7 +299,7 @@ JSkeleton.BaseApplication = Marionette.Application.extend({
             } : undefined;
 
         if (!viewController || viewController.isDestroyed === true) {
-            viewController = this.factory(ViewControllerClass, viewControllerExtendTemplate, viewControllerOptions);
+            viewController = this.getInstance(ViewControllerClass, viewControllerExtendTemplate, viewControllerOptions);
             this.listenTo(viewController, 'destroy', this._removeViewController.bind(this, routeObject, viewController));
         }
 

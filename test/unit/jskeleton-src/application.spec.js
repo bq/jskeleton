@@ -31,7 +31,6 @@ describe('Application object', function() {
         expect(JSkeleton).to.have.property('Application').with.length(1);
     });
 
-
     describe('with no extended properties', function() {
 
         before(function() {
@@ -168,7 +167,6 @@ describe('Application object', function() {
 
     });
 
-
     describe('with an application view-controller', function() {
 
         before(function() {
@@ -193,7 +191,7 @@ describe('Application object', function() {
 
             this.renderSpy = sandbox.spy(this.viewController, 'render');
 
-            this.factoryStub = sandbox.stub(this.Application.prototype, 'factory');
+            this.factoryStub = sandbox.stub(this.Application.prototype, 'getInstance');
 
             this.factoryStub.withArgs(this.ViewController).returns(this.viewController);
 
@@ -201,7 +199,6 @@ describe('Application object', function() {
 
             this.application.start();
         });
-
 
         it('have a View-Controller instance of the specified Layout class', function() {
             expect(this.application._viewController).to.be.instanceof(this.ViewController);
@@ -225,7 +222,7 @@ describe('Application object', function() {
                 }
             });
 
-            this.factorySpy = sandbox.spy(this.ApplicationTemplate.prototype, 'factory');
+            this.factorySpy = sandbox.spy(this.ApplicationTemplate.prototype, 'getInstance');
 
             this.app = new this.ApplicationTemplate();
 
@@ -236,7 +233,5 @@ describe('Application object', function() {
         });
 
     });
-
-
 
 });
