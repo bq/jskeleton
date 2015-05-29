@@ -1,5 +1,5 @@
 (function(root, factory) {
-    window 'use strict';
+    'use strict';
     /*globals require,define */
     /* jshint unused: false */
 
