@@ -29,7 +29,9 @@ Utils.stringToObject = function(string) {
         try {
             /*jslint evil: true */
             options = (new Function('', 'var json = ' + string.substr(start) + '; return JSON.parse(JSON.stringify(json));'))();
-        } catch (e) {}
+        } catch (e) {
+            throw new Error('InvalidJsonFormat - ' + string);
+        }
     }
 
     return options;

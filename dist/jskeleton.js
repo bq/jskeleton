@@ -1,4 +1,4 @@
-/*! jskeleton - v0.0.1 - 2015-05-28 
+/*! jskeleton - v0.0.1 - 2015-05-29 
  */(function(root, factory) {
     'use strict';
     /*globals require,define */
@@ -12076,7 +12076,9 @@
             try {
                 /*jslint evil: true */
                 options = (new Function('', 'var json = ' + string.substr(start) + '; return JSON.parse(JSON.stringify(json));'))();
-            } catch (e) {}
+            } catch (e) {
+                throw new Error('InvalidJsonFormat - ' + string);
+            }
         }
     
         return options;
