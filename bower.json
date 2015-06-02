@@ -16,7 +16,7 @@
         "jskeleton-corbel": "https://github.com/bq/jskeleton-corbel.git",
         "jskeleton-i18n": "https://github.com/bq/jskeleton-i18n.git"
     },
-    "version": "0.1",
+    "version": "0.0.1",
     "authors": [
         "danigar <daniel.garcia@bq.com>"
     ],
