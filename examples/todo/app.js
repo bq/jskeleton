@@ -35,7 +35,7 @@ JSkeleton.CollectionView.factory('BookCollectionView', {
     childView: 'ListItemViewBook'
 });
 
-JSkeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_globalChannel'], function(servicioDeLibros, channel) {
+JSkeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros'], function(servicioDeLibros) {
     return {
         template: '<span> Detalle de libro: </span> {{@component "DetailBookView" model=context.bookModel}}',
         events: {
@@ -46,9 +46,10 @@ JSkeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_global
             servicioDeLibros.buy(libro);
         },
         onNavigateClicked: function() {
-            channel.trigger('book:list');
+            JSkeleton.globalChannel.trigger('book:list');
+            // channel.trigger('book:list');
         },
-        onBookShow: function(params) {
+        onStateChange: function(params) {
             this.context.bookModel = new Backbone.Model({
                 title: params.title,
                 id: params.id,
@@ -58,48 +59,48 @@ JSkeleton.ViewController.factory('DetalleDeLibro', ['ServicioDeLibros', '_global
     };
 });
 
-JSkeleton.ViewController.factory('ListadoDeLibros', ['_globalChannel'], function(channel) {
-    return {
-        events: {
-            'childview:action @component.BookCollectionView': 'onNavigateClicked'
-        },
-        onNavigateClicked: function(childview, model) {
-            channel.trigger('book:details', {
-                id: model.get('id'),
-                description: model.get('description'),
-                title: model.get('title')
-            });
-        },
-        ListBooks: function() {
-            var def = $.Deferred();
-            var self = this;
+JSkeleton.ViewController.factory('ListadoDeLibros', {
+    events: {
+        'childview:action @component.BookCollectionView': 'onNavigateClicked'
+    },
+    onNavigateClicked: function(childview, model) {
+        JSkeleton.globalChannel.trigger('book:details', {
+            id: model.get('id'),
+            description: model.get('description'),
+            title: model.get('title')
+        });
 
-            setTimeout(function() {
-                def.resolve();
-            }, 2000);
+    },
+    onStateChange: function() {
+        var def = $.Deferred();
+        var self = this;
 
-            return def.promise().then(function() {
+        setTimeout(function() {
+            def.resolve();
+        }, 2000);
 
-                self.context.bookCollection = new Backbone.Collection([{
-                    title: 'Juego de tronos',
-                    id: 165
-                }, {
-                    title: 'El hobbit',
-                    id: 170
-                }, {
-                    title: 'Cien años de soledad',
-                    id: 14
-                }]);
+        return def.promise().then(function() {
 
-            });
-        }
-    };
+            self.context.bookCollection = new Backbone.Collection([{
+                title: 'Juego de tronos',
+                id: 165
+            }, {
+                title: 'El hobbit',
+                id: 170
+            }, {
+                title: 'Cien años de soledad',
+                id: 14
+            }]);
+
+        });
+    }
+
 });
 
 // {{@component name="BookCollectionView" collection=context.bookCollection}}
 //{{#each "model" in context.bookCollection}} <span> Titulo del libro: {{model.title}} Posicion en el listado: {{model.count}} </span> {{/each}}
 //
-JSkeleton.ChildApplication.factory('BookCatalogue', {
+JSkeleton.Application.factory('BookCatalogue', {
     routes: {
         'book/show/:title(/:id)': {
             viewControllerClass: 'DetalleDeLibro',
@@ -114,20 +115,9 @@ JSkeleton.ChildApplication.factory('BookCatalogue', {
             handlerName: 'ListBooks',
             viewControllerClass: 'ListadoDeLibros',
             eventListener: 'book:list',
-            template: '{{#if context.isPromise }} <span> spinner </span> {{else}} <span> Listado de libros: </span>  {{@component "BookCollectionView" collection=context.bookCollection}} {{/if}}',
-            requireLogin: true
+            template: '{{#if context.isPromise }} <span> spinner </span> {{else}} <span> Listado de libros: </span>  {{@component "BookCollectionView" collection=context.bookCollection}} {{/if}}'
         }
-    },
-    events: {
-        // triggers: [
-        //     'book:details',
-        //     'book:list'
-        // ]
-        // listen: [
-        // 'all'
-        // ]
     }
-
 });
 
 JSkeleton.Service.factory('ServicioDeLibros', {
@@ -147,15 +137,13 @@ var Layout = JSkeleton.ViewController.factory('MainViewController', {
     },
     onStart: function() {
 
-
-
     }
 });
 
 var AppMain = JSkeleton.Application.extend({
     el: '.app-container',
-    viewController: {
-        viewControllerClass: 'MainViewController',
+    layout: {
+        layoutClass: 'MainViewController',
         template: '<div class="hero-unit">' +
             '<h1>Aplicación de libros</h1>' +
             '<h3> Header: </h3>' +
@@ -164,8 +152,7 @@ var AppMain = JSkeleton.Application.extend({
             '<div class="content"></div>' +
             '<h3> Footer: </h3>' +
             '<div class="footer"></div>' +
-            '</div>',
-        handlerName: 'onStart'
+            '</div>'
     },
     applications: {
         'bookCatalogue': {
@@ -184,6 +171,31 @@ var AppMain = JSkeleton.Application.extend({
         console.log("middleware ejecutado");
     }
 });
+
+// var Login = JSkeleton.Component.factory('LoginComponent', ['LoginService'], function(login) {
+//     return {
+//         defaults: {
+
+//         },
+//         itemView: ,
+//         collectionView: ,
+//         regions: {
+//             'aside': '.login-aside',
+//             'content': '.login-content'
+//         },
+//         template: '<div class="login"> User-login <div class="login-aside"></div> <div class="login-content"></div>',
+//         initialize: function(options) {
+//             options = options || {};
+
+//             if (!options.userModel) {
+//                 throw new Error('');
+//             }
+//         },
+//         context: function() {
+//             this.context = this.options.userModel;
+//         }
+//     };
+// });
 
 var app = new AppMain();
 

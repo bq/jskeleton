@@ -10,29 +10,56 @@
 //  It has a global channel to communicate with others apps and a private channel to communicate with it's components,
 //  A JSkeleton webapp can contain many JSkeleton.Applications.
 //  A `JSkeleton.Application` can define multiple child applications (`JSkeleton.ChildApplication`).
-JSkeleton.Application = JSkeleton.BaseApplication.extend({
+JSkeleton.Application = Marionette.Application.extend({
     //Default el dom reference if no `el` it's specified
     defaultEl: 'body',
-    //Main region name. Will be 'main' by default
-    mainRegionName: 'main',
     waitBeforeStartHooks: true,
+    startWithParent: true,
+    filterStack: [],
+    middlewareStack: [],
     constructor: function(options) {
 
         options = options || {};
 
-        this.el = options.el || this.el || this.defaultEl;
+        this.parentApplication = options.parentApplication;
 
-        this._region = options.region || this.mainRegionName;
+        this._childApplications = {};
 
-        //`JSkeleton.BaseApplication` constructor
-        JSkeleton.BaseApplication.prototype.constructor.apply(this, arguments);
+        if (!this.parentApplication) {
+            this.el = options.el || this.el || this.defaultEl;
+        }
 
-        this.applications = options.applications || this.applications || {};
+        this._region = options.region;
 
+        this.di = new JSkeleton.Di({
+            globalDi: JSkeleton.di
+        });
+
+        //add routeFilters middlewares to app workflow
+        if (this.routeFilters) {
+            this._use('routeFilters', this.routeFilters);
+        }
+
+        //add middlewares to app workflow
+        if (this.middlewares) {
+            this._use('middlewares', this.middlewares);
+        }
+
+        // if (this.middlewares) {
         this._beforeStartHooks = _.clone(this.beforeStartHooks);
+        // }
 
-        //private object instances of applications
-        this._childApps = {};
+        //generate application id
+        this.aid = this._getAppId();
+
+        this.router = new JSkeleton.Router();
+
+        //application scope to share common data inside the application
+        this.scope = {};
+
+        Marionette.Application.prototype.constructor.apply(this, arguments);
+
+        this._addApplicationDependencies();
 
         return this;
 
@@ -45,7 +72,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         // this.renderInitialState();s
 
         //Wait for all the JSkeleton.extensions
-        if (this.waitBeforeStartHooks) {
+        if (this.waitBeforeStartHooks && !this.parentApplication) {
 
             this.triggerMethod('before:extension:start', options);
 
@@ -68,7 +95,9 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
     //Only a `JSkeleton.Application' can start a `JSkeleton.Router` instance.
     //The JSkeleton.Router is created by the `JSkeleton.Application` objects and injected to the `JSkeleton.ChildApplication`.
     startRouter: function() {
-        this.router.start();
+        // if (!this.parentApplication) {
+        JSkeleton.Router.start();
+        // }
     },
 
     _startApplication: function(options) {
@@ -77,12 +106,20 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         this.triggerMethod('before:start', options);
 
         // Create a layout for the application if a viewController its defined
-        this._createApplicationViewController();
+        this._createApplicationLayout();
 
         //initialize and start child applications defined in the application object
         this._initChildApplications(options);
 
-        JSkeleton.BaseApplication.prototype.start.apply(this, arguments);
+        this._started = true;
+
+        this._initCallbacks.run(options, this);
+
+        //Add routes listeners to the JSkeleton.router
+        this._initRoutes(options);
+
+        //Add app proxy events
+        // this._proxyEvents(options);
 
         //Start the `JSkeleton.Router` to listen to Backbone.History and to listen to the global channel events
         this.startRouter();
@@ -123,12 +160,14 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         Marionette.Application.prototype._initializeRegions.apply(this, arguments);
 
         // Create root region on root DOM reference
-        this._createMainRegion();
+        if (!this.parentApplication) {
+            this._createMainRegion();
+        }
     },
 
-    //Private method to ensure that the main application has a dom reference where create the root webapp region
+    //Private method to ensure that the application has a dom reference where create the main application region
     _ensureEl: function() {
-        if (!this.$el) {
+        if (!this.$el && !this.parentApplication) {
             if (!this.el) {
 
                 throw new Error('It is necessary to define a \'el\' for Main App');
@@ -140,56 +179,46 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
     //Add the root region to the main application
     _createMainRegion: function() {
 
-        if (this._region instanceof Marionette.Region) {
-            //TODO
-        } else {
+        if (!(this._region instanceof JSkeleton.Region)) {
             //create a new `JSkeleton.Region`
-            var mainRegion = {};
-
-            mainRegion[this._region] = this.el;
-
-            this.addRegions(mainRegion);
+            this._region = this._regionManager.addRegion('main', this.$el);
         }
     },
 
     //Create a layout for the Application to have more regions availables.
     //The application expose the layout regions to the application object as own properties.
-    _createApplicationViewController: function() {
+    _createApplicationLayout: function() {
+        var layout = this.layout;
 
         //ensure viewController object is defined
-        if (this.viewController) {
-            //get viewController class
-            var ViewController = typeof this.viewController === 'object' && this.viewController.viewControllerClass ? this.viewController.viewControllerClass : this.viewController,
-                //get the viewController that will be passed to the view controller constructor
-                viewControllerOptions = typeof this.viewController === 'object' && this.viewController.viewControllerOptions ? this.viewController.viewControllerOptions : {},
+        if (layout) {
+            //get layout class
+            var LayoutClass = typeof layout === 'object' && layout.layoutClass ? layout.layoutClass : layout,
+                //get the layout options that will be passed to the layout constructor
+                layoutOptions = typeof layout === 'object' && layout.layoutOptions ? layout.layoutOptions : {},
                 //extend viewController template
-                viewControllerExtendTemplate = typeof this.viewController === 'object' && this.viewController.template ? {
-                    template: this.viewController.template
-                } : undefined,
-                handlerName = this.viewController.handlerName ? this.viewController.handlerName : '';
+                layoutExtendTemplate = typeof layout === 'object' && layout.template ? {
+                    template: layout.template
+                } : undefined;
 
-            viewControllerOptions = _.extend(viewControllerOptions, {
-                app: this,
-                channel: this.privateChannel
-            });
+            //create the layout instance if it isn't rendered yet
+            if (!this._layout || !this._layout instanceof LayoutClass) {
+                this._layout = this.getInstance(LayoutClass, layoutExtendTemplate, layoutOptions);
 
-            //create the view-controller instance
-            this._viewController = this.getInstance(ViewController, viewControllerExtendTemplate, viewControllerOptions);
+                //Show the layout in the application main region
+                this.main.show(this._layout);
 
-            //Show the view-controller in the application main region
-            this[this.mainRegionName].show(this._viewController);
-
-            //expose the view-controller regions to the application object
-            this._addViewControllerRegions();
+                //expose the view-controller regions to the application object
+                this._addLayoutRegions();
+            }
         }
-
     },
 
     //Expose view-controller regions to the application namespace
-    _addViewControllerRegions: function() {
+    _addLayoutRegions: function() {
         var self = this;
-        if (this._viewController.regionManager.length > 0) {
-            _.each(this._viewController.regionManager._regions, function(region, regionName) {
+        if (this._layout.regionManager.length > 0) {
+            _.each(this._layout.regionManager._regions, function(region, regionName) {
                 self[regionName] = region;
             });
         }
@@ -202,6 +231,7 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
             var self = this;
 
             _.each(this.applications, function(appOptions, appName) {
+                appOptions.parentApplication = self;
                 self._initChildApplication(appName, appOptions);
             });
 
@@ -223,12 +253,12 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
         appOptions.region = this._getChildAppRegion(appOptions);
 
         //Ommit instanciate config options
-        var instanceOptions = _.omit(appOptions, 'applicationClass', 'startWithParent'),
-            //Instance the `JSkeleton.ChildApplication` class with the `JSkeleton.ChildApplication` options specified
-            instance = this.getInstance(appClass, {}, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
+        var instanceOptions = _.omit(appOptions, 'applicationClass', 'startWithParent');
+        //Instance the `JSkeleton.ChildApplication` class with the `JSkeleton.ChildApplication` options specified
+        var instance = this.getInstance(appClass, {}, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
 
         //expose the child application instance
-        this._childApps[appName] = instance;
+        this._childApplications[appName] = instance;
 
         //Start child application
         if (startWithParent === true) {
@@ -242,8 +272,8 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
             regionName = appOptions.region || this.mainRegionName;
 
         //retrieve the region from the application layout (if it exists)
-        if (this._viewController && this._viewController.regionManager) {
-            region = this._viewController.regionManager.get(regionName);
+        if (this._layout && this._layout.regionManager) {
+            region = this._layout.regionManager.get(regionName);
         }
 
         //if the region isn`t in the application layout, retrieve the region from the application region manager defined as application region
@@ -266,6 +296,288 @@ JSkeleton.Application = JSkeleton.BaseApplication.extend({
 
     //Get child app instance by name
     getChildApplication: function(appName) {
-        return this._childApps[appName];
+        return this._childApplications[appName];
+    },
+    stop: function(options) {
+        this.stopListening();
+    },
+    //Call to the specified view-controller method for render a app state
+    invokeViewControllerRender: function(routeObject, args, handlerName) {
+        // var hook = this.getHook(),
+        //Get the view controller instance
+        var viewController = routeObject._viewController = this._getViewControllerInstance(routeObject);
+
+        this.triggerMethod('onNavigate', viewController);
+
+        this._showViewController(viewController, handlerName, args);
+    },
+    //Factory method to instance objects from Class references or from factory key strings
+    getInstance: function(Class, extendProperties, options) {
+        options = options || {};
+        options.parentApp = this;
+
+        return this.di.create(Class, extendProperties, options);
+    },
+    destroy: function(options) {
+        this.removeRegions();
+    },
+    removeRegions: function() {
+        //TODO
+    },
+    getDefaultviewController: function() {},
+    //Get default application layout class if no layoutClass is specified
+    getDefaultLayoutClass: function() {
+        return Marionette.LayoutView;
+    },
+    //Factory hook method
+    getHook: function() {
+        return new JSkeleton.Hook();
+    },
+    //Generate unique app id using underscore uniqueId method
+    _getAppId: function() {
+        return _.uniqueId('a');
+    },
+    _addApplicationDependencies: function() {
+
+        this.di.inject({
+            _privateChannel: this.privateChannel,
+            _globalChannel: this.globalChannel,
+            _app: this,
+            _scope: this.scope
+        });
+
+    },
+    //Show the controller view instance in the application region
+    _showViewController: function(viewController, handlerName, args) {
+
+        if (this._region && this._region.currentView !== viewController) {
+
+            this._region.show(viewController, {
+                renderOptions: args
+            });
+
+        } else {
+            // view already rendered, update view
+            if (this._region) {
+                viewController.refresh({
+                    renderOptions: args
+                });
+            }
+        }
+    },
+    //Add application routes  to the router and event handlers to the global channel
+    _initRoutes: function() {
+
+        var self = this;
+
+        this.router.addApplicationRoutes(this.routes);
+
+        this.listenTo(this.router, 'navigate', function(opts) {
+            self._processNavigation(opts.routeString, opts.routeObject, opts.params /*, handlerName, args*/ );
+        });
+
+    },
+    //Process a navigation (either event or route navigation).
+    //Check if the navigation should be completed (if all the filters success).
+    //Also call to the declared middlewares before navigate.
+    _processNavigation: function(routeString, routeObject, args, handlerName) {
+
+        if (this._routeFilterProcessing(routeString, routeObject, args)) {
+
+            //middlewares processing before navigation
+            this._middlewaresProcessing(routeString, routeObject, args);
+
+            //check if the navigate option is set to false to prevent from change the navigation url
+            if (routeObject.navigate !== false) {
+                //update the url
+                this._navigateTo.call(this, routeString, routeObject, args);
+            }
+
+            this.invokeViewControllerRender(routeObject, args, handlerName || 'processContext');
+        }
+
+    },
+    //Update the url with the specified parameters.
+    //If triggerNavigate option is set to true, the route callback will be fired adding an entry to the history.
+    _navigateTo: function(routeString, routeOptions, params) {
+
+        var triggerValue = routeOptions.triggerNavigate === true ? true : false,
+            processedRoute = this.router._replaceRouteString(routeString, params);
+
+        this.router.navigate(processedRoute, {
+            trigger: triggerValue
+        });
+
+    },
+    //RouteFilters Middlewares handlers processor
+    _routeFilterProcessing: function(routeString, routeOptions, params) {
+        var self = this,
+            filterError = false,
+            err = null,
+            result,
+            _routeParams = {
+                routeString: routeString,
+                routeOptions: routeOptions,
+                params: params
+            };
+
+        var mainStack = (this.parentApp) ? this.parentApp.filterStack : this.filterStack;
+
+        if (mainStack.length !== 0) {
+            for (var i = 0; i < mainStack.length; i++) {
+                result = mainStack[i].call(self, _routeParams);
+                if (typeof result !== true && typeof result !== 'undefined') {
+                    filterError = true;
+                    err = result;
+                    break;
+                }
+            }
+        }
+
+        if (filterError === false) {
+            return true;
+        } else {
+            this.parentApp ? this.parentApp.triggerMethod('filter:error', err, _routeParams) : this.triggerMethod('filter:error', err, _routeParams); //jshint ignore:line
+        }
+    },
+    //Middlewares handlers processing
+    _middlewaresProcessing: function(routeString, routeOptions, params) {
+        var self = this,
+            _routeParams = {
+                routeString: routeString,
+                routeOptions: routeOptions,
+                params: params
+            };
+
+        var mainStack = (this.parentApp) ? this.parentApp.middlewareStack : this.middlewareStack;
+
+        if (mainStack.length !== 0) {
+            for (var i = 0; i < mainStack.length; i++) {
+                mainStack[i].call(self, _routeParams);
+            }
+        }
+    },
+    _use: function(type, fn) {
+        var offset = 1;
+        var fns = _.flatten(Array.prototype.slice.call(arguments, offset));
+
+        if (fns.length === 0) {
+            throw new TypeError('Application.use() requires functions');
+        }
+        //evaluate type of middlewares and push to their stack
+        if (type === 'routeFilters') {
+            this.filterStack = _.union(this.filterStack, fns);
+        } else if (type === 'middlewares') {
+            this.middlewareStack = _.union(this.middlewareStack, fns);
+        }
+    },
+    // Get a view controller instance (if no view controller is specified, a default view controller class is instantiated).
+    //Ensure that don't extist a view-controller and if exist that it's not destroyed.
+    //The view controller is instantiated using the `JSkeleton.Di` to resolve the view-controller dependencies.
+    _getViewControllerInstance: function(routeObject) {
+        var self = this,
+            //get the view-controller instance (if it exists)
+            viewController = routeObject._viewController,
+            //get the view-controller class
+            ViewControllerClass = routeObject.viewControllerClass,
+            //get the view-controller options
+            viewControllerOptions = routeObject._viewControllerOptions || {};
+
+        //get the view-controller template
+        var viewControllerExtendTemplate = routeObject.template ? {
+            template: routeObject.template
+        } : undefined;
+
+        if (!viewController || viewController.isDestroyed === true) {
+            viewController = this.getInstance(ViewControllerClass, viewControllerExtendTemplate, viewControllerOptions);
+            this.listenTo(viewController, 'destroy', this._removeViewController.bind(this, routeObject, viewController));
+        }
+
+        return viewController;
+    },
+    //Get the application view-controller class.
+    //Retrieve a default view controller class if no controller is specified in the options.
+    //If a key string is specified as view-controller, a factory object is retrieved `{Class: ClassReference, Parent: ParentClassReference}`
+    _getViewControllerClass: function(options) {
+        var ViewController;
+
+        //the view controller class is a factory key string
+        if (typeof options.viewControllerClass === 'string') {
+            ViewController = JSkeleton.factory.get(options.viewControllerClass);
+        } else {
+            //the view controller class is a class reference
+            //If no view controller class is specified, a default JSkeleton.ViewController is retrieved
+            ViewController = options.viewControllerClass || JSkeleton.ViewController;
+        }
+
+        return ViewController;
+    },
+    _removeViewController: function(routeObject, viewController) {
+        if (routeObject._viewController === viewController) {
+            routeObject._viewController = undefined;
+        }
+    },
+    //Attach application events to the global channel (triggers and listeners)
+    _proxyEvents: function(options) {
+        options = options || {};
+        var events = options.events || this.events || {};
+
+        this._proxyTriggerEvents(events.triggers);
+        this._proxyListenEvents(events.listen);
+    },
+    //Attach trigger events:
+    //Propagate internal events (application channel) into the global channel
+    _proxyTriggerEvents: function(triggerArray) {
+        var self = this;
+        //Check if triggers are defined
+        if (triggerArray && typeof triggerArray === 'object') {
+            _.each(triggerArray, function(eventName) {
+                //Listen to the event in the private channel
+                self.listenTo(self.privateChannel, eventName, function() {
+                    var args;
+                    //if the event type is 'all', the first argument is the name of the event
+                    if (eventName === 'all') {
+                        eventName = arguments[0];
+                        //casting arguments array-like object to array with excluding the eventName argument
+                        args = [eventName].concat(Array.prototype.slice.call(arguments, 1));
+                    } else {
+                        //casting arguments array-like object to array
+                        args = Array.prototype.slice.call(arguments);
+                    }
+
+                    //trigger the event throw the globalChannel
+                    self.globalChannel.trigger.apply(self.globalChannel, [eventName].concat(args));
+                });
+            });
+
+        }
+    },
+    //Attach Global events to the private channel:
+    //Propagate external events (global channel) into the private channel
+    _proxyListenEvents: function(listenObject) {
+        var self = this;
+        if (listenObject && typeof listenObject === 'object') {
+            _.each(listenObject, function(eventName) {
+                //Listen to that event in the global channel
+                self.listenTo(self.globalChannel, eventName, function() {
+                    var args;
+
+                    //if the event is 'all' the first argument is the name of the event
+                    if (eventName === 'all') {
+                        eventName = arguments[0];
+                        //casting arguments array-like object to array with excluding the eventName argument
+                        args = [eventName].concat(Array.prototype.slice.call(arguments, 1));
+                    } else {
+                        //casting arguments array-like object to array
+                        args = Array.prototype.slice.call(arguments);
+                    }
+
+                    //trigger the event throw the globalChannel
+                    self.privateChannel.trigger.apply(self.privateChannel, [eventName].concat(args));
+                });
+            });
+        }
     }
+}, {
+    factory: JSkeleton.Utils.FactoryAdd
 });

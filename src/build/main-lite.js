@@ -40,9 +40,7 @@
     //  @include ../core/store.js
     //  @include ../core/router.js
     //  @include ../core/service.js
-    //  @include ../core/base-application.js
     //  @include ../core/application.js
-    //  @include ../core/child-application.js
     //  @include ../core/view.js
     //  @include ../core/item-view.js
     //  @include ../core/layout-view.js
@@ -59,7 +57,6 @@
     //  @include ../utils/factory.js
     //  @include ../utils/common.js
     //  @include ../utils/behaviors.js
-
 
     return JSkeleton;
 

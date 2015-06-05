@@ -14,22 +14,6 @@ describe('Router', function() {
         expect(router).to.be.an('object');
     });
 
-    it('has all properties and methods', function() {
-        expect(JSkeleton.Router.prototype).to.include.keys(
-            'constructor',
-            'routes',
-            'initialize',
-            'route',
-            'init',
-            'start',
-            'execute',
-            '_replaceRouteString',
-            '_getHandlerNameFromRoute',
-            '_getRouteParamsNames',
-            '_extractParametersAsObject'
-        );
-    });
-
     it('JSkeleton Router has all static methods', function() {
         expect(JSkeleton.Router).to.include.keys(
             'getSingleton',
@@ -37,13 +21,13 @@ describe('Router', function() {
         );
     });
 
-    it('router start', function() {
-        var stubInit = sandbox.stub(router, 'init');
+    it('router starts backbone history', function() {
+        var stubStart = sandbox.stub(JSkeleton.Router, 'start');
 
-        router.start();
-        expect(stubInit.calledOnce);
+        router.init();
+
+        expect(stubStart.calledOnce);
     });
-
 
     describe('_replaceRouteString generates expected routes', function() {
 

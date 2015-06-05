@@ -43,23 +43,11 @@ describe('Application object', function() {
         });
 
         it('should have applications property', function() {
-            expect(this.application).to.have.property('applications');
-        });
-
-        it('should have global channel', function() {
-            expect(this.application).to.have.property('globalChannel');
-        });
-
-        it('should have global channel called "global"', function() {
-            this.application.globalChannel.channelName.should.equal('global');
-        });
-
-        it('should have private channel', function() {
-            expect(this.application).to.have.property('privateChannel');
+            expect(this.application).to.have.property('_childApplications');
         });
 
         it('can has a root region with a default "body" el reference', function() {
-            expect(this.application.main).to.be.instanceof(Marionette.Region);
+            expect(this.application.main).to.be.instanceof(JSkeleton.Region);
             expect(this.application.main.el).to.be.equal(this.application.defaultEl);
         });
 
@@ -77,30 +65,6 @@ describe('Application object', function() {
 
     });
 
-    describe('with custom defaultEl and defaultRegion properties', function() {
-
-        before(function() {
-            $('body').append('<div class=".main"> </div>');
-
-            this.Application = JSkeleton.Application.extend({
-                mainRegionName: 'customMain',
-                defaultEl: '.main'
-            });
-
-            this.application = new this.Application();
-        });
-
-        after(function() {
-            $('.main').remove();
-        });
-
-        it('can has a main region with a valid default el reference', function() {
-            expect(this.application.customMain).to.be.instanceof(Marionette.Region);
-            expect(this.application.customMain.el).to.be.equal('.main');
-        });
-
-    });
-
     describe('with custom regions', function() {
 
         before(function() {
@@ -110,9 +74,9 @@ describe('Application object', function() {
         after(function() {});
 
         it('create the regions when the application is instantiated', function() {
-            expect(this.application.region1).to.be.instanceof(Marionette.Region);
+            expect(this.application.region1).to.be.instanceof(JSkeleton.Region);
             expect(this.application.region1.el).to.be.equal('.region1');
-            expect(this.application.region2).to.be.instanceof(Marionette.Region);
+            expect(this.application.region2).to.be.instanceof(JSkeleton.Region);
             expect(this.application.region2.el).to.be.equal('.region2');
         });
 
@@ -122,12 +86,12 @@ describe('Application object', function() {
 
         before(function() {
 
-            this.ChildApp = JSkeleton.ChildApplication.extend({});
-            this.ChildAppNotStart = JSkeleton.ChildApplication.extend({
+            this.ChildApp = JSkeleton.Application.extend({});
+
+            this.ChildAppNotStart = JSkeleton.Application.extend({
                 startWithParent: false
             });
 
-            this.startSpy = sandbox.spy(JSkeleton.ChildApplication.prototype, 'start');
             // this.notStartChilldAppSpy = sandbox.spy(this.ChildAppNotStart.prototype, 'start');
 
             this.AppWithSubApps = this.Application.extend({
@@ -146,6 +110,22 @@ describe('Application object', function() {
 
             this.application = new this.AppWithSubApps();
 
+            this.childApp = new this.ChildApp({
+                parentApplication: this.application
+            });
+
+            this.childAppNotStart = new this.ChildAppNotStart({
+                parentApplication: this.application
+            });
+
+            this.factoryStub = sandbox.stub(this.application, 'getInstance');
+
+            this.factoryStub.withArgs(this.ChildApp).returns(this.childApp);
+            this.factoryStub.withArgs(this.ChildAppNotStart).returns(this.childAppNotStart);
+
+            this.childAppStartSpy = sandbox.spy(this.childApp, 'start');
+            this.childAppNotStartSpy = sandbox.spy(this.childAppNotStart, 'start');
+
             this.application.start();
         });
 
@@ -158,11 +138,11 @@ describe('Application object', function() {
         });
 
         it('start it`s child applications when it starts', function() {
-            expect(this.startSpy.calledOnce).to.be.equal(true);
+            expect(this.childAppStartSpy.calledOnce).to.be.equal(true);
         });
 
         it('doesn`t start it`s child applications if startWithParent option is set to false', function() {
-            expect(this.startSpy.calledOnce).to.be.equal(true);
+            expect(this.childAppNotStartSpy.called).to.be.equal(false);
         });
 
     });
@@ -182,7 +162,8 @@ describe('Application object', function() {
             this.customTemplate = '<div> <div class="content"></div> </div> <div class="content2"></div>';
 
             this.Application = JSkeleton.Application.extend({
-                viewController: this.ViewController
+                waitBeforeStartHooks: false,
+                layout: this.ViewController
             });
 
             this.viewController = new this.ViewController({
@@ -200,11 +181,11 @@ describe('Application object', function() {
             this.application.start();
         });
 
-        it('have a View-Controller instance of the specified Layout class', function() {
-            expect(this.application._viewController).to.be.instanceof(this.ViewController);
+        it('have a layout instance of the specified Layout class', function() {
+            expect(this.application._layout).to.be.instanceof(this.ViewController);
         });
 
-        it('render the View-Controller when the application is created', function() {
+        it('render the layout when the application is created', function() {
             expect(this.renderSpy.calledOnce).to.be.equal(true);
         });
 
@@ -212,12 +193,12 @@ describe('Application object', function() {
             expect(this.viewController).to.include.keys('content', 'content2');
         });
 
-        it('the View-Controller template can be override', function() {
+        it('the layout template can be override', function() {
 
             this.ApplicationTemplate = JSkeleton.Application.extend({
                 waitBeforeStartHooks: false,
-                viewController: {
-                    viewControllerClass: this.ViewController,
+                layout: {
+                    layoutClass: this.ViewController,
                     template: this.customTemplate
                 }
             });
@@ -228,7 +209,7 @@ describe('Application object', function() {
 
             this.app.start();
 
-            expect(this.app._viewController.template).to.be.equal(this.customTemplate);
+            expect(this.app._layout.template).to.be.equal(this.customTemplate);
 
         });
 

@@ -4,7 +4,6 @@
 
 /* jshint unused: false */
 
-
 var paramsNames = /:\w(\_|\w|\d)*/g;
 
 //optionalParam = /\((.*?)\)/g,
@@ -141,23 +140,84 @@ JSkeleton.Router = Backbone.Router.extend({
         return names;
     },
 
+    //Add application routes to the Backbone.Router.
+    //Could be an object with multiple routes, and with a default view controller for these routes.
+    addApplicationRoutes: function(routes) {
+        routes = routes || {};
+
+        var defaultViewController,
+            self = this;
+
+        if (routes.viewController) {
+            defaultViewController = routes.viewController;
+        }
+
+        _.each(routes, function(routeObject, routeString) {
+            if (typeof routeString === 'string' && routeString !== 'viewController') {
+
+                if (!routeObject.viewControllerClass && defaultViewController) {
+                    routeObject.viewController = defaultViewController;
+                }
+
+                //Add the route listener to the Backbone.Router
+                self.route(routeString, {
+                    viewControllerHandler: true,
+                    triggerEvent: routeObject.triggerEvent
+                    // handlerName: routeObject.handlerName
+                }, function(params) {
+                    //set the default view controller if it exists and if the route object doesn't have one
+                    self._processRoute(routeString, _.extend(routeObject, {
+                        navigate: false
+                    }), params);
+                });
+
+                if (routeObject.eventListener) {
+                    JSkeleton.globalChannel.on(routeObject.eventListener, function(args) {
+                        self._processRoute(routeString, routeObject, args);
+                    });
+                }
+            }
+        });
+
+    },
+
+    //Update the url with the specified parameters.
+    //If triggerNavigate option is set to true, the route callback will be fired adding an entry to the history.
+    _navigateTo: function(routeString, routeOptions, params) {
+
+        var triggerValue = routeOptions.triggerNavigate === true ? true : false,
+            processedRoute = this._replaceRouteString(routeString, params);
+
+        this.router.navigate(processedRoute, {
+            trigger: triggerValue
+        });
+
+    },
+    //
+    _processRoute: function(routeString, routeObject, params) {
+        this.trigger('navigate', {
+            routeString: routeString,
+            routeObject: routeObject,
+            params: params
+        });
+    },
+    init: function() {
+        JSkeleton.Router.start();
+    }
+}, {
     // Router initialization.
     // Bypass all anchor links except those with data-bypass attribute
     // Starts router history. All routes should be already added
-    init: function() {
+    start: function() {
         // Trigger the initial route and enable HTML5 History API support, set the
         // root folder to '/' by default.  Change in app.js.
-        Backbone.history.start();
+        if (!Backbone.History.started) {
+            Backbone.history.start();
+        }
 
         // log.debug('router.location.hash', window.location.hash.replace('#/', '/'));
         // Backbone.history.navigate(window.location.hash.replace('#/', '/'), true);
     },
-
-    start: function() {
-        this.init();
-    }
-}, {
-
     // Get singleton instance bject
     getSingleton: function() {
 
@@ -172,10 +232,5 @@ JSkeleton.Router = Backbone.Router.extend({
 
         JSkeleton.router = getInstance();
         return JSkeleton.router;
-    },
-
-    // Initialize Backbone.history.start
-    start: function(app) {
-        app.router.init();
     }
 });

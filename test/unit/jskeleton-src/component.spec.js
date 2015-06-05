@@ -90,7 +90,8 @@ describe('In Component module', function() {
 
         beforeEach(function() {
             var templateErrorClassName = '{{@component model=context.model}}';
-            var ChildAppError = JSkeleton.ChildApplication.extend({
+
+            var ChildAppError = JSkeleton.Application.extend({
                 routes: {
                     '': {
                         viewControllerClass: ViewControllerComponent,
@@ -98,10 +99,11 @@ describe('In Component module', function() {
                     }
                 }
             });
+
             MainErrorApp = JSkeleton.Application.extend({
                 waitBeforeStartHooks: false,
-                viewController: {
-                    viewControllerClass: ViewController,
+                layout: {
+                    layoutClass: ViewController,
                     template: '<div class="content"></div>'
                 },
                 applications: {
@@ -138,7 +140,8 @@ describe('In Component module', function() {
             eventChannelSpy = sinon.spy(ViewListComponent.prototype, 'onRender');
 
             var templateCorrectComponent = '{{@component name="ViewComponent" model=context.model}}';
-            var ChildApp = JSkeleton.ChildApplication.extend({
+
+            var ChildApp = JSkeleton.Application.extend({
                 routes: {
                     '': {
                         viewControllerClass: ViewControllerComponent,
@@ -155,8 +158,8 @@ describe('In Component module', function() {
 
             MainApp = JSkeleton.Application.extend({
                 waitBeforeStartHooks: false,
-                viewController: {
-                    viewControllerClass: ViewController,
+                layout: {
+                    layoutClass: ViewController,
                     template: '<div class="content"></div>'
                 },
                 applications: {

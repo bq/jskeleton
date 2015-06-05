@@ -71,9 +71,7 @@
     //  @include ../core/di.js
     //  @include ../core/router.js
     //  @include ../core/service.js
-    //  @include ../core/base-application.js
     //  @include ../core/application.js
-    //  @include ../core/child-application.js
     //  @include ../core/view.js
     //  @include ../core/item-view.js
     //  @include ../core/layout-view.js
@@ -83,6 +81,8 @@
 
     JSkeleton.di = new JSkeleton.Di();
     JSkeleton.extension = new JSkeleton.Extension();
+
+    JSkeleton.globalChannel = Backbone.Radio.channel('global');
 
     return JSkeleton;
 

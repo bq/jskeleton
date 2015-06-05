@@ -75,9 +75,7 @@ if (!process.env || process.env.SOURCES !== 'MARIONETTE') {
     requireHelper('/utils/behaviors.js');
     requireHelper('/core/router.js');
     requireHelper('/core/service.js');
-    requireHelper('/core/base-application.js');
     requireHelper('/core/application.js');
-    requireHelper('/core/child-application.js');
     requireHelper('/core/di.js');
     requireHelper('/core/view.js');
     requireHelper('/core/item-view.js');
