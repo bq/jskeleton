@@ -17,7 +17,6 @@ module.exports = function(grunt) {
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
 
-
     // Configurable paths
     var config = {
         src: 'src',
@@ -178,6 +177,17 @@ module.exports = function(grunt) {
                 src: [
                     'test/unit/setup/helpers.js',
                     'test/unit/jskeleton-src/*.spec.js'
+                ]
+            },
+            marionette: {
+                options: {
+                    require: 'test/unit/setup/node.js',
+                    reporter: grunt.option('mocha-reporter') || 'nyan',
+                    clearRequireCache: true,
+                    mocha: require('mocha')
+                },
+                src: [
+                    'test/unit/marionette-comp/*.spec.js'
                 ]
             }
         },
@@ -352,7 +362,6 @@ module.exports = function(grunt) {
         },
     });
 
-
     grunt.registerTask('serve', 'start the server and preview your app, --allow-remote for remote access', function(target) {
         /*if (grunt.option('allow-remote')) {
             grunt.config.set('connect.options.hostname', '0.0.0.0');
@@ -366,7 +375,6 @@ module.exports = function(grunt) {
 
         grunt.task.run(['build', 'browserSync', 'watch']);
 
-
     });
 
     grunt.registerTask('server', function(target) {
@@ -376,17 +384,22 @@ module.exports = function(grunt) {
 
     grunt.registerTask('test', function(target) {
 
+        grunt.task.run(['build']);
+
         if (target === 'src') {
             return grunt.task.run(['mochaTest:src']);
-
         }
+
         if (target === 'examples') {
             return grunt.task.run(['mochaTest:tests']);
-
         }
+
+        if (target === 'examples') {
+            return grunt.task.run(['mochaTest:marionette']);
+        }
+
         // Default all
         grunt.task.run([
-            'build',
             'jshint:test',
             'mochaTest:tests'
         ]);
