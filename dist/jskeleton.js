@@ -1,4 +1,4 @@
-/*! jskeleton - v0.0.1 - 2015-06-02 
+/*! jskeleton - v0.0.1 - 2015-06-05 
  */(function(root, factory) {
     'use strict';
     /*globals require,define */
@@ -12693,7 +12693,9 @@
     
     JSkeleton.modelStore = new JSkeleton.ModelStore();
     'use strict';
-    /*globals JSkeleton, Backbone, Marionette _ */
+    
+    /*globals JSkeleton, Backbone, Marionette, _ */
+    
     /* jshint unused: false */
     
     //## JSkeleton.Region
@@ -12720,8 +12722,7 @@
             var isDifferentView = view !== this.currentView;
             var preventDestroy = !!showOptions.preventDestroy;
             var forceShow = !!showOptions.forceShow;
-            var handlerOptions = showOptions.handlerOptions;
-            var handlerName = showOptions.handlerName || '';
+            var renderOptions = showOptions.renderOptions || {};
     
             // We are only changing the view if there is a current view to change to begin with
             var isChangingView = !!this.currentView;
@@ -12762,12 +12763,7 @@
                 // we can not reuse it.
                 view.once('destroy', this.empty, this);
     
-    
-                if (handlerName) {
-                    this._processHandler(view, handlerName, handlerOptions);
-                }
-                view.render();
-    
+                view.render(renderOptions);
     
                 view._parent = this;
     
@@ -12817,39 +12813,28 @@
             }
     
             return this;
-        },
-    
-        _processHandler: function(view, handlerName, args) {
-            var promise;
-            view.context.isPromise = false;
-    
-            if (view[handlerName] && typeof view[handlerName] === 'function') {
-                promise = view[handlerName].call(view, args);
-            }
-    
-            //the result of the "render"
-            //method invocation is a promise and will be resolved later
-            if (promise && typeof promise.then === 'function') {
-                promise.then(function() {
-                    //expose a isPromise flag to the template
-                    view.context.isPromise = false;
-                    //if the `renderOnPromise` option is set to true, re-render the `JSkeleton.ViewController`
-                    if (view.renderOnPromise === true) {
-                        view.render();
-                        //JSkeleton.LayoutView.prototype.render.apply(this, arguments);
-                    }
-                });
-    
-                //Set up the `JSkeleton.ViewController` context
-                view.context.isPromise = true;
-            }
         }
     });
     
+    Marionette.RegionManager.prototype.addRegion = function(name, definition) {
+        var region;
     
-    Marionette.Region.prototype.show = JSkeleton.Region.prototype.show;
-    Marionette.Region.prototype._processHandler = JSkeleton.Region.prototype._processHandler;
+        if (definition instanceof JSkeleton.Region) {
+            region = definition;
+        } else {
+            region = Marionette.Region.buildRegion(definition, JSkeleton.Region);
+        }
     
+        this.triggerMethod('before:add:region', name, region);
+    
+        region._parent = this;
+    
+        this._store(name, region);
+    
+        this.triggerMethod('add:region', name, region);
+    
+        return region;
+    };
     'use strict';
     /*globals JSkeleton, Backbone _ */
     /* jshint unused: false */
@@ -14042,7 +14027,7 @@
     /* jshint unused: false */
     
     JSkeleton.LayoutView = Marionette.LayoutView.extend({
-    
+        regionClass: JSkeleton.Region,
         constructor: function(options) {
             options = options || {};
     
@@ -14148,7 +14133,6 @@
             renderOnPromise: true,
             constructor: function(options) {
                 options = options || {};
-                this._ensureOptions(options);
                 this._app = options.app;
                 this.region = options.region;
                 this.service = options.service;
@@ -14159,19 +14143,12 @@
                 JSkeleton.LayoutView.prototype.constructor.apply(this, arguments);
             },
     
-            _ensureOptions: function(options) {
-                if (!options.app) {
-                    throw new Error('View-controller needs to have the reference to its application');
-                }
-            },
-    
             //expose application enviroment, ViewController context and `Marionette.templateHelpers` to the view-controller template
             mixinTemplateHelpers: function(target) {
                 target = target || {};
                 var templateHelpers = this.getOption('templateHelpers');
     
                 templateHelpers = Marionette._getValue(templateHelpers, this);
-    
     
                 var templateContext = {
                     enviroment: {
@@ -14274,7 +14251,17 @@
                 });
             },
     
-            render: function() {
+            render: function(args) {
+    
+                this._processState(args);
+    
+                this.baseRender();
+    
+                return this;
+            },
+    
+            baseRender: function() {
+    
                 this._destroyComponents();
     
                 JSkeleton.LayoutView.prototype.render.apply(this, arguments);
@@ -14283,7 +14270,46 @@
     
                 this.bindComponents();
     
-                return this;
+            },
+    
+            refresh: function(options) {
+                options = options || {};
+    
+                if (options.processState) {
+                    this._processState(options.renderoptions);
+                }
+    
+                this.baseRender();
+    
+            },
+    
+            _processState: function(args) {
+                var promise,
+                    methodName = 'onStateChange',
+                    self = this;
+    
+                this.context.isPromise = false;
+    
+                if (this[methodName] && typeof this[methodName] === 'function') {
+                    promise = this[methodName].call(this, args);
+                }
+    
+                //the result of the "render"
+                //method invocation is a promise and will be resolved later
+                if (promise && typeof promise.then === 'function') {
+                    promise.then(function() {
+                        //expose a isPromise flag to the template
+                        self.context.isPromise = false;
+                        //if the `renderOnPromise` option is set to true, re-render the `JSkeleton.ViewController`
+                        if (self.renderOnPromise === true) {
+                            self.refresh();
+                            //JSkeleton.LayoutView.prototype.render.apply(this, arguments);
+                        }
+                    });
+    
+                    //Set up the `JSkeleton.ViewController` context
+                    this.context.isPromise = true;
+                }
             },
     
             destroy: function() {
@@ -14291,7 +14317,6 @@
                 return Marionette.LayoutView.prototype.destroy.apply(this, arguments);
             }
         });
-    
 
     JSkeleton.di = new JSkeleton.Di();
     JSkeleton.extension = new JSkeleton.Extension();

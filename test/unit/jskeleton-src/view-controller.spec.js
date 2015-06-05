@@ -30,32 +30,9 @@ describe('In view-controller ', function() {
         expect(this.ViewController.prototype).to.be.an('object');
     });
 
-    it('it has all namespace properties', function() {
-        expect(this.ViewController.prototype).to.include.keys(
-            'constructor',
-            '_ensureOptions',
-            'mixinTemplateHelpers',
-            'addComponent',
-            'destroy',
-            '_destroyComponents',
-            '_delegateComponentEvent',
-            '_undelegateComponentEvent',
-            'unbindComponents',
-            'bindComponents',
-            'render'
-        );
-    });
-
     it('we can create a new view-controller object', function() {
         expect(this.createViewController.bind(this, this.viewControllerOptions)).to.not.throw(Error);
         expect(this.createViewController(this.viewControllerOptions)).to.be.instanceof(this.ViewController);
-    });
-
-    it('throws errors if we try to create a new view-controller with any option missing', function() {
-        expect(this.createViewController).to.throw(Error);
-
-        expect(this.createViewController.bind(this, {})).to.throw(Error);
-
     });
 
     describe('when we have a view-controller object', function() {
@@ -239,7 +216,7 @@ describe('In view-controller ', function() {
                     this.promise = this.def.promise();
 
                     this.ViewController = JSkeleton.ViewController.extend({
-                        contextMethod: sandbox.stub().returns(this.promise),
+                        onStateChange: sandbox.stub().returns(this.promise),
                         template: '<div></div>'
                     });
 
@@ -248,15 +225,14 @@ describe('In view-controller ', function() {
                     this.promiseNoRender = this.defNoRender.promise();
 
                     this.ViewControllerNoReRender = JSkeleton.ViewController.extend({
-                        contextMethod: sandbox.stub().returns(this.promiseNoRender),
+                        onStateChange: sandbox.stub().returns(this.promiseNoRender),
                         renderOnPromise: false,
                         template: '<div></div>'
                     });
 
                     this.viewController = new this.ViewController({
                         app: {},
-                        region: {},
-                        handlerName: 'contextMethod'
+                        region: {}
                     });
 
                     this.viewControllerNoReRender = new this.ViewControllerNoReRender({
@@ -269,39 +245,50 @@ describe('In view-controller ', function() {
                     });
 
                     this.renderSpy = sandbox.spy(this.viewController, 'render');
+                    this.refreshSpy = sandbox.spy(this.viewController, 'refresh');
                     this.noRenderSpy = sandbox.spy(this.viewControllerNoReRender, 'render');
+                    this.noRenderRefreshSpy = sandbox.spy(this.viewControllerNoReRender, 'refresh');
                 });
 
                 after(function() {
                     $('.test-layer').remove();
                 });
 
-                it.skip('view-controller is re-render ', function(done) {
+                afterEach(function() {
+                    this.renderSpy.reset();
+                    this.refreshSpy.reset();
+                    this.noRenderSpy.reset();
+                });
+
+                it('view-controller is refresh ', function(done) {
                     var that = this;
-                    this.region.show(this.viewController, {
-                        handlerName: 'contextMethod'
-                    });
+
+                    this.region.show(this.viewController);
 
                     expect(this.renderSpy.calledOnce).to.be.equal(true);
 
                     this.def.resolve();
 
                     this.promise.then(function() {
-                        expect(that.renderSpy.calledTwice).to.be.equal(true);
+                        expect(that.refreshSpy.calledOnce).to.be.equal(true);
                         done();
                     });
                 });
 
-                it('view-controller is not re-render if renderOnPromise is false', function(done) {
+                it('view-controller is not refresh if renderOnPromise is false', function(done) {
                     var that = this;
 
                     this.region.show(this.viewControllerNoReRender, 'contextMethod');
+
                     expect(this.noRenderSpy.calledOnce).to.be.equal(true);
 
                     this.defNoRender.resolve();
 
                     this.promiseNoRender.then(function() {
+
                         expect(that.noRenderSpy.calledOnce).to.be.equal(true);
+                        expect(that.noRenderRefreshSpy.called).to.be.equal(false);
+
                         done();
                     });
 

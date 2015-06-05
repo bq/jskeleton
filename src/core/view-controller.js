@@ -10,7 +10,6 @@
         renderOnPromise: true,
         constructor: function(options) {
             options = options || {};
-            this._ensureOptions(options);
             this._app = options.app;
             this.region = options.region;
             this.service = options.service;
@@ -21,19 +20,12 @@
             JSkeleton.LayoutView.prototype.constructor.apply(this, arguments);
         },
 
-        _ensureOptions: function(options) {
-            if (!options.app) {
-                throw new Error('View-controller needs to have the reference to its application');
-            }
-        },
-
         //expose application enviroment, ViewController context and `Marionette.templateHelpers` to the view-controller template
         mixinTemplateHelpers: function(target) {
             target = target || {};
             var templateHelpers = this.getOption('templateHelpers');
 
             templateHelpers = Marionette._getValue(templateHelpers, this);
-
 
             var templateContext = {
                 enviroment: {
@@ -136,7 +128,17 @@
             });
         },
 
-        render: function() {
+        render: function(args) {
+
+            this._processState(args);
+
+            this.baseRender();
+
+            return this;
+        },
+
+        baseRender: function() {
+
             this._destroyComponents();
 
             JSkeleton.LayoutView.prototype.render.apply(this, arguments);
@@ -145,7 +147,46 @@
 
             this.bindComponents();
 
-            return this;
+        },
+
+        refresh: function(options) {
+            options = options || {};
+
+            if (options.processState) {
+                this._processState(options.renderoptions);
+            }
+
+            this.baseRender();
+
+        },
+
+        _processState: function(args) {
+            var promise,
+                methodName = 'onStateChange',
+                self = this;
+
+            this.context.isPromise = false;
+
+            if (this[methodName] && typeof this[methodName] === 'function') {
+                promise = this[methodName].call(this, args);
+            }
+
+            //the result of the "render"
+            //method invocation is a promise and will be resolved later
+            if (promise && typeof promise.then === 'function') {
+                promise.then(function() {
+                    //expose a isPromise flag to the template
+                    self.context.isPromise = false;
+                    //if the `renderOnPromise` option is set to true, re-render the `JSkeleton.ViewController`
+                    if (self.renderOnPromise === true) {
+                        self.refresh();
+                        //JSkeleton.LayoutView.prototype.render.apply(this, arguments);
+                    }
+                });
+
+                //Set up the `JSkeleton.ViewController` context
+                this.context.isPromise = true;
+            }
         },
 
         destroy: function() {
