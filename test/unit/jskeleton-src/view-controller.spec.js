@@ -128,7 +128,6 @@ describe('In view-controller ', function() {
                 this.mainRegion.show(this.viewController);
             });
 
-
             it('it is rendered', function() {
                 expect(this.viewController.isRendered).to.be.true;
             });
@@ -277,8 +276,7 @@ describe('In view-controller ', function() {
                     $('.test-layer').remove();
                 });
 
-
-                it('view-controller is re-render ', function(done) {
+                it.skip('view-controller is re-render ', function(done) {
                     var that = this;
                     this.region.show(this.viewController, {
                         handlerName: 'contextMethod'
@@ -309,11 +307,7 @@ describe('In view-controller ', function() {
 
                 });
 
-
             });
-
-
-
 
         });
     });

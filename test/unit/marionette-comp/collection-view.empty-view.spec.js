@@ -220,7 +220,7 @@ describe('collectionview - emptyView', function() {
             }];
             this.collection = new Backbone.Collection(this.data);
             this.el = $('<div></div>');
-            this.region = new Backbone.Marionette.Region({
+            this.region = new JSkeleton.Region({
                 el: this.el
             });
 

@@ -1,4 +1,5 @@
-(function(root, factory) {
+/*! jskeleton - v0.0.1 - 2015-06-02 
+ */(function(root, factory) {
     'use strict';
     /*globals require,define */
     /* jshint unused: false */

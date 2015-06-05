@@ -1,5 +1,7 @@
 'use strict';
-/*globals JSkeleton, Backbone, Marionette _ */
+
+/*globals JSkeleton, Backbone, Marionette, _ */
+
 /* jshint unused: false */
 
 //## JSkeleton.Region
@@ -26,8 +28,7 @@ JSkeleton.Region = Marionette.Region.extend({
         var isDifferentView = view !== this.currentView;
         var preventDestroy = !!showOptions.preventDestroy;
         var forceShow = !!showOptions.forceShow;
-        var handlerOptions = showOptions.handlerOptions;
-        var handlerName = showOptions.handlerName || '';
+        var renderOptions = showOptions.renderOptions || {};
 
         // We are only changing the view if there is a current view to change to begin with
         var isChangingView = !!this.currentView;
@@ -68,12 +69,7 @@ JSkeleton.Region = Marionette.Region.extend({
             // we can not reuse it.
             view.once('destroy', this.empty, this);
 
-
-            if (handlerName) {
-                this._processHandler(view, handlerName, handlerOptions);
-            }
-            view.render();
-
+            view.render(renderOptions);
 
             view._parent = this;
 
@@ -123,35 +119,25 @@ JSkeleton.Region = Marionette.Region.extend({
         }
 
         return this;
-    },
-
-    _processHandler: function(view, handlerName, args) {
-        var promise;
-        view.context.isPromise = false;
-
-        if (view[handlerName] && typeof view[handlerName] === 'function') {
-            promise = view[handlerName].call(view, args);
-        }
-
-        //the result of the "render"
-        //method invocation is a promise and will be resolved later
-        if (promise && typeof promise.then === 'function') {
-            promise.then(function() {
-                //expose a isPromise flag to the template
-                view.context.isPromise = false;
-                //if the `renderOnPromise` option is set to true, re-render the `JSkeleton.ViewController`
-                if (view.renderOnPromise === true) {
-                    view.render();
-                    //JSkeleton.LayoutView.prototype.render.apply(this, arguments);
-                }
-            });
-
-            //Set up the `JSkeleton.ViewController` context
-            view.context.isPromise = true;
-        }
     }
 });
 
+Marionette.RegionManager.prototype.addRegion = function(name, definition) {
+    var region;
 
-Marionette.Region.prototype.show = JSkeleton.Region.prototype.show;
-Marionette.Region.prototype._processHandler = JSkeleton.Region.prototype._processHandler;
+    if (definition instanceof JSkeleton.Region) {
+        region = definition;
+    } else {
+        region = Marionette.Region.buildRegion(definition, JSkeleton.Region);
+    }
+
+    this.triggerMethod('before:add:region', name, region);
+
+    region._parent = this;
+
+    this._store(name, region);
+
+    this.triggerMethod('add:region', name, region);
+
+    return region;
+};

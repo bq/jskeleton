@@ -6,7 +6,7 @@ describe('onAttach', function() {
         // A Region to show our LayoutView within
         this.setFixtures('<div id="region"></div>');
         this.el = $('#region')[0];
-        this.region = new Marionette.Region({
+        this.region = new JSkeleton.Region({
             el: this.el
         });
 
@@ -20,7 +20,7 @@ describe('onAttach', function() {
 
     describe('when showing a region that is not attached to the document', function() {
         beforeEach(function() {
-            this.detachedRegion = new Marionette.Region({
+            this.detachedRegion = new JSkeleton.Region({
                 el: $('<div></div>')
             });
 
