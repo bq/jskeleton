@@ -28,7 +28,7 @@ describe('layoutView', function() {
 
         this.CustomRegion1 = function() {};
 
-        this.CustomRegion2 = Backbone.Marionette.Region.extend();
+        this.CustomRegion2 = JSkeleton.Region.extend();
 
         this.LayoutViewNoDefaultRegion = this.LayoutView.extend({
             regions: {
@@ -124,7 +124,7 @@ describe('layoutView', function() {
         it('should instantiate marionette regions is no regionClass is specified', function() {
             var layoutViewManagerNoDefault = new this.LayoutViewNoDefaultRegion();
             expect(layoutViewManagerNoDefault).to.have.property('regionTwo');
-            expect(layoutViewManagerNoDefault.regionTwo).to.be.instanceof(Backbone.Marionette.Region);
+            expect(layoutViewManagerNoDefault.regionTwo).to.be.instanceof(JSkeleton.Region);
         });
 
         it('should pass extra options to the custom regionClass', function() {
@@ -160,7 +160,7 @@ describe('layoutView', function() {
 
         it('should build the regions from the returns object literal', function() {
             expect(this.layoutView).to.have.property('foo');
-            expect(this.layoutView.foo).to.be.instanceof(Backbone.Marionette.Region);
+            expect(this.layoutView.foo).to.be.instanceof(JSkeleton.Region);
         });
     });
 
@@ -313,7 +313,7 @@ describe('layoutView', function() {
                 suite.regionOne._ensureElement();
             };
 
-            this.region = new Backbone.Marionette.Region({
+            this.region = new JSkeleton.Region({
                 el: '#mgr'
             });
 
@@ -556,7 +556,7 @@ describe('layoutView', function() {
                 }
             });
 
-            this.region = new Marionette.Region({
+            this.region = new JSkeleton.Region({
                 el: '#james-kyle'
             });
 

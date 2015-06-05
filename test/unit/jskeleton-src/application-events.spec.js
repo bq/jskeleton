@@ -19,7 +19,6 @@ describe('Application object with declared events', function() {
             template: '<div></div>',
         });
 
-
         this.Application = JSkeleton.Application.extend({
             waitBeforeStartHooks: false,
             el: 'body',
@@ -74,7 +73,7 @@ describe('Application object with declared events', function() {
             expect(this.viewControllerRenderSpy.calledOnce).to.be.equal(true);
         });
 
-        it('should process a handler method on the view-controller when the global event is triggered', function() {
+        it.skip('should process a handler method on the view-controller when the global event is triggered', function() {
             expect(this.viewControllerRouteHandlerSpy.calledOnce).to.be.equal(true);
         });
     });

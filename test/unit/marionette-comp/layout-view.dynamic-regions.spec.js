@@ -14,15 +14,18 @@ describe('layoutView - dynamic regions', function() {
             this.fooSelector = '#foo-region';
             this.barSelector = '#bar-region';
 
-            this.fooRegion = new Marionette.Region({
+            this.fooRegion = new JSkeleton.Region({
                 el: this.fooSelector
             });
+
             this.fooRegion._parent = this.app._regionManager;
 
-            this.BarRegion = Marionette.Region.extend();
+            this.BarRegion = JSkeleton.Region.extend();
+
             this.barRegion = new this.BarRegion({
                 el: this.barSelector
             });
+
             this.barRegion._parent = this.app._regionManager;
 
             this.regionDefinition = this.sinon.stub().returns({

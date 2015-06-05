@@ -4,7 +4,7 @@ describe('region', function() {
     describe('when creating a new region and no configuration has been provided', function() {
         it('should throw an exception saying an "el" is required', function() {
             expect(function() {
-                return new Backbone.Marionette.Region();
+                return new JSkeleton.Region();
             }).to.throw('An "el" must be specified for a region.');
         });
     });
@@ -12,17 +12,18 @@ describe('region', function() {
     describe('when passing an el DOM reference in directly', function() {
         beforeEach(function() {
             this.setFixtures('<div id="region"></div>');
+
             this.el = $('#region')[0];
 
-            this.customRegion = new(Backbone.Marionette.Region.extend({
+            this.customRegion = new(JSkeleton.Region.extend({
                 el: this.el
             }))();
 
-            this.optionRegion = new Backbone.Marionette.Region({
+            this.optionRegion = new JSkeleton.Region({
                 el: this.el
             });
 
-            this.optionRegionJquery = new Backbone.Marionette.Region({
+            this.optionRegionJquery = new JSkeleton.Region({
                 el: $(this.el)
             });
         });
@@ -47,7 +48,7 @@ describe('region', function() {
 
         it('should complain if the el passed in as an option is invalid', function() {
             expect(function() {
-                Backbone.Marionette.Region({
+                JSkeleton.Region({
                     el: $('the-ghost-of-lechuck')[0]
                 });
             }).to.throw;
@@ -55,7 +56,7 @@ describe('region', function() {
 
         it('should complain if the el passed in via an extended region is invalid', function() {
             expect(function() {
-                (Backbone.Marionette.Region.extend({
+                (JSkeleton.Region.extend({
                     el: $('the-ghost-of-lechuck')[0]
                 }))();
             }).to.throw;
@@ -64,7 +65,7 @@ describe('region', function() {
 
     describe('when creating a new region and the "el" does not exist in DOM', function() {
         beforeEach(function() {
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '#not-existed-region'
             });
 
@@ -123,7 +124,7 @@ describe('region', function() {
 
     describe('when showing an initial view', function() {
         beforeEach(function() {
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '#region',
                 onBeforeShow: function() {},
                 onShow: function() {},
@@ -381,7 +382,7 @@ describe('region', function() {
 
         describe('when passing "preventDestroy" option', function() {
             beforeEach(function() {
-                this.MyRegion = Backbone.Marionette.Region.extend({
+                this.MyRegion = JSkeleton.Region.extend({
                     el: '#region',
                     onShow: function() {},
                     onSwap: function() {}
@@ -470,7 +471,7 @@ describe('region', function() {
         beforeEach(function() {
             var suite = this;
 
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '#region'
             });
 
@@ -522,7 +523,7 @@ describe('region', function() {
 
     describe('when a view is already shown and showing another', function() {
         beforeEach(function() {
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '#region'
             });
 
@@ -557,7 +558,7 @@ describe('region', function() {
 
     describe('when a view is already shown and showing the same one', function() {
         beforeEach(function() {
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '#region'
             });
 
@@ -596,7 +597,7 @@ describe('region', function() {
 
     describe('when a view is already shown and showing the same one with a forceShow flag', function() {
         beforeEach(function() {
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '#region'
             });
 
@@ -638,7 +639,7 @@ describe('region', function() {
 
     describe('when a view is already shown but destroyed externally', function() {
         beforeEach(function() {
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '#region'
             });
 
@@ -669,7 +670,7 @@ describe('region', function() {
 
     describe('when a view is already destroyed and showing another', function() {
         beforeEach(function() {
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '#region'
             });
 
@@ -699,7 +700,7 @@ describe('region', function() {
 
     describe('when preventing destroy on empty', function() {
         beforeEach(function() {
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '#region'
             });
 
@@ -732,7 +733,7 @@ describe('region', function() {
 
     describe('when destroying the current view', function() {
         beforeEach(function() {
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '#region'
             });
 
@@ -805,7 +806,7 @@ describe('region', function() {
 
     describe('when destroying the current view and it does not have a "destroy" method', function() {
         beforeEach(function() {
-            this.MyRegion = Backbone.Marionette.Region.extend({
+            this.MyRegion = JSkeleton.Region.extend({
                 el: '<div></div>'
             });
 
@@ -848,7 +849,7 @@ describe('region', function() {
     describe('when initializing a region and passing an "el" option', function() {
         beforeEach(function() {
             this.el = '#foo';
-            this.region = new Backbone.Marionette.Region({
+            this.region = new JSkeleton.Region({
                 el: this.el
             });
         });
@@ -869,7 +870,7 @@ describe('region', function() {
             this.sinon.spy(this.view, 'render');
             this.sinon.spy(this.view, 'onShow');
 
-            this.region = new Backbone.Marionette.Region({
+            this.region = new JSkeleton.Region({
                 el: '#foo',
                 currentView: this.view
             });
@@ -897,7 +898,7 @@ describe('region', function() {
             this.sinon.spy(this.view, 'render');
             this.sinon.spy(this.view, 'onShow');
 
-            this.region = new Backbone.Marionette.Region({
+            this.region = new JSkeleton.Region({
                 el: '#foo'
             });
 
@@ -927,7 +928,7 @@ describe('region', function() {
             this.expectedOptions = {
                 foo: 'bar'
             };
-            this.Region = Backbone.Marionette.Region.extend({
+            this.Region = JSkeleton.Region.extend({
                 el: '#foo',
                 initialize: function() {}
             });
@@ -987,7 +988,7 @@ describe('region', function() {
         beforeEach(function() {
             this.setFixtures('<div id="region"></div>');
 
-            this.region = new Backbone.Marionette.Region({
+            this.region = new JSkeleton.Region({
                 el: '#region'
             });
 
@@ -1020,7 +1021,7 @@ describe('region', function() {
             this.onBeforeDestroy = this.sinon.stub();
             this.onDestroy = this.sinon.stub();
 
-            this.region = new Backbone.Marionette.Region({
+            this.region = new JSkeleton.Region({
                 el: '#region'
             });
 
@@ -1059,7 +1060,7 @@ describe('region', function() {
         beforeEach(function() {
             this.setFixtures('<div id="region"></div>');
 
-            this.region = new Backbone.Marionette.Region({
+            this.region = new JSkeleton.Region({
                 el: '#region'
             });
 

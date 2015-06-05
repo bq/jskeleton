@@ -2,6 +2,7 @@ describe('application regions', function() {
     'use strict';
 
     describe('when adding region selectors to an app, and starting the app', function() {
+
         beforeEach(function() {
             this.app = new JSkeleton.Application();
 
@@ -10,10 +11,11 @@ describe('application regions', function() {
             this.app.on('before:add:region', this.beforeAddRegionStub);
             this.app.on('add:region', this.addRegionStub);
 
-            this.fooRegion = new Marionette.Region({
+            this.fooRegion = new JSkeleton.Region({
                 el: '#foo-region'
             });
-            this.barRegion = new Marionette.Region({
+
+            this.barRegion = new JSkeleton.Region({
                 el: '#bar-region'
             });
 
@@ -48,10 +50,10 @@ describe('application regions', function() {
     describe('when adding region objects to an app', function() {
         beforeEach(function() {
             this.app = new JSkeleton.Application();
-            this.FooRegion = Marionette.Region.extend({
+            this.FooRegion = JSkeleton.Region.extend({
                 el: '#foo-region'
             });
-            this.BarRegion = Marionette.Region.extend({
+            this.BarRegion = JSkeleton.Region.extend({
                 el: '#bar-region'
             });
 
@@ -72,7 +74,7 @@ describe('application regions', function() {
             this.fooOption = 'bar';
             this.fooSelector = '#foo-region';
             this.app = new JSkeleton.Application();
-            this.FooRegion = Marionette.Region.extend();
+            this.FooRegion = JSkeleton.Region.extend();
 
             this.fooRegion = new this.FooRegion({
                 el: this.fooSelector,
@@ -114,8 +116,8 @@ describe('application regions', function() {
             this.bazSelector = '#baz-region';
             this.quuxSelector = '#quux-selector';
 
-            this.BarRegion = Marionette.Region.extend();
-            this.BazRegion = Marionette.Region.extend({
+            this.BarRegion = JSkeleton.Region.extend();
+            this.BazRegion = JSkeleton.Region.extend({
                 el: this.bazSelector
             });
         });
@@ -271,8 +273,8 @@ describe('application regions', function() {
             this.barSelector = '#bar-region';
             this.bazSelector = '#baz-region';
 
-            this.BarRegion = Marionette.Region.extend();
-            this.BazRegion = Marionette.Region.extend({
+            this.BarRegion = JSkeleton.Region.extend();
+            this.BazRegion = JSkeleton.Region.extend({
                 el: this.bazSelector
             });
 
@@ -349,7 +351,7 @@ describe('application regions', function() {
         beforeEach(function() {
             this.fooSelector = '#foo-region';
             this.app = new JSkeleton.Application();
-            this.FooRegion = Marionette.Region.extend({
+            this.FooRegion = JSkeleton.Region.extend({
                 el: this.fooSelector
             });
 
@@ -381,12 +383,12 @@ describe('application regions', function() {
             this.fooSelector = '#foo-region';
             this.barSelector = '#bar-region';
 
-            this.fooRegion = new Marionette.Region({
+            this.fooRegion = new JSkeleton.Region({
                 el: this.fooSelector
             });
             this.fooRegion._parent = this.app._regionManager;
 
-            this.BarRegion = Marionette.Region.extend();
+            this.BarRegion = JSkeleton.Region.extend();
             this.barRegion = new this.BarRegion({
                 el: this.barSelector
             });
@@ -427,7 +429,7 @@ describe('application regions', function() {
     describe('when an app has a region', function() {
         beforeEach(function() {
             this.app = new JSkeleton.Application();
-            this.fooRegion = new Marionette.Region({
+            this.fooRegion = new JSkeleton.Region({
                 el: '#foo-region'
             });
             this.fooRegion._parent = this.app._regionManager;

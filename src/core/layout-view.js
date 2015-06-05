@@ -5,7 +5,7 @@
 /* jshint unused: false */
 
 JSkeleton.LayoutView = Marionette.LayoutView.extend({
-
+    regionClass: JSkeleton.Region,
     constructor: function(options) {
         options = options || {};
 
