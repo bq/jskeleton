@@ -3,9 +3,8 @@ layout: api
 title:  "Application"
 submenu:
   Application.el: "#el"
-  Application.mainRegionName: "#application-main-region"
   Application.regions: "#regions"
-  Application.viewController: "#ViewController"
+  Application.layout: "#Layout"
   Application.applications: "#child-applications"
   Application.routes: "#routes"
   Application.di: "#application-di"
@@ -45,7 +44,7 @@ var app = new ExampleApp({el: 'body'});
 
 ###Application main region
 
-Todas las `Jskeleton.Application` tienen una región raíz/principal (por defecto, 'main'). Esta región es la que se le pasará a las child applications si no se les especifica ninguna región. Para definir una región principal:
+Todas las `Jskeleton.Application` tienen una región raíz/principal . Esta región es la que se le pasará a las child applications si no se les especifica ninguna región. Para definir una región principal:
 
 
     {% highlight javascript %}
@@ -77,28 +76,46 @@ app.addRegion({contentRegion: 'body'});
 
     {% endhighlight %}
 
-##ViewController
+##Layout
 
-Una aplicación también puede añadir regiones a través de su `Jskeleton.ViewController`. Estas regiones se expondrán directamente a la aplicación y se destruirán cuando ésta se destruya.
+Una aplicación también puede añadir regiones a través de su Layout. Estas regiones se expondrán directamente a la aplicación y se destruirán cuando ésta se destruya.
 
 {% highlight javascript %}
 var ViewController = Jskeleton.ViewController.extend({
     regions: {
-        anotherRegion: '.template-dom-selector'
+        thirdRegion: '.template-dom-selector'
     }
 });
 
 var ExampleApp = Jskeleton.Application.extend({
-    viewController: {
+    layout: {
         template: '<div class="header"></div><div class="content"></div>',
         class: ViewController
+    },
+    regions: {
+        firstRegion: '.dom1',
+        secondRegion: '.dom2',
     }
 });
+
+var app = new ExampleApp({el: body});
+
+app.start();
+
+app.thirdRegion;
+app.firstRegion;
+app.secondRegion;
+
 {% endhighlight %}
+
+El layout puede ser de cualquier clase que herede de `JSkeleton.LayoutView` como por ejemplo `JSkeleton.ViewController`.
+
+El layout de la aplicación se renderizará cuándo la aplicación haga start y no cuando se instancie. 
+
 
 ##Child Applications
 
- Una aplicación puede tener múltiples `Jskeleton.ChildApplication`:
+ Una aplicación puede tener múltiples `Jskeleton.Applications` como aplicaciones hijas:
 
     {% highlight javascript %}
     var ExampleApp = Jskeleton.Application.extend({
@@ -142,42 +159,15 @@ Para obligar a que una aplicación hija deba de ser arrancada de forma explícit
 app.start(); //explicit start (the child application chat will be started to but bookCatalogue child application will not)
     {% endhighlight %}
 
-A su vez, es posible añadir aplicaciones bajo demanda. Por defecto, esta nueva aplicación se iniciará al añadirse, a no ser que tenga flag `startWithParent: false`, que habrá que arrancarla de forma explícita.
+###Child applications region
 
-    {% highlight javascript %}
-
-    var app = new ExampleApp();
-
-var ChildApp = Jskeleton.ChildApplication.extend({});
-
-app.addApplication({application: ChildApp, region: 'main', startWithParent: false});
-    {% endhighlight %}
-
-
-##Channels
-
-Cada aplicación dispone de dos canales de comunicación:
-
--**Canal privado**:
-    Canal para comunicar **componentes** dentro de una aplicación sin afectar a otras aplicaciones.
-
--**Canal global**:
-    Canal para comunicar **aplicaciones** entre sí.
-
-A continuación, se muestra un ejemplo de uso de los canales.
-
-    {% highlight javascript %}
-    var app = new ExampleApp();
-//Using each channel
-app.privateChannel.trigger();
-app.globalChannel.trigger();
-
-    {% endhighlight %}
+Al definir una aplicación hija, hay que especificar la región de la aplicación padre en la que la aplicación hija se va a renderizar.
+Para ello basta con indicarlo mediante la clave región y el nombre de la región que posee la aplicación padre.
 
 
 ##routes
 
-Cada aplicación, ya sea `Jskeleton.Application` o `Jskeleton.ChildApplication`, define sus rutas y estados a través de la propiedad **_routes_**.
+Cada aplicación, define sus rutas y estados a través de la propiedad **_routes_**.
 
     {% highlight javascript %}
     var ExampleApp = Jskeleton.ChildApplication.extend({
@@ -217,8 +207,6 @@ El `Jskeleton.ViewController` es _renderizado_ en la región de la aplicación e
 
 En el caso de tratarse de una `Jskeleton.Application`, el `Jskeleton.ViewController` se renderizará en la región principal de esa aplicación.
 
-Si se trata de una `Jskeleton.ChildApplication` se renderizará en la región de la aplicación padre que nosotros le hayamos especificado al declararla como aplicación hija (por defecto la región principal de la aplicación padre).
-
 Para cada ruta podemos definir el evento de navegación que va a provocar esa ruta. De este modo, cuándo otra aplicación lance dicho evento por el canal global, nuestra aplicación lo procesará como si de una ruta se tratase. Ésto conllevará el renderizado del `Jskeleton.ViewController` y la actualización de la ruta de forma automática (mapeando los parámetros que recibimos a través del evento con los parametros que se han definido en la ruta).
 
     {% highlight javascript %}
@@ -235,7 +223,7 @@ Para cada ruta podemos definir el evento de navegación que va a provocar esa ru
     var app = new ExampleApp();
     app.start();
 
-    anotherApp.globalChannel.trigger('backbone:navigate:event',{
+    JSkeleton.globalChannel.trigger('backbone:navigate:event',{
         with: 'ejemplo',
         params: '15'
     });
@@ -275,56 +263,13 @@ Si se especifica la opción **_triggerNavigate_** a true (por defecto a false) d
                 'template': '<div></div>'
                 viewController: ViewControllerClass,
                 eventListener: 'backbone:navigate:event',
-                navigate: false
+                triggerNavigate: true
             }
         }
     });
 
     {% endhighlight %}
 
-
-###handlerName
-
-Como opción de ruta se puede especificar el nombre del método del `Jskeleton.ViewController` que se quiere invocar antes de renderizar el `Jskeleton.ViewController`.
-
-    {% highlight javascript %}
-
-    var ViewControllerClass = JSkeleton.ViewController.extend({
-        inflateContext: function(){
-            //expose models and collections to the context
-        }
-    });
-
-    var ExampleApp = Jskeleton.ChildApplication.extend({
-        routes: {
-            'backbone/route/:with/:params': {
-                viewController: ViewControllerClass,
-                handlerName: 'inflateContext'
-            }
-        }
-    });
-
-    {% endhighlight %}
-
-Si no se especifica el nombre del método, por defecto `JSkeleton` invocará el método en camel case resultante de parsear la ruta desde su primer parametro hasta el principio de la ruta, ejemplo:
-
-    {% highlight javascript %}
-
-    var ViewControllerClass = JSkeleton.ViewController.extend({
-        onBackboneRoute: function(){
-            //expose models and collections to the context
-        }
-    });
-
-    var ExampleApp = Jskeleton.ChildApplication.extend({
-        routes: {
-            'backbone/route/:with/:params': {
-                viewController: ViewControllerClass,
-            }
-        }
-    });
-
-    {% endhighlight %}
 
 ##Application Di
 
@@ -333,8 +278,6 @@ Cada aplicación resuelve su propias dependencias a través de su inyector, de t
 Estas dependencias son:
 
 -   **_app**: La aplicación que está usando dicho objeto
--   **_privateChannel**: El canal privado `Backbone.Radio` para esa aplicación
--   **_globalChannel**: El canal global `Backbone.Radio` para esa aplicación
 -   **_scope**: Un objeto javascript para compartir variables dentro de una aplicación.
 
 
@@ -343,7 +286,7 @@ Ejemplo:
 
 {% highlight javascript %}
 
-    var ViewControllerClass = JSkeleton.ViewController.factory('ViewController',function(_app,_privateChannel,_scope){
+    var ViewControllerClass = JSkeleton.ViewController.factory('ViewController',function(_app,_scope){
         return {
             onBackboneRoute: function(){
                 _scope.hello = "hello";

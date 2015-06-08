@@ -11,7 +11,7 @@ submenu:
   - ViewController.template: "#template"
 ---
 
-El objeto `Jskeleton.ViewController` nos permite "renderizar" el estado de una aplicación procesando una ruta o un evento de navegación. Es un hibrido entre Vista y Controlador.
+El objeto `Jskeleton.ViewController` nos permite "renderizar" el estado de una aplicación procesando una ruta o un evento de navegación. Es un hibrido entre Vista y Controlador y hereda directamente de la clase `JSkeleton.LayoutView`.
 
 Se podría definir como un contenedor de "Componentes-UI", entendiendo como tales cualquier componente javascript que tenga como finalidad encapsular lógica UI y que pueda generar HTML (`Jskeleton.ItemView` , `Jskeleton.CollectionView`, `Jskeleton.CompositeView`, `Jskeleton.LayoutView`).
 
@@ -42,12 +42,12 @@ Para más información sobre cómo definir regiones en un `Jskeleton.ViewControl
 <!--
 Cuando se procesa un evento o ruta de navegación, un método del view-controller es invocado (para ver más información sobre que método ir a: ); tras la ejecución de dicho método, se renderiza el template asociado al view controller con el contexto del view controller. Por tanto dicho método es ideal para inflar el contexto que el template va a consumir y exponer los modelos y colecciones que los componentes del template vayan a usar.
 -->
-Cuando se procesa un evento o ruta de navegación, se invoca un método (`handler`) del ViewController que se debe especificar en la aplicación en la que estemos definiendo el ViewController ([ver Application.Routes](/api-reference/application/#routes)). Tras la ejecución de dicho método, se renderiza el template asociado al ViewController con su contexto. Este método es el lugar ideal para exponer los modelos y colecciones que nuestros componentes vayan a usar.
+Cuando se procesa un evento o ruta de navegación, se invoca el método (`onStateChange`) del ViewController. Tras la ejecución de dicho método, se renderiza el template asociado al ViewController con su contexto. Este método es el lugar ideal para exponer los modelos y colecciones que nuestros componentes vayan a usar.
 
   {% highlight javascript linenos=inline %}
 
     Jskeleton.ViewController.factory('MyViewController', function(_channel) {
-        myHandlerMethod: function(routeParams, context){
+        onStateChange: function(routeParams, context){
             context.myModel = new Backbone.Model({
                 title: routeParams.title,
             });
@@ -56,13 +56,14 @@ Cuando se procesa un evento o ruta de navegación, se invoca un método (`handle
 
   {% endhighlight %}
 
-En el template asociado al ViewController, tendremos total acceso al contexto creado por el ViewController.
+En el template asociado al ViewController, tendremos total acceso al contexto creado por el ViewController a través del namespace `context`.
 
   {% highlight html %}
       <div> { { context.myModel } } </div>
   {% endhighlight %}
 
 ###Asincronía
+
 Podemos definir una opcion en los `Jskeleton.ViewController` para poder realizar un renderizado en "dos pasos" si hay un proceso de asincronía a la hora de exponer el contexto.
 Esa opción es `renderOnPromise`.
 
@@ -95,30 +96,12 @@ Además `Jskeleton.ViewController` lanzará el evento `before:promise` cuándo s
 A través del template podremos definir componentes ui que el view-controller va a crear al renderizar el template:
 
     {% highlight html %}
-        <div> { { @component name="menu-bar" model=context.model } } </div>
+        <div> { { @component "menu-bar" model=context.model } } </div>
     {% endhighlight %}
 
 A su vez, una vez destruido un ViewController todos sus componentes son también destruidos.
 
 Para más información sobre componentes puedes ir a [esta sección](/api-reference/components/).
-
-###getComponent
-
-Para obtener el componente de un view controller se puede invocar el método `getComponent`.
-
-{% highlight javascript %}
-
-  Jskeleton.ViewController.factory('MyViewController', {
-      events: {
-         'action @component.ComponentName': 'myOtherMethod'
-      }
-  });
-
-  var viewController = new Jskeleton.ViewController();
-
-  var component = viewController.getComponent('ComponentName');
-
-{% endhighlight %}
 
 ###Component Events
 
