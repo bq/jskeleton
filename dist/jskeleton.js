@@ -1,4 +1,4 @@
-/*! jskeleton - v0.0.1 - 2015-06-05 
+/*! jskeleton - v0.1 - 2015-06-08 
  */(function(root, factory) {
     'use strict';
     /*globals require,define */
@@ -13054,7 +13054,6 @@
     
     /* jshint unused: false */
     
-    
     var paramsNames = /:\w(\_|\w|\d)*/g;
     
     //optionalParam = /\((.*?)\)/g,
@@ -13191,23 +13190,84 @@
             return names;
         },
     
+        //Add application routes to the Backbone.Router.
+        //Could be an object with multiple routes, and with a default view controller for these routes.
+        addApplicationRoutes: function(routes) {
+            routes = routes || {};
+    
+            var defaultViewController,
+                self = this;
+    
+            if (routes.viewController) {
+                defaultViewController = routes.viewController;
+            }
+    
+            _.each(routes, function(routeObject, routeString) {
+                if (typeof routeString === 'string' && routeString !== 'viewController') {
+    
+                    if (!routeObject.viewControllerClass && defaultViewController) {
+                        routeObject.viewController = defaultViewController;
+                    }
+    
+                    //Add the route listener to the Backbone.Router
+                    self.route(routeString, {
+                        viewControllerHandler: true,
+                        triggerEvent: routeObject.triggerEvent
+                        // handlerName: routeObject.handlerName
+                    }, function(params) {
+                        //set the default view controller if it exists and if the route object doesn't have one
+                        self._processRoute(routeString, _.extend(routeObject, {
+                            navigate: false
+                        }), params);
+                    });
+    
+                    if (routeObject.eventListener) {
+                        JSkeleton.globalChannel.on(routeObject.eventListener, function(args) {
+                            self._processRoute(routeString, routeObject, args);
+                        });
+                    }
+                }
+            });
+    
+        },
+    
+        //Update the url with the specified parameters.
+        //If triggerNavigate option is set to true, the route callback will be fired adding an entry to the history.
+        _navigateTo: function(routeString, routeOptions, params) {
+    
+            var triggerValue = routeOptions.triggerNavigate === true ? true : false,
+                processedRoute = this._replaceRouteString(routeString, params);
+    
+            this.router.navigate(processedRoute, {
+                trigger: triggerValue
+            });
+    
+        },
+        //
+        _processRoute: function(routeString, routeObject, params) {
+            this.trigger('navigate', {
+                routeString: routeString,
+                routeObject: routeObject,
+                params: params
+            });
+        },
+        init: function() {
+            JSkeleton.Router.start();
+        }
+    }, {
         // Router initialization.
         // Bypass all anchor links except those with data-bypass attribute
         // Starts router history. All routes should be already added
-        init: function() {
+        start: function() {
             // Trigger the initial route and enable HTML5 History API support, set the
             // root folder to '/' by default.  Change in app.js.
-            Backbone.history.start();
+            if (!Backbone.History.started) {
+                Backbone.history.start();
+            }
     
             // log.debug('router.location.hash', window.location.hash.replace('#/', '/'));
             // Backbone.history.navigate(window.location.hash.replace('#/', '/'), true);
         },
-    
-        start: function() {
-            this.init();
-        }
-    }, {
-    
         // Get singleton instance bject
         getSingleton: function() {
     
@@ -13222,11 +13282,6 @@
     
             JSkeleton.router = getInstance();
             return JSkeleton.router;
-        },
-    
-        // Initialize Backbone.history.start
-        start: function(app) {
-            app.router.init();
         }
     });
     'use strict';
@@ -13260,16 +13315,32 @@
     
     /* jshint unused: false */
     
-    //## BaseApplication
-    //  BaseApplication Class that other `JSkeleton.Applications` can extend from.
-    //  It contains common application behavior as router/events initialization, application channels set up, common get methods...
-    JSkeleton.BaseApplication = Marionette.Application.extend({
-        //Default global webapp channel for communicate with other apps
-        globalChannel: 'global',
+    //## Application
+    //  Application class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
+    //  It initializes `regions, events, routes, channels and child applications`.
+    //  It has a global channel to communicate with others apps and a private channel to communicate with it's components,
+    //  A JSkeleton webapp can contain many JSkeleton.Applications.
+    //  A `JSkeleton.Application` can define multiple child applications (`JSkeleton.ChildApplication`).
+    JSkeleton.Application = Marionette.Application.extend({
+        //Default el dom reference if no `el` it's specified
+        defaultEl: 'body',
+        waitBeforeStartHooks: true,
+        startWithParent: true,
         filterStack: [],
         middlewareStack: [],
         constructor: function(options) {
+    
             options = options || {};
+    
+            this.parentApplication = options.parentApplication;
+    
+            this._childApplications = {};
+    
+            if (!this.parentApplication) {
+                this.el = options.el || this.el || this.defaultEl;
+            }
+    
+            this._region = options.region;
     
             this.di = new JSkeleton.Di({
                 globalDi: JSkeleton.di
@@ -13280,14 +13351,19 @@
                 this._use('routeFilters', this.routeFilters);
             }
     
-            //add middlewares to app wordflow
+            //add middlewares to app workflow
             if (this.middlewares) {
                 this._use('middlewares', this.middlewares);
             }
+    
+            // if (this.middlewares) {
+            this._beforeStartHooks = _.clone(this.beforeStartHooks);
+            // }
+    
             //generate application id
             this.aid = this._getAppId();
     
-            this.router = JSkeleton.Router.getSingleton();
+            this.router = new JSkeleton.Router();
     
             //application scope to share common data inside the application
             this.scope = {};
@@ -13296,9 +13372,55 @@
     
             this._addApplicationDependencies();
     
+            return this;
+    
         },
+        //Method to start the application, start the `ChildApplications` and start listening routes/events.
+        //This method will wait until the beforeStartHooks defined in the application will be completed (with a promise).
+        //If an option waitBeforeStartHooks it's set to false, the application won't wait hooks before start.
         start: function(options) {
-            options = options || {};
+    
+            // this.renderInitialState();s
+    
+            //Wait for all the JSkeleton.extensions
+            if (this.waitBeforeStartHooks && !this.parentApplication) {
+    
+                this.triggerMethod('before:extension:start', options);
+    
+                var self = this;
+    
+                this._waitBeforeStartHooks().then(function() {
+    
+                    self.triggerMethod('extension:start', options);
+    
+                    self._startApplication(options);
+                });
+    
+            } else {
+                this._startApplication(options);
+            }
+    
+        },
+    
+        //Method to start listening the `Backbone.Router`
+        //Only a `JSkeleton.Application' can start a `JSkeleton.Router` instance.
+        //The JSkeleton.Router is created by the `JSkeleton.Application` objects and injected to the `JSkeleton.ChildApplication`.
+        startRouter: function() {
+            // if (!this.parentApplication) {
+            JSkeleton.Router.start();
+            // }
+        },
+    
+        _startApplication: function(options) {
+    
+            //trigger before:start event and call to onBeforeStart method if it's defined in the application object
+            this.triggerMethod('before:start', options);
+    
+            // Create a layout for the application if a viewController its defined
+            this._createApplicationLayout();
+    
+            //initialize and start child applications defined in the application object
+            this._initChildApplications(options);
     
             this._started = true;
     
@@ -13308,7 +13430,184 @@
             this._initRoutes(options);
     
             //Add app proxy events
-            this._proxyEvents(options);
+            // this._proxyEvents(options);
+    
+            //Start the `JSkeleton.Router` to listen to Backbone.History and to listen to the global channel events
+            this.startRouter();
+    
+            //trigger start event and call to onStart method if it's defined in the application object
+            this.triggerMethod('start', options);
+    
+        },
+    
+        //Method to wait for all before start hooks defined inside the application object and inside `JSkeleton` namespace.
+        // The beforeStartHooks have to be an array with methods that return promises.
+        // These promises will be the wait condition.
+        _waitBeforeStartHooks: function() {
+    
+            //get the beforeStart application Hooks and ensure that the Hooks are an array
+            var beforeStartHooks = _.isArray(this._beforeStartHooks) ? this._beforeStartHooks : [this._beforeStartHooks],
+                //get the beforeStart JSkeleton global Hooks and ensure that the Hooks are an array
+                lookUpHooks = _.isArray(JSkeleton.beforeStartHooks) ? JSkeleton.beforeStartHooks : [JSkeleton.beforeStartHooks],
+                //Concat the hooks to iterate over them
+                hooks = lookUpHooks.concat(beforeStartHooks),
+                self = this,
+                promises = [];
+    
+            _.each(hooks, function(fnHook) {
+                if (typeof fnHook === 'function') {
+                    promises.push(fnHook.call(self));
+                }
+            });
+    
+            return JSkeleton.Promise.all(promises);
+        },
+    
+        //Private method to initialize the application regions
+        _initializeRegions: function() {
+            //ensure initial root DOM reference is available
+            this._ensureEl();
+    
+            Marionette.Application.prototype._initializeRegions.apply(this, arguments);
+    
+            // Create root region on root DOM reference
+            if (!this.parentApplication) {
+                this._createMainRegion();
+            }
+        },
+    
+        //Private method to ensure that the application has a dom reference where create the main application region
+        _ensureEl: function() {
+            if (!this.$el && !this.parentApplication) {
+                if (!this.el) {
+    
+                    throw new Error('It is necessary to define a \'el\' for Main App');
+                }
+                this.$el = $(this.el);
+            }
+        },
+    
+        //Add the root region to the main application
+        _createMainRegion: function() {
+    
+            if (!(this._region instanceof JSkeleton.Region)) {
+                //create a new `JSkeleton.Region`
+                this._region = this._regionManager.addRegion('main', this.$el);
+            }
+        },
+    
+        //Create a layout for the Application to have more regions availables.
+        //The application expose the layout regions to the application object as own properties.
+        _createApplicationLayout: function() {
+            var layout = this.layout;
+    
+            //ensure viewController object is defined
+            if (layout) {
+                //get layout class
+                var LayoutClass = typeof layout === 'object' && layout.layoutClass ? layout.layoutClass : layout,
+                    //get the layout options that will be passed to the layout constructor
+                    layoutOptions = typeof layout === 'object' && layout.layoutOptions ? layout.layoutOptions : {},
+                    //extend viewController template
+                    layoutExtendTemplate = typeof layout === 'object' && layout.template ? {
+                        template: layout.template
+                    } : undefined;
+    
+                //create the layout instance if it isn't rendered yet
+                if (!this._layout || !this._layout instanceof LayoutClass) {
+                    this._layout = this.getInstance(LayoutClass, layoutExtendTemplate, layoutOptions);
+    
+                    //Show the layout in the application main region
+                    this.main.show(this._layout);
+    
+                    //expose the view-controller regions to the application object
+                    this._addLayoutRegions();
+                }
+            }
+        },
+    
+        //Expose view-controller regions to the application namespace
+        _addLayoutRegions: function() {
+            var self = this;
+            if (this._layout.regionManager.length > 0) {
+                _.each(this._layout.regionManager._regions, function(region, regionName) {
+                    self[regionName] = region;
+                });
+            }
+        },
+    
+        //Iterate over child applications to start each one
+        _initChildApplications: function() {
+            if (!this.isChildApp) {
+    
+                var self = this;
+    
+                _.each(this.applications, function(appOptions, appName) {
+                    appOptions.parentApplication = self;
+                    self._initChildApplication(appName, appOptions);
+                });
+    
+                //trigger onApplicationsStart event when all the `JSkeleton.ChildApplication` are started and before the application router it's started
+                this.triggerMethod('applications:start');
+            }
+        },
+    
+        //Start child application with it's dependencies injected
+        _initChildApplication: function(appName, appOptions) {
+            appOptions = appOptions || {};
+    
+            //get application class definition (could be either a factory key string or an application class)
+            var appClass = appOptions.applicationClass, //DI: this.getClass(appOptions.applicationClass)
+                startWithParent = appOptions.startWithParent !== undefined ? appOptions.startWithParent : true;
+    
+            //Get the region where the `JSkeleton.ChildApplication` logic the `JSkeleton.ChildApplication` layout and the `JSkeleton.ChildApplication` view-controllers will be 'rendered'.
+            //It would be the main application region by default, but if a layout it's defined for the Application object, a different region must be defined.
+            appOptions.region = this._getChildAppRegion(appOptions);
+    
+            //Ommit instanciate config options
+            var instanceOptions = _.omit(appOptions, 'applicationClass', 'startWithParent');
+            //Instance the `JSkeleton.ChildApplication` class with the `JSkeleton.ChildApplication` options specified
+            var instance = this.getInstance(appClass, {}, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
+    
+            //expose the child application instance
+            this._childApplications[appName] = instance;
+    
+            //Start child application
+            if (startWithParent === true) {
+                this.startChildApplication(instance, instanceOptions.startOptions);
+            }
+        },
+    
+        //Get the region where a `JSkeleton.ChildApplication` will be rendered when process a route or an event
+        _getChildAppRegion: function(appOptions) {
+            var region,
+                regionName = appOptions.region || this.mainRegionName;
+    
+            //retrieve the region from the application layout (if it exists)
+            if (this._layout && this._layout.regionManager) {
+                region = this._layout.regionManager.get(regionName);
+            }
+    
+            //if the region isn`t in the application layout, retrieve the region from the application region manager defined as application region
+            if (!region) {
+                region = this._regionManager.get(regionName);
+            }
+    
+            //the region must exists
+            if (!region) {
+                throw new Error('The region must exist in the Application.');
+            }
+    
+            return region;
+        },
+    
+        //Method to explicit start a child app instance
+        startChildApplication: function(childApp, options) {
+            childApp.start(options);
+        },
+    
+        //Get child app instance by name
+        getChildApplication: function(appName) {
+            return this._childApplications[appName];
         },
         stop: function(options) {
             this.stopListening();
@@ -13321,11 +13620,7 @@
     
             this.triggerMethod('onNavigate', viewController);
     
-            // if (typeof viewController[handlerName] !== 'function') {
-            //     throw new Warning('El metodo ' + handlerName + ' del view controller no existe');
-            // }
-            //
-            this._showControllerView(viewController, handlerName, args);
+            this._showViewController(viewController, handlerName, args);
         },
         //Factory method to instance objects from Class references or from factory key strings
         getInstance: function(Class, extendProperties, options) {
@@ -13337,12 +13632,8 @@
         destroy: function(options) {
             this.removeRegions();
         },
-        //Remove all regions from the application
         removeRegions: function() {
-            // var self = this;
-            // this._regionManager.each(function(region) {
-            //     self.removeRegion(region);
-            // });
+            //TODO
         },
         getDefaultviewController: function() {},
         //Get default application layout class if no layoutClass is specified
@@ -13368,88 +13659,39 @@
     
         },
         //Show the controller view instance in the application region
-        _showControllerView: function(viewController, handlerName, args) {
+        _showViewController: function(viewController, handlerName, args) {
     
-            if (this.mainRegion && this.mainRegion.currentView !== viewController) {
-                this.mainRegion.show(viewController, {
-                    handlerOptions: args,
-                    handlerName: handlerName
+            if (this._region && this._region.currentView !== viewController) {
+    
+                this._region.show(viewController, {
+                    renderOptions: args
                 });
+    
             } else {
                 // view already rendered, update view
-                if (this.mainRegion) {
-                    this.mainRegion.show(viewController, {
-                        handlerOptions: args,
-                        handlerName: handlerName,
-                        forceShow: true
+                if (this._region) {
+                    viewController.refresh({
+                        renderOptions: args
                     });
                 }
             }
         },
-        //Internal method to create an application private channel and set the global channel
-        _initChannel: function() {
-            //backbone.radio
-            this.globalChannel = this.globalChannel ? Backbone.Radio.channel(this.globalChannel) : Backbone.Radio.channel('global');
-            this.privateChannel = this.privateChannel ? Backbone.Radio.channel(this.privateChannel) : Backbone.Radio.channel(this.aid);
-        },
         //Add application routes  to the router and event handlers to the global channel
         _initRoutes: function() {
-            var self = this;
-            this._viewControllers = [];
-            if (this.routes) {
-                _.each(this.routes, function(routeObject, routeName) {
-                    routeObject = routeObject || {};
     
-                    //get view controller class object (it could be a view controller class asigned to the route or a default view controller if no class is specified)
-                    routeObject._ViewController = self._getViewControllerClass(routeObject);
-    
-                    //extend view controller class with d.i
-                    routeObject._viewControllerOptions = _.extend({
-                        app: self,
-                        service: self.service,
-                        region: self.region,
-                        handlerName: routeObject.handlerName || self._getViewControllerHandlerName(routeName)
-                    }, routeObject.viewControllerOptions);
-    
-                    //add the route handler to JSkeleton.Router
-                    self._addAppRoute(routeName, routeObject);
-                    //add the event handler to the app globalChannel
-                    self._addAppEventListener(routeName, routeObject);
-                });
-            }
-    
-        },
-        //
-        _addAppRoute: function(routeString, routeObject) {
             var self = this;
     
-            this.router.route(routeString, {
-                viewControllerHandler: true,
-                triggerEvent: routeObject.triggerEvent,
-                handlerName: routeObject.handlerName
-            }, function(args, handlerName) {
-                self._processNavigation(routeString, routeObject, handlerName, args);
+            this.router.addApplicationRoutes(this.routes);
+    
+            this.listenTo(this.router, 'navigate', function(opts) {
+                self._processNavigation(opts.routeString, opts.routeObject, opts.params /*, handlerName, args*/ );
             });
-        },
-        //Add listen to a global event changing the url with the event parameters and calling to the view-controller.
-        //This method is called for every.
-        //Recieves a routeString to update the navigation url and the declared application route object
-        _addAppEventListener: function(routeString, routeObject) {
-            //If a eventListener is defined for this route
-            if (routeObject.eventListener) {
-                var self = this,
-                    handlerName = routeObject.handlerName || this._getViewControllerHandlerName(routeString);
     
-                //Add the event listener to the global channel
-                this.listenTo(this.globalChannel, routeObject.eventListener, function(args) {
-                    self._processNavigation(routeString, routeObject, handlerName, args);
-                });
-            }
         },
         //Process a navigation (either event or route navigation).
         //Check if the navigation should be completed (if all the filters success).
         //Also call to the declared middlewares before navigate.
-        _processNavigation: function(routeString, routeObject, handlerName, args) {
+        _processNavigation: function(routeString, routeObject, args, handlerName) {
     
             if (this._routeFilterProcessing(routeString, routeObject, args)) {
     
@@ -13462,7 +13704,7 @@
                     this._navigateTo.call(this, routeString, routeObject, args);
                 }
     
-                this.invokeViewControllerRender(routeObject, args, handlerName);
+                this.invokeViewControllerRender(routeObject, args, handlerName || 'processContext');
             }
     
         },
@@ -13526,17 +13768,6 @@
                 }
             }
         },
-        //Internal method to retrieve the name of the view-controller method to call before render the view
-        _getViewControllerHandlerName: function(routeString) {
-            var handlerName = this.routes[routeString].handlerName || this.router._getHandlerNameFromRoute(routeString);
-    
-            if (!this.routes[routeString].handlerName) {
-                //set the route handler name to the app route object
-                this.routes[routeString].handlerName = handlerName;
-            }
-    
-            return handlerName;
-        },
         _use: function(type, fn) {
             var offset = 1;
             var fns = _.flatten(Array.prototype.slice.call(arguments, offset));
@@ -13559,7 +13790,7 @@
                 //get the view-controller instance (if it exists)
                 viewController = routeObject._viewController,
                 //get the view-controller class
-                ViewControllerClass = routeObject._ViewController,
+                ViewControllerClass = routeObject.viewControllerClass,
                 //get the view-controller options
                 viewControllerOptions = routeObject._viewControllerOptions || {};
     
@@ -13599,6 +13830,7 @@
         },
         //Attach application events to the global channel (triggers and listeners)
         _proxyEvents: function(options) {
+            options = options || {};
             var events = options.events || this.events || {};
     
             this._proxyTriggerEvents(events.triggers);
@@ -13659,335 +13891,6 @@
         }
     }, {
         factory: JSkeleton.Utils.FactoryAdd
-    });
-    
-    'use strict';
-    
-    /*globals Marionette, JSkeleton, _, Backbone */
-    
-    /* jshint unused: false */
-    
-    //## Application
-    //  Application class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
-    //  It initializes `regions, events, routes, channels and child applications`.
-    //  It has a global channel to communicate with others apps and a private channel to communicate with it's components,
-    //  A JSkeleton webapp can contain many JSkeleton.Applications.
-    //  A `JSkeleton.Application` can define multiple child applications (`JSkeleton.ChildApplication`).
-    JSkeleton.Application = JSkeleton.BaseApplication.extend({
-        //Default el dom reference if no `el` it's specified
-        defaultEl: 'body',
-        //Main region name. Will be 'main' by default
-        mainRegionName: 'main',
-        waitBeforeStartHooks: true,
-        constructor: function(options) {
-    
-            options = options || {};
-    
-            this.el = options.el || this.el || this.defaultEl;
-    
-            this._region = options.region || this.mainRegionName;
-    
-            //`JSkeleton.BaseApplication` constructor
-            JSkeleton.BaseApplication.prototype.constructor.apply(this, arguments);
-    
-            this.applications = options.applications || this.applications || {};
-    
-            this._beforeStartHooks = _.clone(this.beforeStartHooks);
-    
-            //private object instances of applications
-            this._childApps = {};
-    
-            return this;
-    
-        },
-        //Method to start the application, start the `ChildApplications` and start listening routes/events.
-        //This method will wait until the beforeStartHooks defined in the application will be completed (with a promise).
-        //If an option waitBeforeStartHooks it's set to false, the application won't wait hooks before start.
-        start: function(options) {
-    
-            // this.renderInitialState();s
-    
-            //Wait for all the JSkeleton.extensions
-            if (this.waitBeforeStartHooks) {
-    
-                this.triggerMethod('before:extension:start', options);
-    
-                var self = this;
-    
-                this._waitBeforeStartHooks().then(function() {
-    
-                    self.triggerMethod('extension:start', options);
-    
-                    self._startApplication(options);
-                });
-    
-            } else {
-                this._startApplication(options);
-            }
-    
-        },
-    
-        //Method to start listening the `Backbone.Router`
-        //Only a `JSkeleton.Application' can start a `JSkeleton.Router` instance.
-        //The JSkeleton.Router is created by the `JSkeleton.Application` objects and injected to the `JSkeleton.ChildApplication`.
-        startRouter: function() {
-            this.router.start();
-        },
-    
-        _startApplication: function(options) {
-    
-            //trigger before:start event and call to onBeforeStart method if it's defined in the application object
-            this.triggerMethod('before:start', options);
-    
-            // Create a layout for the application if a viewController its defined
-            this._createApplicationViewController();
-    
-            //initialize and start child applications defined in the application object
-            this._initChildApplications(options);
-    
-            JSkeleton.BaseApplication.prototype.start.apply(this, arguments);
-    
-            //Start the `JSkeleton.Router` to listen to Backbone.History and to listen to the global channel events
-            this.startRouter();
-    
-            //trigger start event and call to onStart method if it's defined in the application object
-            this.triggerMethod('start', options);
-    
-        },
-    
-        //Method to wait for all before start hooks defined inside the application object and inside `JSkeleton` namespace.
-        // The beforeStartHooks have to be an array with methods that return promises.
-        // These promises will be the wait condition.
-        _waitBeforeStartHooks: function() {
-    
-            //get the beforeStart application Hooks and ensure that the Hooks are an array
-            var beforeStartHooks = _.isArray(this._beforeStartHooks) ? this._beforeStartHooks : [this._beforeStartHooks],
-                //get the beforeStart JSkeleton global Hooks and ensure that the Hooks are an array
-                lookUpHooks = _.isArray(JSkeleton.beforeStartHooks) ? JSkeleton.beforeStartHooks : [JSkeleton.beforeStartHooks],
-                //Concat the hooks to iterate over them
-                hooks = lookUpHooks.concat(beforeStartHooks),
-                self = this,
-                promises = [];
-    
-            _.each(hooks, function(fnHook) {
-                if (typeof fnHook === 'function') {
-                    promises.push(fnHook.call(self));
-                }
-            });
-    
-            return JSkeleton.Promise.all(promises);
-        },
-    
-        //Private method to initialize the application regions
-        _initializeRegions: function() {
-            //ensure initial root DOM reference is available
-            this._ensureEl();
-    
-            Marionette.Application.prototype._initializeRegions.apply(this, arguments);
-    
-            // Create root region on root DOM reference
-            this._createMainRegion();
-        },
-    
-        //Private method to ensure that the main application has a dom reference where create the root webapp region
-        _ensureEl: function() {
-            if (!this.$el) {
-                if (!this.el) {
-    
-                    throw new Error('It is necessary to define a \'el\' for Main App');
-                }
-                this.$el = $(this.el);
-            }
-        },
-    
-        //Add the root region to the main application
-        _createMainRegion: function() {
-    
-            if (this._region instanceof Marionette.Region) {
-                //TODO
-            } else {
-                //create a new `JSkeleton.Region`
-                var mainRegion = {};
-    
-                mainRegion[this._region] = this.el;
-    
-                this.addRegions(mainRegion);
-            }
-        },
-    
-        //Create a layout for the Application to have more regions availables.
-        //The application expose the layout regions to the application object as own properties.
-        _createApplicationViewController: function() {
-    
-            //ensure viewController object is defined
-            if (this.viewController) {
-                //get viewController class
-                var ViewController = typeof this.viewController === 'object' && this.viewController.viewControllerClass ? this.viewController.viewControllerClass : this.viewController,
-                    //get the viewController that will be passed to the view controller constructor
-                    viewControllerOptions = typeof this.viewController === 'object' && this.viewController.viewControllerOptions ? this.viewController.viewControllerOptions : {},
-                    //extend viewController template
-                    viewControllerExtendTemplate = typeof this.viewController === 'object' && this.viewController.template ? {
-                        template: this.viewController.template
-                    } : undefined,
-                    handlerName = this.viewController.handlerName ? this.viewController.handlerName : '';
-    
-                viewControllerOptions = _.extend(viewControllerOptions, {
-                    app: this,
-                    channel: this.privateChannel
-                });
-    
-                //create the view-controller instance
-                this._viewController = this.getInstance(ViewController, viewControllerExtendTemplate, viewControllerOptions);
-    
-                //Show the view-controller in the application main region
-                this[this.mainRegionName].show(this._viewController);
-    
-                //expose the view-controller regions to the application object
-                this._addViewControllerRegions();
-            }
-    
-        },
-    
-        //Expose view-controller regions to the application namespace
-        _addViewControllerRegions: function() {
-            var self = this;
-            if (this._viewController.regionManager.length > 0) {
-                _.each(this._viewController.regionManager._regions, function(region, regionName) {
-                    self[regionName] = region;
-                });
-            }
-        },
-    
-        //Iterate over child applications to start each one
-        _initChildApplications: function() {
-            if (!this.isChildApp) {
-    
-                var self = this;
-    
-                _.each(this.applications, function(appOptions, appName) {
-                    self._initChildApplication(appName, appOptions);
-                });
-    
-                //trigger onApplicationsStart event when all the `JSkeleton.ChildApplication` are started and before the application router it's started
-                this.triggerMethod('applications:start');
-            }
-        },
-    
-        //Start child application with it's dependencies injected
-        _initChildApplication: function(appName, appOptions) {
-            appOptions = appOptions || {};
-    
-            //get application class definition (could be either a factory key string or an application class)
-            var appClass = appOptions.applicationClass, //DI: this.getClass(appOptions.applicationClass)
-                startWithParent = appOptions.startWithParent !== undefined ? appOptions.startWithParent : true;
-    
-            //Get the region where the `JSkeleton.ChildApplication` logic the `JSkeleton.ChildApplication` layout and the `JSkeleton.ChildApplication` view-controllers will be 'rendered'.
-            //It would be the main application region by default, but if a layout it's defined for the Application object, a different region must be defined.
-            appOptions.region = this._getChildAppRegion(appOptions);
-    
-            //Ommit instanciate config options
-            var instanceOptions = _.omit(appOptions, 'applicationClass', 'startWithParent'),
-                //Instance the `JSkeleton.ChildApplication` class with the `JSkeleton.ChildApplication` options specified
-                instance = this.getInstance(appClass, {}, instanceOptions); //DI: resolve dependencies with the injector (using the factory object maybe)
-    
-            //expose the child application instance
-            this._childApps[appName] = instance;
-    
-            //Start child application
-            if (startWithParent === true) {
-                this.startChildApplication(instance, instanceOptions.startOptions);
-            }
-        },
-    
-        //Get the region where a `JSkeleton.ChildApplication` will be rendered when process a route or an event
-        _getChildAppRegion: function(appOptions) {
-            var region,
-                regionName = appOptions.region || this.mainRegionName;
-    
-            //retrieve the region from the application layout (if it exists)
-            if (this._viewController && this._viewController.regionManager) {
-                region = this._viewController.regionManager.get(regionName);
-            }
-    
-            //if the region isn`t in the application layout, retrieve the region from the application region manager defined as application region
-            if (!region) {
-                region = this._regionManager.get(regionName);
-            }
-    
-            //the region must exists
-            if (!region) {
-                throw new Error('The region must exist in the Application.');
-            }
-    
-            return region;
-        },
-    
-        //Method to explicit start a child app instance
-        startChildApplication: function(childApp, options) {
-            childApp.start(options);
-        },
-    
-        //Get child app instance by name
-        getChildApplication: function(appName) {
-            return this._childApps[appName];
-        }
-    });
-    
-    'use strict';
-    
-    /*globals Marionette, JSkeleton, _, Backbone */
-    
-    /* jshint unused: false */
-    
-    //## ChildApplication
-    //  ChildApplication class is a 'container' where to store your webapp logic and split it into small 'pieces' and 'components'.
-    //  It initializes regions, events, routes and channels.
-    //  It cannot contain child applications.
-    JSkeleton.ChildApplication = JSkeleton.BaseApplication.extend({
-        //Default parent region name where the application will be rendered
-        defaultRegion: 'root',
-        constructor: function(options) {
-            options = options || {};
-            //reference to the parent app
-            this.parentApp = options.parentApp;
-    
-            if (!options.region) {
-                throw new Error('Child App must have a specific region.');
-            }
-    
-            //Add the injected region as root
-            this.mainRegion = options.region;
-    
-            //JSkeleton.BaseApplication constructor
-            JSkeleton.BaseApplication.prototype.constructor.apply(this, arguments);
-    
-            return this;
-        },
-        //Method to start the application and listening routes/events
-        start: function(options) {
-            this.triggerMethod('before:start', options);
-    
-            JSkeleton.BaseApplication.prototype.start.apply(this, arguments);
-            // this._initAppEventsListeners(options);
-    
-            this.triggerMethod('start', options);
-        },
-        //Private method to initialize de application regions
-        _initializeRegions: function() {
-            //ensure initial root region is available
-            this._ensureMainRegion();
-    
-            Marionette.Application.prototype._initializeRegions.apply(this, arguments);
-    
-            // Create a layout for the application if a layoutView its defined
-            // this._createLayoutApp();
-        },
-        //Private method to ensure that parent region exists
-        _ensureMainRegion: function() {
-            if (!this.mainRegion || typeof this.mainRegion.show !== 'function') {
-                throw new Error('It is necessary to define a region for Child App.');
-            }
-        }
     });
     'use strict';
     
@@ -14320,6 +14223,8 @@
 
     JSkeleton.di = new JSkeleton.Di();
     JSkeleton.extension = new JSkeleton.Extension();
+
+    JSkeleton.globalChannel = Backbone.Radio.channel('global');
 
     return JSkeleton;
 
