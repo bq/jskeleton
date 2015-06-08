@@ -1,0 +1,28 @@
+{
+    "name": "bq/jskeleton",
+    "version": "0.1",
+    "description": "Jskeleton is an awesome javascript framework to build large scale applications.",
+    "type": "javascript framework",
+    "repositories": {
+        "type": "git",
+        "url": "git@github.com:bq/penguin.git"
+    },
+    "keywords": [
+        "jskeleton",
+        "jquery",
+        "javascript",
+        "framework",
+        "spa",
+        "html5",
+        "marionette",
+        "backbone"
+    ],
+    "homepage": "https://jskeleton.docs.bqws.io",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/bq/jskeleton/issues"
+    },
+    "require": {
+        "jquery": "2.1.1"
+    }
+}

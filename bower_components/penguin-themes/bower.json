@@ -1,0 +1,47 @@
+{
+    "name": "penguin-themes",
+    "version": "0.0.1",
+    "description": "A collection themes for Penguin framework (https://github.com/bq/penguin)",
+    "ignore": [
+        "bower_components",
+        "node_modules",
+        ".tmp",
+        "*.log",
+        ".idea",
+        ".gitignore",
+        ".sass-cache",
+        ".travis.yml",
+        ".editorconfig"
+    ],
+    "dependencies": {
+        "penguin": "0.0.4"
+    },
+    "homepage": "https://penguin.docs.bqws.io",
+    "authors": [
+        "front-end bq <front-end@bq.com>",
+        "Álvaro Brito <alvaro.brito@bq.com> <alvarobr85@gmail.com>",
+        "Óscar Ferrándiz <oscar.ferrandiz@bq.com> <oferrandiz@gmail.com>"
+    ],
+    "contributors": [{
+        "name": "José Manuel Guzmán",
+        "email": "josemanuel.guzman@bq.com"
+    }, {
+        "name": "Javier López",
+        "email": "javier.lopez@bq.com"
+    }, {
+        "name": "Eduardo Sainz",
+        "email": "eduardo.sainz@bq.com"
+    }],
+    "keywords": [
+        "penguin",
+        "themes",
+        "jquery",
+        "javascript",
+        "ui",
+        "css",
+        "html5",
+        "sass",
+        "library",
+        "framework"
+    ]
+}

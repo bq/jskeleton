@@ -1,0 +1,38 @@
+{
+    "name": "penguin-themes",
+    "version": "0.0.1",
+    "description": "A collection themes for Penguin framework (https://github.com/bq/penguin)",
+    "repository": {
+        "type": "git",
+        "url": "git@github.com:bq/penguin.git"
+    },
+    "devDependencies": {
+        "grunt-bump": "^0.3.0",
+        "grunt-contrib-clean": "^0.6.0",
+        "grunt-contrib-concat": "^0.5.0",
+        "grunt-contrib-cssmin": "^0.12.2",
+        "grunt-contrib-sass": "^0.9.2",
+        "grunt-contrib-uglify": "^0.7.0",
+        "grunt-conventional-changelog": "^1.1.0",
+        "grunt-contrib-watch": "^0.6.1",
+        "load-grunt-tasks": "^3.1.0"
+    },
+    "engines": {
+        "node": ">=0.10.26"
+    },
+    "authors": [
+        "front-end bq <front-end@bq.com>",
+        "Álvaro Brito <alvaro.brito@bq.com> <alvarobr85@gmail.com>",
+        "Óscar Ferrándiz <oscar.ferrandiz@bq.com> <oferrandiz@gmail.com>"
+    ],
+    "contributors": [{
+        "name": "José Manuel Guzmán",
+        "email": "josemanuel.guzman@bq.com"
+    }, {
+        "name": "Javier López",
+        "email": "javier.lopez@bq.com"
+    }, {
+        "name": "Eduardo Sainz",
+        "email": "eduardo.sainz@bq.com"
+    }]
+}
